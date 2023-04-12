@@ -3,6 +3,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:local ="clr-namespace:DimensionForge._2D.Behavior"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models2D="clr-namespace:DimensionForge._2D.Models"
     xmlns:viewmodels2D="clr-namespace:DimensionForge._2D.ViewModels"
@@ -23,32 +25,49 @@
                 ItemsSource="{Binding Shapes}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                    
-                        <Canvas Width="500"
-                                Height="500"
-                                Background="Blue"/>
-           
-
-                </ItemsPanelTemplate>
+                        <Canvas
+                            Width="{Binding ActualWidth, ElementName=canvas}"
+                            Height="{Binding ActualHeight, ElementName=canvas}"
+                            Background="White" />
+                    </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
 
                 <ItemsControl.Resources>
                     <DataTemplate DataType="{x:Type models2D:Circle2D}">
-                                              
                         <Ellipse
                             Width="{Binding Diameter}"
                             Height="{Binding Diameter}"
-                            Fill="{Binding FillColor}"
+                            Fill="{Binding FillColor, Converter={StaticResource color2brush}}"
                             Stroke="{Binding StrokeColor}"
                             StrokeThickness="{Binding StrokeThickness}">
                             <Ellipse.RenderTransform>
                                 <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}" />
                             </Ellipse.RenderTransform>
+                            <i:Interaction.Behaviors>
+                                <local:ShapeClickBehavior Command="{Binding ClickCommand}"/>
+                                <local:ShapeDragBehavior/>
 
+                            </i:Interaction.Behaviors>
                         </Ellipse>
-
-
                     </DataTemplate>
+
+                    <DataTemplate DataType="{x:Type models2D:Rectangle2D}">
+                        <Rectangle
+                            Width="{Binding Width}"
+                            Height="{Binding Height}"
+                            Fill="{Binding FillColor, Converter={StaticResource color2brush}}"
+                            >
+                            
+                            <Rectangle.RenderTransform>
+                                <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}" />
+                            </Rectangle.RenderTransform>
+                                                                             
+                        </Rectangle>
+                    </DataTemplate>
+
+
+
+
                 </ItemsControl.Resources>
             </ItemsControl>
         </Border>

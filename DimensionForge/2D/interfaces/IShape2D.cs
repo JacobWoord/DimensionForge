@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace DimensionForge._2D.interfaces
 {
@@ -10,9 +11,11 @@ namespace DimensionForge._2D.interfaces
     {
 
         Guid Id { get; set; }
-        System.Drawing.Point Position { get; set; }
-        System.Drawing.Color FillColor { get; set; }
-        System.Drawing.Color StrokeColor { get; set; }
-        float StrokeThickness { get; set; } 
+        Point Position { get; set; }
+        System.Windows.Media.Color FillColor { get; set; }
+        System.Windows.Media.Color StrokeColor { get; set; }
+        float StrokeThickness { get; set; }
+        public void Select();
+        public void Deselect();
     }
 }

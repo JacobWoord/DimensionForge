@@ -1,38 +1,48 @@
-﻿using DimensionForge._2D.interfaces;
-using DimensionForge._2D.Models;
-using System;
-using System.Collections.Generic;
+﻿using DimensionForge._2D.Models;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media;
 
 namespace DimensionForge._2D.ViewModels
 {
     public partial class Canvas2DViewModel : ObservableObject
     {
 
-        public Canvas2DViewModel() 
-        { 
+        public Canvas2DViewModel()
+        {
 
-            DrawCircle();
-
+            var c = DrawCircle();
+            var r = DrawRectangle();
+            Shapes.Add(r);
+            Shapes.Add(c);
         }
-        
 
 
         [ObservableProperty]
-        ObservableCollection<Shape2D> shapes = new(); 
+        ObservableCollection<Shape2D> shapes = new();
 
 
-
-        void DrawCircle()
+        Circle2D DrawCircle()
         {
             var circle = new Circle2D();
-            circle.Position = new System.Drawing.Point(50, 50);
-            circle.FillColor = System.Drawing.Color.FromArgb(255, 255, 0, 0);
-            circle.Diameter = 100f;
-            Shapes.Add(circle);
+            circle.Position = new Point(0, 0);
+            circle.FillColor = System.Windows.Media.Color.FromRgb(255, 255, 0);
+            circle.Diameter = 300f;
+
+            return circle;
         }
+
+        Rectangle2D DrawRectangle()
+        {
+            var rect = new Rectangle2D();
+            rect.Width = 100;
+            rect.Height = 100;
+            rect.FillColor = Color.FromRgb(255, 255, 0);
+            rect.Position = new Point(50, 50);
+
+            return rect;
+
+        }
+
     }
 }
