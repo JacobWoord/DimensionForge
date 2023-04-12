@@ -6,9 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace DimensionForge._2D.Models
-{
-
-   
+{  
     public partial class Circle2D : Shape2D
     {
 

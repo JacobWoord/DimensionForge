@@ -13,6 +13,8 @@ using System.Windows;
 using DimensionForge.Main.ViewModels;
 using DimensionForge._2D.ViewModels;
 using DimensionForge._2D.Views;
+using DimensionForge._3D.ViewModels;
+using DimensionForge._3D.Views;
 
 namespace DimensionForge
 {
@@ -31,9 +33,11 @@ namespace DimensionForge
             serviceCollection.AddSingleton<MainViewModel>();
             serviceCollection.AddSingleton<Canvas2DViewModel>();
             serviceCollection.AddSingleton<MainWindow>();
+            serviceCollection.AddSingleton<ViewPort3DXViewModel>();
+
             
             serviceCollection.AddTransient<Canvas2DView>();
-
+            serviceCollection.AddTransient<ViewPort3DXView>();
 
             serviceProvider = serviceCollection.BuildServiceProvider();
             Ioc.Default.ConfigureServices(serviceProvider);

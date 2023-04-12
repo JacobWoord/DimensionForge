@@ -4,16 +4,18 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-    xmlns:local ="clr-namespace:DimensionForge._2D.Behavior"
+    xmlns:local="clr-namespace:DimensionForge._2D.Behavior"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models2D="clr-namespace:DimensionForge._2D.Models"
     xmlns:viewmodels2D="clr-namespace:DimensionForge._2D.ViewModels"
+    xmlns:tools ="clr-namespace:DimensionForge._2D.Tools"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
-
+   
     <UserControl.DataContext>
         <viewmodels2D:Canvas2DViewModel />
+        
     </UserControl.DataContext>
     <Grid>
 
@@ -26,6 +28,7 @@
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas
+                            x:Name="canvasElement"
                             Width="{Binding ActualWidth, ElementName=canvas}"
                             Height="{Binding ActualHeight, ElementName=canvas}"
                             Background="White" />
@@ -44,8 +47,8 @@
                                 <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}" />
                             </Ellipse.RenderTransform>
                             <i:Interaction.Behaviors>
-                                <local:ShapeClickBehavior Command="{Binding ClickCommand}"/>
-                                <local:ShapeDragBehavior/>
+                                <local:ShapeClickBehavior Command="{Binding SelectCommand}" />
+                                <local:ShapeDragBehavior />
 
                             </i:Interaction.Behaviors>
                         </Ellipse>
@@ -55,13 +58,19 @@
                         <Rectangle
                             Width="{Binding Width}"
                             Height="{Binding Height}"
-                            Fill="{Binding FillColor, Converter={StaticResource color2brush}}"
-                            >
-                            
+                            Fill="{Binding FillColor, Converter={StaticResource color2brush}}">
+
                             <Rectangle.RenderTransform>
                                 <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}" />
                             </Rectangle.RenderTransform>
-                                                                             
+
+                            <i:Interaction.Behaviors>
+
+                                <local:ShapeDragBehavior />
+                                <local:ShapeClickBehavior Command="{Binding SelectCommand}" />
+
+                            </i:Interaction.Behaviors>
+
                         </Rectangle>
                     </DataTemplate>
 
@@ -71,6 +80,16 @@
                 </ItemsControl.Resources>
             </ItemsControl>
         </Border>
+
+
+        <Button
+            Width="100"
+            Height="30"
+            Margin="0,0,10,10"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Command="{Binding DrawCircleCommand}"
+            Content="Click me!" />
 
 
 

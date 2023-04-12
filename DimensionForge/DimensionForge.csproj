@@ -13,14 +13,13 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0-preview2" />
+    <PackageReference Include="HelixToolkit.SharpDX.Core.Wpf" Version="2.23.0" />
     <PackageReference Include="MaterialDesignThemes" Version="4.8.1-ci223" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0-preview.3.23174.8" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="3D\Models\" />
-    <Folder Include="3D\ViewModels\" />
-    <Folder Include="3D\Views\" />
     <Folder Include="Main\Models\" />
     <Folder Include="Main\Views\" />
   </ItemGroup>

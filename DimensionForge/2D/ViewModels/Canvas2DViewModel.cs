@@ -1,6 +1,9 @@
-﻿using DimensionForge._2D.Models;
+﻿using DimensionForge._2D.interfaces;
+using DimensionForge._2D.Models;
+using System;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace DimensionForge._2D.ViewModels
@@ -8,40 +11,61 @@ namespace DimensionForge._2D.ViewModels
     public partial class Canvas2DViewModel : ObservableObject
     {
 
+        public Canvas CanvasElement { get; set; }
+
         public Canvas2DViewModel()
         {
 
-            var c = DrawCircle();
-            var r = DrawRectangle();
-            Shapes.Add(r);
-            Shapes.Add(c);
-        }
+            // DrawCircle();
+             DrawRectangle();
+          
+      }
 
 
         [ObservableProperty]
-        ObservableCollection<Shape2D> shapes = new();
+        ObservableCollection<IShape2D> shapes = new();
 
 
-        Circle2D DrawCircle()
+
+        //[RelayCommand]
+        //public void DrawCircle1()
+        //{
+        //    var circle = new Circle2D();
+
+        //    // Generate random X and Y positions for the circle
+        //    var rand = new Random();
+        //    var canvasWidth = canvas.ActualWidth;
+        //    var canvasHeight = canvas.ActualHeight;
+        //    circle.Position = new Point(rand.NextDouble() * canvasWidth, rand.NextDouble() * canvasHeight);
+
+        //    // Generate random color for the circle
+        //    circle.FillColor = System.Windows.Media.Color.FromRgb((byte)rand.Next(256), (byte)rand.Next(256), (byte)rand.Next(256));
+
+        //    circle.Diameter = 300f;
+        //    Shapes.Add(circle);
+        //}
+
+       
+        
+       [RelayCommand]
+       public void DrawCircle()
         {
             var circle = new Circle2D();
             circle.Position = new Point(0, 0);
             circle.FillColor = System.Windows.Media.Color.FromRgb(255, 255, 0);
             circle.Diameter = 300f;
+            Shapes.Add(circle);
 
-            return circle;
         }
 
-        Rectangle2D DrawRectangle()
+        void DrawRectangle()
         {
-            var rect = new Rectangle2D();
-            rect.Width = 100;
-            rect.Height = 100;
-            rect.FillColor = Color.FromRgb(255, 255, 0);
-            rect.Position = new Point(50, 50);
-
-            return rect;
-
+            var rectangle = new Rectangle2D();
+            rectangle.Width = 100;
+            rectangle.Height = 100;
+            rectangle.FillColor = Color.FromRgb(255, 255, 0);
+            rectangle.Position = new Point(50, 50);
+            Shapes.Add(rectangle);
         }
 
     }

@@ -56,10 +56,10 @@ namespace DimensionForge._2D.Models
         {
             id = Guid.NewGuid();
         }
-
+        [RelayCommand]
         public void Select()
         {
-            IsSelected &= !IsSelected;
+            IsSelected = !IsSelected;
         }
 
         public void Deselect()

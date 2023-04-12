@@ -57,13 +57,13 @@
                 <Grid Background="{DynamicResource PrimaryHueMidBrush}">
                     <ListBox>
                         <ListBoxItem>
-                            <TextBlock Text="Home" Margin="16" Foreground="White" />
+                            <TextBlock Text="2D Viewer" Margin="16" Foreground="White" />
                         </ListBoxItem>
                         <ListBoxItem>
-                            <TextBlock Text="Settings" Margin="16" Foreground="White" />
+                            <TextBlock Text="3D Viewer" Margin="16" Foreground="White" />
                         </ListBoxItem>
                         <ListBoxItem>
-                            <TextBlock Text="About" Margin="16" Foreground="White" />
+                            <TextBlock Text="Quit" Margin="16" Foreground="White" />
                         </ListBoxItem>
                     </ListBox>
                 </Grid>

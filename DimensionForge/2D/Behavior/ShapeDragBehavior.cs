@@ -1,6 +1,8 @@
-﻿using Microsoft.Xaml.Behaviors;
+﻿using DimensionForge._2D.interfaces;
+using Microsoft.Xaml.Behaviors;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +13,8 @@ using System.Windows.Shapes;
 
 namespace DimensionForge._2D.Behavior
 {
+
+
     public class ShapeDragBehavior : Behavior<Shape>
     {
         private Point _lastMousePosition;
@@ -43,10 +47,13 @@ namespace DimensionForge._2D.Behavior
             {
                 Point currentPosition = e.GetPosition(AssociatedObject);
                 Vector offset = currentPosition - _lastMousePosition;
-                Canvas.SetLeft(AssociatedObject, Canvas.GetLeft(AssociatedObject) + offset.X);
-                Canvas.SetTop(AssociatedObject, Canvas.GetTop(AssociatedObject) + offset.Y);
+                var shape = AssociatedObject.DataContext as IShape2D;
+                shape.Position = new Point(shape.Position.X + offset.X, shape.Position.Y + offset.Y);
                 _lastMousePosition = currentPosition;
-                Console.WriteLine("moveeeeee");
+
+
+                Debug.Write($"Move: {shape.Position.X}, {shape.Position.Y}");
+
             }
         }
 
