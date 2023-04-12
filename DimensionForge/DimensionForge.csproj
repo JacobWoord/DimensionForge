@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="3D\Models\" />
     <Folder Include="Main\Models\" />
     <Folder Include="Main\Views\" />
   </ItemGroup>

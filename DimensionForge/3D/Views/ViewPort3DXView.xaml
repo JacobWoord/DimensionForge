@@ -14,11 +14,27 @@
     <Grid>
 
         <helix:Viewport3DX
-            Camera="{Binding}">
+            Camera="{Binding Camera}"
+            EffectsManager="{Binding EffectsManager}">
             
-        </helix:Viewport3DX>
-        
-   
+            
 
-        </Grid>
+            <helix:AmbientLight3D>
+                
+            </helix:AmbientLight3D>
+
+            <helix:ItemsModel3D ItemsSource="{Binding Shapes}">
+                <helix:ItemsModel3D.ItemTemplate>
+                    <DataTemplate>
+                        <helix:MeshGeometryModel3D
+                            Geometry="{Binding Geometry3D}"
+                            Material="{Binding Material}"/>
+                    </DataTemplate>
+                </helix:ItemsModel3D.ItemTemplate>
+            </helix:ItemsModel3D>
+ 
+        </helix:Viewport3DX>
+
+
+   </Grid>
 </UserControl>
