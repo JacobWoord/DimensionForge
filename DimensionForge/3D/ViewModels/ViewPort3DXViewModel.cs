@@ -27,8 +27,8 @@ namespace DimensionForge._3D.ViewModels
         
         public ViewPort3DXViewModel()
         {
-
             this.EffectsManager = new DefaultEffectsManager();
+
 
             // Create and set up the camera
             Camera = new HelixToolkit.Wpf.SharpDX.PerspectiveCamera
@@ -40,16 +40,11 @@ namespace DimensionForge._3D.ViewModels
             };
 
 
-
-
             AddShape();
-
-
             AmbientLight = new AmbientLight3D
             {
                 Color = Color.FromRgb(64, 64, 64)
             };
-
 
             DirectionalLight = new DirectionalLight3D
             {
@@ -57,7 +52,6 @@ namespace DimensionForge._3D.ViewModels
                 Direction = new Vector3D(-1, -1, -1)
             };
         }
-
 
         [ObservableProperty]
         ObservableCollection<IShape3D> shapes = new();
