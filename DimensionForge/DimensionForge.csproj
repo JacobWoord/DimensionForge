@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="2D\Views\Canvas2D.xaml~RF5630471.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0-preview2" />
+    <PackageReference Include="MaterialDesignThemes" Version="4.8.1-ci223" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0-preview.3.23174.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="3D\Models\" />
+    <Folder Include="3D\ViewModels\" />
+    <Folder Include="3D\Views\" />
+    <Folder Include="Main\Models\" />
+    <Folder Include="Main\Views\" />
+  </ItemGroup>
+
+</Project>
