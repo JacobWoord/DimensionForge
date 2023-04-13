@@ -9,20 +9,11 @@ namespace DimensionForge._2D.Models
 {  
     public partial class Circle2D : Shape2D
     {
-
-        private float diameter = 300f;
-        public float Diameter
-        {
-            get => diameter;
-            set => SetProperty(ref diameter, value);
-        }
-
-
-
+        [ObservableProperty]
+        float diameter = 300f;
+   
         public Circle2D()
         {
-            
-
 
         }
     }

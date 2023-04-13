@@ -10,7 +10,7 @@ namespace DimensionForge._2D.interfaces
     public interface IShape2D
     {
 
-        Guid Id { get; set; }
+        string ID { get; set; }
         Point Position { get; set; }
         System.Windows.Media.Color FillColor { get; set; }
         System.Windows.Media.Color StrokeColor { get; set; }

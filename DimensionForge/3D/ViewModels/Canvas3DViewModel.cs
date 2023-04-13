@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -16,19 +17,18 @@ using System.Windows.Media.Media3D;
 namespace DimensionForge._3D.ViewModels
 {
 
-    public partial class ViewPort3DXViewModel : ObservableObject
+    public partial class Canvas3DViewModel : ObservableObject
     {
-
+        [JsonIgnore]
         public HelixToolkit.Wpf.SharpDX.PerspectiveCamera Camera { get; set; }
-        public AmbientLight3D AmbientLight { get; set; }
-        public DirectionalLight3D DirectionalLight { get; set; }
-        public  EffectsManager EffectsManager { get; set; }
 
-        
-        public ViewPort3DXViewModel()
+        [JsonIgnore]
+        public EffectsManager EffectsManager { get; set; }
+
+
+        public Canvas3DViewModel()
         {
             this.EffectsManager = new DefaultEffectsManager();
-
 
             // Create and set up the camera
             Camera = new HelixToolkit.Wpf.SharpDX.PerspectiveCamera
@@ -37,29 +37,39 @@ namespace DimensionForge._3D.ViewModels
                 LookDirection = new Vector3D(0, 0, -1),
                 UpDirection = new Vector3D(0, 1, 0),
                 FieldOfView = 45
-            };
 
-
-            AddShape();
-            AmbientLight = new AmbientLight3D
-            {
-                Color = Color.FromRgb(64, 64, 64)
             };
+            ModelData = new List<IModelData>();
+            Camera.CreateViewMatrix();
 
-            DirectionalLight = new DirectionalLight3D
-            {
-                Color = Color.FromRgb(240, 240, 240),
-                Direction = new Vector3D(-1, -1, -1)
-            };
+            ModelData.Add(new SphereData { Radius = 100 });
+
+            Draw();
         }
 
+        public void Draw()
+        {
+            foreach (var data in ModelData)
+            {
+                if (data is SphereData s)
+                    Shapes.Add(new Sphere3D(s));
+            }
+        }
+
+
         [ObservableProperty]
+        [JsonIgnore]
         ObservableCollection<IShape3D> shapes = new();
 
 
-        public void AddShape()
+        public List<IModelData> ModelData { get; set; } 
+
+
+
+        [RelayCommand]
+        void AddShape()
         {
-            shapes.Add(new Sphere3D());
+            //Shapes.Add(new Sphere3D(100));
         }
     }
 }

@@ -24,7 +24,7 @@ namespace DimensionForge
     public partial class App : Application
     {
 
-        ServiceProvider serviceProvider;
+      public  ServiceProvider serviceProvider;
 
         public App()
         {
@@ -33,7 +33,7 @@ namespace DimensionForge
             serviceCollection.AddSingleton<MainViewModel>();
             serviceCollection.AddSingleton<Canvas2DViewModel>();
             serviceCollection.AddSingleton<MainWindow>();
-            serviceCollection.AddSingleton<ViewPort3DXViewModel>();
+            serviceCollection.AddSingleton<Canvas3DViewModel>();
 
             
             serviceCollection.AddTransient<Canvas2DView>();

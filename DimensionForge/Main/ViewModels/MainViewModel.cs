@@ -1,37 +1,31 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using DimensionForge._2D.ViewModels;
 using DimensionForge._3D.ViewModels;
-using System;
+using MaterialDesignThemes.Wpf;
+using Microsoft.Win32;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
+using System.Windows;
+
 
 namespace DimensionForge.Main.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        public ICommand NavigationCommand { get; private set; }
-
         [ObservableProperty]
         ObservableObject currentViewModel;
 
         public MainViewModel()
         {
-            NavigationCommand = new RelayCommand<string>(Navigate);
-            CurrentViewModel = Ioc.Default.GetService<Canvas2DViewModel>();
+            CurrentViewModel = Ioc.Default.GetService<Canvas3DViewModel>();
         }
 
-      
-        
-        
-        private void Navigate(string destination)
+        [RelayCommand]
+        void Navigate(string destination)
         {
             switch (destination)
             {
                 case "3DViewer":
-                    CurrentViewModel = Ioc.Default.GetService<ViewPort3DXViewModel>();
+                    CurrentViewModel = Ioc.Default.GetService<Canvas3DViewModel>();
                     break;
                 case "2DViewer":
                     CurrentViewModel = Ioc.Default.GetService<Canvas2DViewModel>();
@@ -40,5 +34,29 @@ namespace DimensionForge.Main.ViewModels
             }
         }
 
+
+        [RelayCommand]
+        void Save()
+        {
+            var dialog = new SaveFileDialog();
+            if (dialog.ShowDialog() == true)
+            {
+                // Save file         
+                if (currentViewModel is Canvas2DViewModel canvas)
+                    Serializer.WriteToJsonFile(dialog.FileName, canvas);
+                else if (currentViewModel is Canvas3DViewModel viewport)
+                    Serializer.WriteToJsonFile(dialog.FileName, viewport);
+            }
+        }
+
+        [RelayCommand]
+        void Load()
+        {
+            var dialog = new OpenFileDialog();
+            if (dialog.ShowDialog() == true)
+            {
+                // Load file
+            }
+        }
     }
 }

@@ -10,22 +10,25 @@ namespace DimensionForge._2D.Models
 {
     public partial class Shape2D : ObservableObject, IShape2D
     {
-
-        private Guid id;  
-        public Guid Id
-        {
-            get => id;
-            set => SetProperty(ref id, value);
-        }
+        public string ID { get; set; }
 
         [ObservableProperty]
         Point position;
-      
+
         [ObservableProperty]
         Color fillColor;
 
         [ObservableProperty]
         bool isSelected;
+        public Color StrokeColor { get; set; }
+        public float StrokeThickness { get; set; }
+
+        public Shape2D()
+        {
+            ID = Guid.NewGuid().ToString();
+        }
+
+
 
         partial void OnIsSelectedChanged(bool oldValue, bool newValue)
         {
@@ -41,30 +44,22 @@ namespace DimensionForge._2D.Models
         }
 
 
-        public System.Windows.Media.Color StrokeColor { get ; set; }
-        public float StrokeThickness { get ; set ; }
-
-
-       
         [RelayCommand]
         void Click()
         {
             FillColor = Color.FromRgb(222, 111, 0);
         }
 
-        public Shape2D()
-        {
-            id = Guid.NewGuid();
-        }
+       
         [RelayCommand]
-        public void Select()
+       public void Select()
         {
             IsSelected = !IsSelected;
         }
 
         public void Deselect()
         {
-            
+
         }
     }
 }

@@ -2,27 +2,41 @@
 using DimensionForge._3D.interfaces;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
-using System.Runtime.InteropServices;
-using System.Windows.Media.Media3D;
+using SharpDX;
+using System;
+using HelixToolkit.SharpDX.Core;
 
 namespace DimensionForge._3D.Models
 {
     public partial class Shape3D : ObservableObject, IShape3D
     {
 
-        private HelixToolkit.Wpf.SharpDX.Material originalMaterial = PhongMaterials.Red;
-
-
+        [ObservableProperty]
+        Material material;
+        public string Id { get; set; }
         public Shape3D()
         {
-            var sphereMesh = new MeshBuilder();
-            sphereMesh.AddSphere(new SharpDX.Vector3(0, 0, 0), 20);
-            this.geometry3D = sphereMesh.ToMeshGeometry3D();
+            transformGroup = new System.Windows.Media.Media3D.Transform3DGroup();
+            material = PhongMaterials.Red;
+            Id = Guid.NewGuid().ToString();
         }
 
 
+
         [ObservableProperty]
-        HelixToolkit.SharpDX.Core.Geometry3D geometry3D;
+        Geometry3D geometry;
+
+        [ObservableProperty]
+        System.Windows.Media.Media3D.Transform3DGroup transformGroup;
+
+
+
+        public virtual void Draw()
+        {
+
+
+        }
+
 
     }
 }

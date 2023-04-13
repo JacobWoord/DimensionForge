@@ -9,31 +9,57 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.DataContext>
-        <viewmodels3D:ViewPort3DXViewModel/>
+        <viewmodels3D:Canvas3DViewModel/>
     </UserControl.DataContext>
     <Grid>
 
         <helix:Viewport3DX
+            BackgroundColor="beige"
+            CameraMode="Inspect"
+            ShowCoordinateSystem="True"
+            ZoomExtentsWhenLoaded="True"
+            IsZoomEnabled="True"
             Camera="{Binding Camera}"
             EffectsManager="{Binding EffectsManager}">
             
-            
-
-            <helix:AmbientLight3D>
-                
-            </helix:AmbientLight3D>
-
+           
             <helix:ItemsModel3D ItemsSource="{Binding Shapes}">
                 <helix:ItemsModel3D.ItemTemplate>
                     <DataTemplate>
                         <helix:MeshGeometryModel3D
-                            Geometry="{Binding Geometry3D}"
-                            Material="{Binding Material}"/>
+                            Geometry="{Binding Geometry}"
+                            Material="{Binding Material}"
+                            EnableViewFrustumCheck="False"
+                            RenderWireframe="True"
+                            Transform="{Binding Transform3DGroup}"/>
                     </DataTemplate>
                 </helix:ItemsModel3D.ItemTemplate>
             </helix:ItemsModel3D>
- 
+
+            <helix:ItemsModel3D ItemsSource="{Binding}">
+                <helix:ItemsModel3D.ItemTemplate>
+                    <DataTemplate>
+                        <helix:BatchedMeshGeometryModel3D>
+
+                        </helix:BatchedMeshGeometryModel3D>
+                    </DataTemplate>
+                </helix:ItemsModel3D.ItemTemplate>
+                
+            </helix:ItemsModel3D>
+                
+                           
+               
+            <helix:SpotLight3D Color="Yellow"/>
+            <helix:AmbientLight3D Color="Green" />
+            <helix:DirectionalLight3D Direction="0,1,-1" Color="LightYellow"/>
+
+
         </helix:Viewport3DX>
+
+        <Button HorizontalAlignment="Right" 
+                VerticalAlignment="Bottom"
+                Margin="10"
+                Command="{Binding AddShapeCommand}">Click Me!</Button>
 
 
    </Grid>

@@ -10,18 +10,10 @@ namespace DimensionForge._2D.ViewModels
 {
     public partial class Canvas2DViewModel : ObservableObject
     {
-
-        public Canvas CanvasElement { get; set; }
-
         public Canvas2DViewModel()
         {
-
-            // DrawCircle();
-             DrawRectangle();
-          
-      }
-
-
+          //  DrawRectangle();
+        }
         [ObservableProperty]
         ObservableCollection<IShape2D> shapes = new();
 
@@ -45,10 +37,10 @@ namespace DimensionForge._2D.ViewModels
         //    Shapes.Add(circle);
         //}
 
-       
-        
-       [RelayCommand]
-       public void DrawCircle()
+
+
+        [RelayCommand]
+        void DrawCircle()
         {
             var circle = new Circle2D();
             circle.Position = new Point(0, 0);
