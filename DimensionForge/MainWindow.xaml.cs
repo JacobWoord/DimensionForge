@@ -22,6 +22,8 @@ namespace DimensionForge
     {
         public MainWindow()
         {
+
+            
             InitializeComponent();
         }
     }

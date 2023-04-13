@@ -1,4 +1,4 @@
-﻿using HelixToolkit.Wpf.SharpDX;
+﻿using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,12 +7,8 @@ using System.Threading.Tasks;
 
 namespace DimensionForge._3D.interfaces
 {
-    public interface IShape3D
+    public interface IModelData
     {
-        Material SetMaterial();
-
-
-        void Draw();
-
+        public Color Color { get; set; }
     }
 }

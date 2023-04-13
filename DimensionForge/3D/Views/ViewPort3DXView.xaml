@@ -8,16 +8,14 @@
              xmlns:helix="http://helix-toolkit.org/wpf/SharpDX"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <UserControl.DataContext>
-        <viewmodels3D:Canvas3DViewModel/>
-    </UserControl.DataContext>
+  
     <Grid>
 
         <helix:Viewport3DX
             BackgroundColor="beige"
             CameraMode="Inspect"
             ShowCoordinateSystem="True"
-            ZoomExtentsWhenLoaded="True"
+            ZoomExtentsWhenLoaded="False"
             IsZoomEnabled="True"
             Camera="{Binding Camera}"
             EffectsManager="{Binding EffectsManager}">
@@ -30,23 +28,29 @@
                             Geometry="{Binding Geometry}"
                             Material="{Binding Material}"
                             EnableViewFrustumCheck="False"
-                            RenderWireframe="True"
+                            RenderWireframe="False"
                             Transform="{Binding Transform3DGroup}"/>
                     </DataTemplate>
                 </helix:ItemsModel3D.ItemTemplate>
             </helix:ItemsModel3D>
 
-            <helix:ItemsModel3D ItemsSource="{Binding}">
+            <!--<helix:ItemsModel3D ItemsSource="{Binding}">
                 <helix:ItemsModel3D.ItemTemplate>
                     <DataTemplate>
-                        <helix:BatchedMeshGeometryModel3D>
+                        <helix:BatchedMeshGeometryModel3D
+                            BatchedGeometries="{Binding BatchedMeshes}"
+                            BatchedMaterials="{Binding ModelMaterials}"
+                            CullMode="{Binding CullMode}"
+                            EnableViewFrustumCheck="False"
+                            Material="{Binding BaseMaterial}"
+                            Transform="{Binding Transform}">
 
                         </helix:BatchedMeshGeometryModel3D>
                     </DataTemplate>
                 </helix:ItemsModel3D.ItemTemplate>
                 
-            </helix:ItemsModel3D>
-                
+            </helix:ItemsModel3D>-->
+       
                            
                
             <helix:SpotLight3D Color="Yellow"/>
@@ -55,12 +59,31 @@
 
 
         </helix:Viewport3DX>
-
-        <Button HorizontalAlignment="Right" 
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button HorizontalAlignment="Right" 
                 VerticalAlignment="Bottom"
                 Margin="10"
-                Command="{Binding AddShapeCommand}">Click Me!</Button>
+                Command="{Binding RandomSpereCommand}">Add sphere</Button>
+
+            <Button HorizontalAlignment="Right" 
+                VerticalAlignment="Bottom"
+                Margin="10"
+                Command="{Binding RandomCylinderCommand}">Add Cylinder</Button>
+
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    Margin="10">
+           
+            <Button Content="Import OBJ file" Command="{Binding ImportCommand}" CommandParameter="C:\MyObjFile.obj"/>
+
+          
+        </StackPanel>
+       
 
 
-   </Grid>
+    </Grid>
 </UserControl>

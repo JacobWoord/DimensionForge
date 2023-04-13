@@ -1,10 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using DimensionForge._2D.ViewModels;
+﻿using DimensionForge._2D.ViewModels;
 using DimensionForge._3D.ViewModels;
-using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
-using System.Collections.Generic;
-using System.Windows;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+
+
 
 
 namespace DimensionForge.Main.ViewModels
@@ -42,10 +42,19 @@ namespace DimensionForge.Main.ViewModels
             if (dialog.ShowDialog() == true)
             {
                 // Save file         
-                if (currentViewModel is Canvas2DViewModel canvas)
-                    Serializer.WriteToJsonFile(dialog.FileName, canvas);
-                else if (currentViewModel is Canvas3DViewModel viewport)
-                    Serializer.WriteToJsonFile(dialog.FileName, viewport);
+                if (currentViewModel is Canvas2DViewModel canvas2d)
+                {
+                    Serializer.WriteToJsonFile(dialog.FileName, canvas2d);
+                }
+
+                else if (currentViewModel is Canvas3DViewModel canvas3d)
+                {
+                   Serializer.WriteToJsonFile(dialog.FileName, canvas3d);
+                   Debug.WriteLine($"Memory address main: {System.Runtime.InteropServices.GCHandle.ToIntPtr(System.Runtime.InteropServices.GCHandle.Alloc(this))}");
+
+                }
+
+
             }
         }
 
@@ -56,6 +65,14 @@ namespace DimensionForge.Main.ViewModels
             if (dialog.ShowDialog() == true)
             {
                 // Load file
+                if (currentViewModel is Canvas2DViewModel canvas2d)
+                    Serializer.PopulateFromJsonFile(canvas2d, dialog.FileName);
+                else if (currentViewModel is Canvas3DViewModel canvas3d)
+                {
+                    Serializer.PopulateFromJsonFile(canvas3d, dialog.FileName);
+                    canvas3d.Draw();
+                }
+
             }
         }
     }

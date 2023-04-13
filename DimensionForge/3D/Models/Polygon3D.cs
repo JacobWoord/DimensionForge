@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 
 namespace DimensionForge._3D.Models
 {
-    public class Cilinder3D : Shape3D
+    public partial class Polygon3D : Shape3D
     {
 
 
+        public Polygon3D()
+        {
+            
+        }
     }
 }

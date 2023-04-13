@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Newtonsoft.Json;
 
 namespace DimensionForge._2D.ViewModels
 {
@@ -15,6 +16,7 @@ namespace DimensionForge._2D.ViewModels
           //  DrawRectangle();
         }
         [ObservableProperty]
+
         ObservableCollection<IShape2D> shapes = new();
 
 
@@ -40,6 +42,7 @@ namespace DimensionForge._2D.ViewModels
 
 
         [RelayCommand]
+        [property: JsonIgnore]
         void DrawCircle()
         {
             var circle = new Circle2D();

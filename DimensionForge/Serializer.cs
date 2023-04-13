@@ -121,10 +121,17 @@ namespace DimensionForge {
                 reader = new StreamReader(filePath);
                 var fileContents = reader.ReadToEnd();
                 reader.Close();
-                JsonConvert.PopulateObject(fileContents, jsonobject);
+                
+                var set = new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.Auto
+                };
+              
+                
+                JsonConvert.PopulateObject(fileContents, jsonobject,set);
             }
             catch (Exception ex) {
-                MessageBox.Show("Error while populating from file", ex.Message);
+                MessageBox.Show(ex.Message,"Error while populating from file");
             }
             finally {
                 if (reader != null)

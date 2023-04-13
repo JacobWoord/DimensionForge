@@ -33,11 +33,8 @@ namespace DimensionForge
             serviceCollection.AddSingleton<MainViewModel>();
             serviceCollection.AddSingleton<Canvas2DViewModel>();
             serviceCollection.AddSingleton<MainWindow>();
-            serviceCollection.AddSingleton<Canvas3DViewModel>();
+            serviceCollection.AddSingleton<Canvas3DViewModel>();           
 
-            
-            serviceCollection.AddTransient<Canvas2DView>();
-            serviceCollection.AddTransient<ViewPort3DXView>();
 
             serviceProvider = serviceCollection.BuildServiceProvider();
             Ioc.Default.ConfigureServices(serviceProvider);
@@ -49,7 +46,6 @@ namespace DimensionForge
 
             MainWindow = serviceProvider.GetService<MainWindow>();
             MainWindow.DataContext = serviceProvider.GetService<MainViewModel>();
-
             MainWindow.Show();
 
             base.OnStartup(e);
