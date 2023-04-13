@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Media3D;
 using System.Xaml;
@@ -31,7 +32,7 @@ namespace DimensionForge._3D.ViewModels
         public EffectsManager EffectsManager { get; set; }
 
 
-             
+
         public Canvas3DViewModel()
         {
             this.EffectsManager = new DefaultEffectsManager();
@@ -45,12 +46,12 @@ namespace DimensionForge._3D.ViewModels
                 FieldOfView = 45
 
             };
-                   
+
             Camera.CreateViewMatrix();
         }
 
-                      
-             
+
+
         public async void Draw()
         {
             shapes.ToList().ForEach(x => x.Draw());
@@ -67,15 +68,15 @@ namespace DimensionForge._3D.ViewModels
             float minRadius = 1;
             float maxRadius = 20;
 
-       
+
             Color[] colors = { Color.DarkRed, Color.Yellow, Color.Green, Color.Blue };
 
             float radius = (float)(rand.NextDouble() * (maxRadius - minRadius) + minRadius);
 
             Color color = colors[rand.Next(colors.Length)];
             Vector3 position = new Vector3((float)rand.NextDouble() * 50 - 25, (float)rand.NextDouble() * 50 - 25, (float)rand.NextDouble() * 50 - 25);
-            Shapes.Add(new Sphere3D { Radius=radius,Color=color, Position=position });
-           // ModelData.Add(new SphereData { Radius = radius, Color = color, Position = position });
+            Shapes.Add(new Sphere3D { Radius = radius, Color = color, Position = position });
+            // ModelData.Add(new SphereData { Radius = radius, Color = color, Position = position });
             Draw();
         }
 
@@ -96,7 +97,7 @@ namespace DimensionForge._3D.ViewModels
             Vector3 endPos = new Vector3((float)rand.NextDouble() * 50 - 25, (float)rand.NextDouble() * 200 - 50, (float)rand.NextDouble() * 50 - 25);
             float length = Vector3.Distance(startPos, endPos);
 
-           // ModelData.Add(new CylinderData { StarPos = startPos, EndPos = endPos, Length = length, Radius = radius, Color = color });
+            // ModelData.Add(new CylinderData { StarPos = startPos, EndPos = endPos, Length = length, Radius = radius, Color = color });
             Draw();
         }
 
@@ -104,7 +105,7 @@ namespace DimensionForge._3D.ViewModels
 
 
         [RelayCommand]
-        void Import()
+        async Task Import()
         {
             var dialog = new OpenFileDialog();
             dialog.DefaultExt = ".obj";
@@ -116,15 +117,16 @@ namespace DimensionForge._3D.ViewModels
                 // Get the selected file path and call your existing import function
                 string filePath = dialog.FileName;
                 // Call your existing import function with the file path
-                Import(filePath);
+                await Import(filePath);
             }
 
         }
 
-        void Import(string filePath)
+        async Task Import(string filePath)
         {
-            //ModelData.Add(new DoorData { Position = new Vector3(0, 0, 0), FilePath = filePath });
-            Draw();
+            var batchedmodel = new ImportedModel(filePath);
+            await batchedmodel.OpenFile();
+            shapes.Add(batchedmodel);   
 
         }
 
@@ -135,7 +137,7 @@ namespace DimensionForge._3D.ViewModels
         ObservableCollection<IShape3D> shapes = new();
 
 
-       // public List<IModelData> ModelData { get; set; } 
+        // public List<IModelData> ModelData { get; set; } 
 
     }
 }

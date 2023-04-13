@@ -8,13 +8,13 @@ using System.Xml.Linq;
 
 namespace DimensionForge._3D.Models
 {
-    public partial class Door : BathedModel3D
+    public partial class ImportedModel : BathedModel3D
     {
-        public Door(DoorData data)
+        public ImportedModel(string fileName)
         {
-            Name =  "Bord";
+            Name = fileName;
             ID = Guid.NewGuid().ToString();
-            FileName = data.FilePath;
+            FileName = fileName;
 
         }
     }
