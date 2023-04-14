@@ -71,6 +71,7 @@ namespace DimensionForge.Main.ViewModels
                 {
                     canvas3d.Shapes.Clear();
                     Serializer.PopulateFromJsonFile(canvas3d, dialog.FileName);
+                    canvas3d.ConvertTransformationsBack();
                     await  canvas3d.Draw();
                 }
 

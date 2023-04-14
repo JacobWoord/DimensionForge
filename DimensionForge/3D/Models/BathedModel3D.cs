@@ -13,12 +13,15 @@ using DimensionForge._3D.Data;
 using Quaternion = System.Windows.Media.Media3D.Quaternion;
 using HelixToolkit.Wpf.SharpDX;
 using DimensionForge.HelperTools;
+using System.Windows.Media;
+using System.Windows;
 
 namespace DimensionForge._3D.Models
 {
 
     public partial class BathedModel3D : ObservableObject, IShape3D
     {
+
         public string ID = Guid.NewGuid().ToString();
         public string Name { get; set; }
         public string Description { get; set; }
@@ -27,6 +30,15 @@ namespace DimensionForge._3D.Models
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public IList<TransformData> TransformDatas { get; set; }
+
+        public BathedModel3D()
+        {
+            batchedMeshes = new List<BatchedMeshGeometryConfig>();
+            modelMaterials = new List<HelixToolkit.Wpf.SharpDX.Material>();
+            TransformDatas = new List<TransformData>();
+            Nodes = new List<Vector3>();
+            transform = new();
+        }
 
         [ObservableProperty]
         [property: JsonIgnore]
@@ -38,7 +50,7 @@ namespace DimensionForge._3D.Models
 
         [ObservableProperty]
         [property: JsonIgnore]
-        HelixToolkit.Wpf.SharpDX.Material baseMaterial = PhongMaterials.Red;
+        HelixToolkit.Wpf.SharpDX.Material baseMaterial = PhongMaterials.Blue;
 
         [property: JsonIgnore]
         public List<Vector3> Nodes { get; set; }
@@ -47,13 +59,7 @@ namespace DimensionForge._3D.Models
         [property: JsonIgnore]
         Transform3DGroup transform;
 
-        public BathedModel3D()
-        {
-            batchedMeshes = new List<BatchedMeshGeometryConfig>();
-            modelMaterials = new List<HelixToolkit.Wpf.SharpDX.Material>();
-            TransformDatas = new List<TransformData>();
-            Nodes = new List<Vector3>();
-        }
+       
         public void Rotate(Vector3D Axis, double Angle)
         {
             var trans = new RotateTransform3D(
@@ -146,6 +152,7 @@ namespace DimensionForge._3D.Models
             log.Info("Transform3DGroup created");
         }
 
+
         public async Task OpenFile()
         {
             if (string.IsNullOrEmpty(FileName))
@@ -171,11 +178,12 @@ namespace DimensionForge._3D.Models
                 Nodes.Add(item.Location);
             }
 
+           
+    
 
 
 
         }
-
         public BoundingBox GetBoundingBox()
         {
             Vector3 min = new Vector3(float.MaxValue);
@@ -205,7 +213,6 @@ namespace DimensionForge._3D.Models
 
             return new BoundingBox(min, max);
         }
-
         public Vector3 GetLocation()
         {
             Vector3 location = new Vector3();
@@ -228,12 +235,12 @@ namespace DimensionForge._3D.Models
             return location;
         }
 
-
+       
 
 
         public HelixToolkit.Wpf.SharpDX.Material SetMaterial()
         {
-            throw new NotImplementedException();
+            return null;
         }
         public async Task Import()
         {

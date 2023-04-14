@@ -46,9 +46,9 @@ namespace DimensionForge._3D.ViewModels
                 Position = new Point3D(0, 0, 10),
                 LookDirection = new Vector3D(0, 0, -1),
                 UpDirection = new Vector3D(0, 1, 0),
-                FarPlaneDistance = 10000,
-                NearPlaneDistance = 0.1,
-                Width = 10000,
+                FarPlaneDistance = 100000,
+                NearPlaneDistance = -10000,
+                Width = 1000000,
 
 
             };
@@ -179,10 +179,13 @@ namespace DimensionForge._3D.ViewModels
         {
             var batchedmodel = new ImportedModel(filePath);
             await batchedmodel.OpenFile();
-
-          
-
             shapes.Add(batchedmodel);
+
+
+
+
+
+         
 
         }
 
@@ -200,6 +203,7 @@ namespace DimensionForge._3D.ViewModels
 
 
             MyViewPort.ZoomExtents(rect3d, 500);
+            MyViewPort.Reset();
         }
 
         public void OnViewportInitialized(Viewport3DX viewport)
@@ -210,6 +214,8 @@ namespace DimensionForge._3D.ViewModels
 
         [ObservableProperty]
         ObservableCollection<IShape3D> shapes = new();
+
+       
 
 
 
