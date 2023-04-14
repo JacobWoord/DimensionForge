@@ -1,6 +1,6 @@
 ﻿using DimensionForge._3D.Data;
 using HelixToolkit.SharpDX.Core;
-using HelixToolkit.Wpf.SharpDX;
+
 using SharpDX;
 using System;
 

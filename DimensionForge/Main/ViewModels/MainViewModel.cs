@@ -1,11 +1,10 @@
 ﻿using DimensionForge._2D.ViewModels;
 using DimensionForge._3D.ViewModels;
+using HelixToolkit.Wpf.SharpDX;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-
-
-
+using System.Threading.Tasks;
 
 namespace DimensionForge.Main.ViewModels
 {
@@ -49,6 +48,7 @@ namespace DimensionForge.Main.ViewModels
 
                 else if (currentViewModel is Canvas3DViewModel canvas3d)
                 {
+                   canvas3d.ConvertTranformations();
                    Serializer.WriteToJsonFile(dialog.FileName, canvas3d);
                    Debug.WriteLine($"Memory address main: {System.Runtime.InteropServices.GCHandle.ToIntPtr(System.Runtime.InteropServices.GCHandle.Alloc(this))}");
 
@@ -59,7 +59,7 @@ namespace DimensionForge.Main.ViewModels
         }
 
         [RelayCommand]
-        void Load()
+        async Task Load()
         {
             var dialog = new OpenFileDialog();
             if (dialog.ShowDialog() == true)
@@ -69,11 +69,15 @@ namespace DimensionForge.Main.ViewModels
                     Serializer.PopulateFromJsonFile(canvas2d, dialog.FileName);
                 else if (currentViewModel is Canvas3DViewModel canvas3d)
                 {
+                    canvas3d.Shapes.Clear();
                     Serializer.PopulateFromJsonFile(canvas3d, dialog.FileName);
-                    canvas3d.Draw();
+                    await  canvas3d.Draw();
                 }
 
             }
         }
+
+    
+
     }
 }

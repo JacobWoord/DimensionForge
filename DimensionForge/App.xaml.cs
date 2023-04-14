@@ -15,6 +15,10 @@ using DimensionForge._2D.ViewModels;
 using DimensionForge._2D.Views;
 using DimensionForge._3D.ViewModels;
 using DimensionForge._3D.Views;
+using log4net;
+using log4net.Config;
+using System.IO;
+using System.Diagnostics;
 
 namespace DimensionForge
 {
@@ -23,8 +27,10 @@ namespace DimensionForge
     /// </summary>
     public partial class App : Application
     {
+        private static readonly ILog log = LogManager.GetLogger(typeof(App));
 
-      public  ServiceProvider serviceProvider;
+        public  ServiceProvider serviceProvider;
+
 
         public App()
         {
@@ -49,6 +55,10 @@ namespace DimensionForge
             MainWindow.Show();
 
             base.OnStartup(e);
+
+            XmlConfigurator.Configure(new FileInfo("log4net.config"));
+            log.Debug("Application started");
+            
         }
 
     }

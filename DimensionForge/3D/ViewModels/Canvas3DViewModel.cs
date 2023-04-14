@@ -18,7 +18,7 @@ using System.Windows.Media.Media3D;
 using System.Xaml;
 using IModelData = DimensionForge._3D.interfaces.IModelData;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
-
+using Microsoft.Xaml.Behaviors;
 namespace DimensionForge._3D.ViewModels
 {
 
@@ -26,10 +26,13 @@ namespace DimensionForge._3D.ViewModels
     public partial class Canvas3DViewModel : ObservableObject
     {
         [JsonIgnore]
-        public HelixToolkit.Wpf.SharpDX.PerspectiveCamera Camera { get; set; }
+        public HelixToolkit.Wpf.SharpDX.OrthographicCamera Camera { get; set; }
 
         [JsonIgnore]
         public EffectsManager EffectsManager { get; set; }
+
+        [JsonIgnore]
+        public Viewport3DX MyViewPort { get; set; }
 
 
 
@@ -38,12 +41,15 @@ namespace DimensionForge._3D.ViewModels
             this.EffectsManager = new DefaultEffectsManager();
 
             // Create and set up the camera
-            Camera = new HelixToolkit.Wpf.SharpDX.PerspectiveCamera
+            Camera = new HelixToolkit.Wpf.SharpDX.OrthographicCamera
             {
                 Position = new Point3D(0, 0, 10),
                 LookDirection = new Vector3D(0, 0, -1),
                 UpDirection = new Vector3D(0, 1, 0),
-                FieldOfView = 45
+                FarPlaneDistance = 10000,
+                NearPlaneDistance = 0.1,
+                Width = 10000,
+
 
             };
 
@@ -52,12 +58,19 @@ namespace DimensionForge._3D.ViewModels
 
 
 
-        public async void Draw()
+        public async Task Draw()
         {
-            shapes.ToList().ForEach(x => x.Draw());
-
-
+            foreach (var s in shapes)
+            {
+                if (s is Shape3D shape3D)
+                    shape3D.Draw();
+                else if (s is ImportedModel b)
+                {
+                    await b.Import();
+                }
+            }
         }
+
 
         Random rand = new Random();
 
@@ -67,17 +80,14 @@ namespace DimensionForge._3D.ViewModels
         {
             float minRadius = 1;
             float maxRadius = 20;
-
-
             Color[] colors = { Color.DarkRed, Color.Yellow, Color.Green, Color.Blue };
-
             float radius = (float)(rand.NextDouble() * (maxRadius - minRadius) + minRadius);
-
             Color color = colors[rand.Next(colors.Length)];
             Vector3 position = new Vector3((float)rand.NextDouble() * 50 - 25, (float)rand.NextDouble() * 50 - 25, (float)rand.NextDouble() * 50 - 25);
-            Shapes.Add(new Sphere3D { Radius = radius, Color = color, Position = position });
-            // ModelData.Add(new SphereData { Radius = radius, Color = color, Position = position });
-            Draw();
+
+            var sphere = new Sphere3D { Radius = radius, Color = color, Position = position };
+            Shapes.Add(sphere);
+            sphere.Draw();
         }
 
         [RelayCommand]
@@ -87,24 +97,67 @@ namespace DimensionForge._3D.ViewModels
 
             float minRadius = 1;
             float maxRadius = 20;
-
             Random rand = new Random();
             Color[] colors = { Color.DarkRed, Color.Yellow, Color.Green, Color.Blue };
             float radius = (float)(rand.NextDouble() * (maxRadius - minRadius) + minRadius);
-
             Color color = colors[rand.Next(colors.Length)];
             Vector3 startPos = new Vector3((float)rand.NextDouble() * 50 - 25, (float)rand.NextDouble() * 200 - 50, (float)rand.NextDouble() * 50 - 25);
             Vector3 endPos = new Vector3((float)rand.NextDouble() * 50 - 25, (float)rand.NextDouble() * 200 - 50, (float)rand.NextDouble() * 50 - 25);
             float length = Vector3.Distance(startPos, endPos);
+            var cylinder = new Cylinder3D { Radius = radius, Color = color, P1 = startPos, P2 = endPos };
+            Shapes.Add(cylinder);
+            cylinder.Draw();
+        }
 
-            // ModelData.Add(new CylinderData { StarPos = startPos, EndPos = endPos, Length = length, Radius = radius, Color = color });
-            Draw();
+        [RelayCommand]
+        [property: JsonIgnore]
+        void ScaleDown()
+        {
+            foreach (var shape in shapes)
+            {
+                shape.ScaleModel(0.1);
+            }
+        }
+        [RelayCommand]
+        [property: JsonIgnore]
+        void Translate()
+        {
+            foreach (var shape in shapes)
+            {
+                shape.Translate(new Vector3(1, 0, 0));
+
+            }
+        }
+
+        [RelayCommand]
+        [property: JsonIgnore]
+        void Rotate()
+        {
+            foreach (var shape in shapes)
+                shape.Rotate(new Vector3D(1, 0, 0), 90);
+        }
+
+        [RelayCommand]
+        [property: JsonIgnore]
+        public void ConvertTranformations()
+        {
+            foreach (var shape in shapes)
+                shape.ConvertTransform3DGroupToTransformData();
         }
 
 
-
+        [RelayCommand]
+        [property: JsonIgnore]
+        public void ConvertTransformationsBack()
+        {
+            foreach (var shape in shapes)
+            {
+                shape.ConvertTransform3DGroupToTransformData();
+            }
+        }
 
         [RelayCommand]
+        [property: JsonIgnore]
         async Task Import()
         {
             var dialog = new OpenFileDialog();
@@ -126,18 +179,39 @@ namespace DimensionForge._3D.ViewModels
         {
             var batchedmodel = new ImportedModel(filePath);
             await batchedmodel.OpenFile();
-            shapes.Add(batchedmodel);   
+
+          
+
+            shapes.Add(batchedmodel);
 
         }
 
 
+        [RelayCommand]
+        [property: JsonIgnore]  
+        public void ZoomTo()
+        {
+            double offset = 1;
+            var model = Shapes.FirstOrDefault(x => x is BathedModel3D) as BathedModel3D;
+            var bb = model.GetBoundingBox();
+            var center = model.GetLocation();
+
+            var rect3d = new Rect3D(center.ToPoint3D(), new Size3D(bb.Width + offset, bb.Height + offset, bb.Depth + offset));
+
+
+            MyViewPort.ZoomExtents(rect3d, 500);
+        }
+
+        public void OnViewportInitialized(Viewport3DX viewport)
+        {
+            MyViewPort = viewport;
+        }
 
 
         [ObservableProperty]
         ObservableCollection<IShape3D> shapes = new();
 
 
-        // public List<IModelData> ModelData { get; set; } 
 
     }
 }

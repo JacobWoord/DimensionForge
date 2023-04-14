@@ -1,18 +1,19 @@
-﻿using HelixToolkit.Wpf.SharpDX;
-using System;
+﻿using DimensionForge._3D.Data;
+using SharpDX;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Media3D;
 
 namespace DimensionForge._3D.interfaces
 {
     public interface IShape3D
     {
-        Material SetMaterial();
-
-
-        void Draw();
-
+        HelixToolkit.Wpf.SharpDX.Material SetMaterial();
+        public void ScaleModel(double scaleFactor);
+        public IList<TransformData> TransformDatas { get; set; }
+        public void Rotate(Vector3D Axis, double Angle);
+        public void ConvertTransform3DGroupToTransformData();
+        public void ConvertTransformDataToTransform3DGroup();
+        public void Translate(Vector3 translation);
     }
 }

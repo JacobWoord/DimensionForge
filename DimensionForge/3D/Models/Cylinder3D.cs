@@ -11,9 +11,7 @@ namespace DimensionForge._3D.Models
     public partial class Cylinder3D : Shape3D
     {
 
-        public CylinderData Data { get; set; }
-
-
+    
         [ObservableProperty]
         Vector3 p1;
 
@@ -28,18 +26,10 @@ namespace DimensionForge._3D.Models
 
 
 
-        public Cylinder3D(CylinderData data)
+        public Cylinder3D()
         {
-            radius = data.Radius;
-            Data = data;
-
-            p1 = data.StarPos; 
-            p2 = data.EndPos;
-         
-            Draw();
+                Draw();
         }
-
-
 
 
         public override void Draw()
