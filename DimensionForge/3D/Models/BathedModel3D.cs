@@ -59,6 +59,8 @@ namespace DimensionForge._3D.Models
         [property: JsonIgnore]
         Transform3DGroup transform;
 
+    
+
        
         public void Rotate(Vector3D Axis, double Angle)
         {
@@ -184,35 +186,35 @@ namespace DimensionForge._3D.Models
 
 
         }
-        public BoundingBox GetBoundingBox()
-        {
-            Vector3 min = new Vector3(float.MaxValue);
-            Vector3 max = new Vector3(float.MinValue);
+        //public BoundingBox GetBoundingBox()
+        //{
+        //    Vector3 min = new Vector3(float.MaxValue);
+        //    Vector3 max = new Vector3(float.MinValue);
 
-            foreach (var batchedMesh in batchedMeshes)
-            {
-                var geometry = batchedMesh.Geometry;
-                var transform = batchedMesh.ModelTransform;
+        //    foreach (var batchedMesh in batchedMeshes)
+        //    {
+        //        var geometry = batchedMesh.Geometry;
+        //        var transform = batchedMesh.ModelTransform;
 
-                // Combine the model transform and the current transform group
-                var combinedTransform = Transform3DHelper.Combine(new MatrixTransform3D(new Matrix3D(transform.M11, transform.M12, transform.M13, transform.M14,
-                                                                                            transform.M21, transform.M22, transform.M23, transform.M24,
-                                                                                            transform.M31, transform.M32, transform.M33, transform.M34,
-                                                                                            0, 0, 0, 1)),
-                                                                   this.transform);
+        //        // Combine the model transform and the current transform group
+        //        var combinedTransform = Transform3DHelper.Combine(new MatrixTransform3D(new Matrix3D(transform.M11, transform.M12, transform.M13, transform.M14,
+        //                                                                                    transform.M21, transform.M22, transform.M23, transform.M24,
+        //                                                                                    transform.M31, transform.M32, transform.M33, transform.M34,
+        //                                                                                    0, 0, 0, 1)),
+        //                                                           this.transform);
 
-                for (int i = 0; i < geometry.Positions.Count; i++)
-                {
-                    Vector4 position4 = Vector3.Transform(geometry.Positions[i], combinedTransform.Value.ToSharpDX());
-                    Vector3 position = new Vector3(position4.X, position4.Y, position4.Z);
+        //        for (int i = 0; i < geometry.Positions.Count; i++)
+        //        {
+        //            Vector4 position4 = Vector3.Transform(geometry.Positions[i], combinedTransform.Value.ToSharpDX());
+        //            Vector3 position = new Vector3(position4.X, position4.Y, position4.Z);
 
-                    min = Vector3.Min(min, position);
-                    max = Vector3.Max(max, position);
-                }
-            }
+        //            min = Vector3.Min(min, position);
+        //            max = Vector3.Max(max, position);
+        //        }
+        //    }
 
-            return new BoundingBox(min, max);
-        }
+        //    return new BoundingBox(min, max);
+        //}
         public Vector3 GetLocation()
         {
             Vector3 location = new Vector3();
@@ -235,7 +237,21 @@ namespace DimensionForge._3D.Models
             return location;
         }
 
-       
+        public BoundingBox GetBoundingBox()
+        {
+
+            // Create a new bounding box
+            var boundingBox = new SharpDX.BoundingBox();
+
+            // Iterate over the geometries and expand the bounding box
+            foreach (var config in batchedMeshes)
+            {
+                config.Geometry.UpdateBounds();
+                var box = config.Geometry.Bound;
+                boundingBox = SharpDX.BoundingBox.Merge(boundingBox, box);
+            }
+            return boundingBox;
+        }
 
 
         public HelixToolkit.Wpf.SharpDX.Material SetMaterial()
@@ -251,6 +267,16 @@ namespace DimensionForge._3D.Models
         {
             transform.Children.Add(new TranslateTransform3D(translation.X, translation.Y, translation.Z));
 
+        }
+
+        public void Select()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Deselect()
+        {
+            throw new NotImplementedException();
         }
     }
 }

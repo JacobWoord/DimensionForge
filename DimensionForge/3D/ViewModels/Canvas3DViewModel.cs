@@ -19,6 +19,7 @@ using System.Xaml;
 using IModelData = DimensionForge._3D.interfaces.IModelData;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Microsoft.Xaml.Behaviors;
+
 namespace DimensionForge._3D.ViewModels
 {
 
@@ -35,7 +36,7 @@ namespace DimensionForge._3D.ViewModels
         public Viewport3DX MyViewPort { get; set; }
 
 
-
+    
         public Canvas3DViewModel()
         {
             this.EffectsManager = new DefaultEffectsManager();
@@ -46,27 +47,28 @@ namespace DimensionForge._3D.ViewModels
                 Position = new Point3D(0, 0, 10),
                 LookDirection = new Vector3D(0, 0, -1),
                 UpDirection = new Vector3D(0, 1, 0),
-                FarPlaneDistance = 100000,
-                NearPlaneDistance = -10000,
-                Width = 1000000,
-
-
+                FarPlaneDistance = 1000,
+                NearPlaneDistance = -1000,
+                Width = 10000,
             };
+            Camera.CreateViewMatrix();     
 
-            Camera.CreateViewMatrix();
         }
 
 
 
         public async Task Draw()
         {
-            foreach (var s in shapes)
+            foreach (var s in shapes.ToList())
             {
                 if (s is Shape3D shape3D)
                     shape3D.Draw();
                 else if (s is ImportedModel b)
                 {
-                    await b.Import();
+                    var model = new ImportedModel(b.FileName);
+                    shapes.Remove(b);
+                    await model.Import();
+                    shapes.Add(model);
                 }
             }
         }
@@ -181,13 +183,18 @@ namespace DimensionForge._3D.ViewModels
             await batchedmodel.OpenFile();
             shapes.Add(batchedmodel);
 
+        }
 
-
-
-
-         
+        [RelayCommand]
+        [property: JsonIgnore]
+        public void ObjectedClicked(IShape3D shape)
+        {
+           var shape3d = shape as Shape3D;
+           shape3d.Color = Color.Red;
+           Draw();
 
         }
+
 
 
         [RelayCommand]
@@ -201,7 +208,6 @@ namespace DimensionForge._3D.ViewModels
 
             var rect3d = new Rect3D(center.ToPoint3D(), new Size3D(bb.Width + offset, bb.Height + offset, bb.Depth + offset));
 
-
             MyViewPort.ZoomExtents(rect3d, 500);
             MyViewPort.Reset();
         }
@@ -214,10 +220,6 @@ namespace DimensionForge._3D.ViewModels
 
         [ObservableProperty]
         ObservableCollection<IShape3D> shapes = new();
-
-       
-
-
 
     }
 }

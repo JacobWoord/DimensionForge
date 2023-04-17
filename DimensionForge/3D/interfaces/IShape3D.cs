@@ -15,5 +15,7 @@ namespace DimensionForge._3D.interfaces
         public void ConvertTransform3DGroupToTransformData();
         public void ConvertTransformDataToTransform3DGroup();
         public void Translate(Vector3 translation);
+        public void Select();
+        public void Deselect();
     }
 }

@@ -22,6 +22,12 @@ namespace DimensionForge._3D.Models
 {
     public partial class Shape3D : ObservableObject, IShape3D
     {
+    
+        public string Id { get; set; }
+        public Color4 Color { get; set; }
+        public Vector3 position { get; set; }
+        public bool IsSelected { get; set; }
+
         public Shape3D()
         {
             transform = new System.Windows.Media.Media3D.Transform3DGroup();
@@ -33,9 +39,6 @@ namespace DimensionForge._3D.Models
             TransformDatas = new List<TransformData>();
 
         }
-        public string Id { get; set; }
-        public Color4 Color { get; set; }
-        public Vector3 position { get; set; }
 
         public IList<TransformData> TransformDatas { get; set; }
 
@@ -160,6 +163,17 @@ namespace DimensionForge._3D.Models
         public void Translate(Vector3 translation)
         {
             transform.Children.Add(new TranslateTransform3D(translation.X, translation.Y, translation.Z));
+        }
+
+
+        public void Select()
+        {
+          IsSelected = !IsSelected;
+        }
+
+        public void Deselect()
+        {
+           
         }
     }
 }

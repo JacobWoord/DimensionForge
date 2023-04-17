@@ -1,7 +1,9 @@
 ﻿using DimensionForge._2D.interfaces;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -16,7 +18,19 @@ namespace DimensionForge._2D.Models
         Point position;
 
         [ObservableProperty]
+        Point oldPosition;
+
+        [ObservableProperty]
+        double acceleration;
+
+        [ObservableProperty]
+        Vector2 velocity = Vector2.Zero;
+
+        [ObservableProperty]
         Color fillColor;
+
+        [ObservableProperty]
+        float maxVelocity = 10f;
 
         [ObservableProperty]
         bool isSelected;
@@ -28,6 +42,23 @@ namespace DimensionForge._2D.Models
             ID = Guid.NewGuid().ToString();
         }
 
+        public void ApplyForce(Vector2 force)
+        {
+            velocity += force;
+        }
+
+        public void ApplyFriction(float friction)
+        {
+            velocity *= friction;
+        }
+
+        public void ApplyGravity(float gravity)
+        {
+            velocity.Y += gravity;
+        }
+
+
+      
 
 
         partial void OnIsSelectedChanged(bool oldValue, bool newValue)
@@ -55,6 +86,14 @@ namespace DimensionForge._2D.Models
        public void Select()
         {
             IsSelected = !IsSelected;
+            if (IsSelected)
+            {
+                velocity = new Vector2(1, 0);
+            }
+            else
+            {
+                velocity = Vector2.Zero;
+            }
         }
 
         public void Deselect()
