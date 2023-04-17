@@ -1,5 +1,5 @@
 ﻿using DimensionForge._2D.interfaces;
-
+using Vector2 = SharpDX.Vector2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,14 +17,10 @@ namespace DimensionForge._2D.Models
         [ObservableProperty]
         Point position;
 
+
         [ObservableProperty]
         Point oldPosition;
 
-        [ObservableProperty]
-        double acceleration;
-
-        [ObservableProperty]
-        Vector2 velocity = Vector2.Zero;
 
         [ObservableProperty]
         Color fillColor;
@@ -36,30 +32,16 @@ namespace DimensionForge._2D.Models
         bool isSelected;
         public Color StrokeColor { get; set; }
         public float StrokeThickness { get; set; }
-
+        
+       
+ 
         public Shape2D()
         {
             ID = Guid.NewGuid().ToString();
         }
 
-        public void ApplyForce(Vector2 force)
-        {
-            velocity += force;
-        }
-
-        public void ApplyFriction(float friction)
-        {
-            velocity *= friction;
-        }
-
-        public void ApplyGravity(float gravity)
-        {
-            velocity.Y += gravity;
-        }
-
-
       
-
+      
 
         partial void OnIsSelectedChanged(bool oldValue, bool newValue)
         {
@@ -86,14 +68,7 @@ namespace DimensionForge._2D.Models
        public void Select()
         {
             IsSelected = !IsSelected;
-            if (IsSelected)
-            {
-                velocity = new Vector2(1, 0);
-            }
-            else
-            {
-                velocity = Vector2.Zero;
-            }
+       
         }
 
         public void Deselect()

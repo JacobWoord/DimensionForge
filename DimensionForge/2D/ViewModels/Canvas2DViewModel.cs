@@ -5,42 +5,93 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Newtonsoft.Json;
 using System.Threading.Tasks;
+using HelixToolkit.Wpf;
+using DimensionForge._2D.verlet;
+using Newtonsoft.Json;
+using System.Linq;
+using System.Windows.Xps;
 
 namespace DimensionForge._2D.ViewModels
 {
     public partial class Canvas2DViewModel : ObservableObject
     {
-        public Canvas2DViewModel()
-        {
-          //  DrawRectangle();
-        }
-        [ObservableProperty]
 
+        public Canvas canvas { get; set; }
+
+        [ObservableProperty]
         ObservableCollection<IShape2D> shapes = new();
 
-
-
-        //[RelayCommand]
-        //public void DrawCircle1()
-        //{
-        //    var circle = new Circle2D();
-
-        //    // Generate random X and Y positions for the circle
-        //    var rand = new Random();
-        //    var canvasWidth = canvas.ActualWidth;
-        //    var canvasHeight = canvas.ActualHeight;
-        //    circle.Position = new Point(rand.NextDouble() * canvasWidth, rand.NextDouble() * canvasHeight);
-
-        //    // Generate random color for the circle
-        //    circle.FillColor = System.Windows.Media.Color.FromRgb((byte)rand.Next(256), (byte)rand.Next(256), (byte)rand.Next(256));
-
-        //    circle.Diameter = 300f;
-        //    Shapes.Add(circle);
-        //}
-
         Random random = new Random();
+        public Canvas2DViewModel()
+        {
+
+        }
+
+
+
+        [RelayCommand]
+        [property: JsonIgnore]
+       async void DrawParticle()
+        {
+
+            DrawCircle();
+
+            var particle = Shapes[0];
+
+            particle.Position = new Point(100, 100);
+            particle.OldPosition = new Point(95, 95);
+
+
+            for (int i = 0; i < 100; i++)
+            {
+               
+                var vx = particle.Position - particle.OldPosition;
+
+                particle.OldPosition = particle.Position;
+
+                particle.Position += vx;
+
+                if (particle.Position.X > this.canvas.Width )
+                {
+                    var width = this.canvas.Width;
+                    particle.Position = new Point(width,particle.Position.Y);
+                    particle.OldPosition = new Point(particle.Position.X + vx.X,particle.OldPosition.Y);
+                }
+
+                await Task.Delay(100);
+
+            }
+
+
+
+        }
+
+
+        void Update()
+        {
+
+        }
+
+        void UpdatePoints(Circle2D cirle)
+        {
+            for (int i = 0; i < shapes.Count(); i++)
+            {
+                var shape = shapes[i];
+
+                var vx = shape.Position - shape.OldPosition;
+
+                shape.OldPosition = shape.Position;
+
+                shape.Position += vx;
+                
+            }
+        }
+       
+
+
+
+
 
         [RelayCommand]
         [property: JsonIgnore]
@@ -71,13 +122,22 @@ namespace DimensionForge._2D.ViewModels
         }
 
 
+        [RelayCommand]
+        [property: JsonIgnore]
+        public void CanvasLoaded(Canvas canvasElement)
+        {
+            this.canvas = canvasElement;    
+            
+        }
+
+
 
         [RelayCommand]
         [property: JsonIgnore]
         void DrawCircle()
         {
             var circle = new Circle2D();
-            circle.Position = GetRandomosition();
+            circle.Position = GetRandomPosition();
             circle.FillColor = GetRandomColor();
             circle.Diameter = GetRandomFloat();
             Shapes.Add(circle);
@@ -90,24 +150,25 @@ namespace DimensionForge._2D.ViewModels
             rectangle.Width = 100;
             rectangle.Height = 100;
             rectangle.FillColor = GetRandomColor(); 
-            rectangle.Position =  GetRandomosition();
+           // rectangle.Position =  GetRandomPosition();
             Shapes.Add(rectangle);
         }
 
-        Color GetRandomColor()
+        System.Windows.Media.Color GetRandomColor()
         {
             Random random = new Random();
             byte red = (byte)random.Next(256);
             byte green = (byte)random.Next(256);
             byte blue = (byte)random.Next(256);
-            return Color.FromRgb(red, green, blue);
+            return System.Windows.Media.Color.FromRgb(red, green, blue);
         }
 
 
-        Point GetRandomosition()
+        Point GetRandomPosition()
         {
-            return new Point (random.NextDouble() * 800f, random.NextDouble() * 600f);
+            return new Point(random.NextDouble() * 800f, random.NextDouble() * 600f);
         }
+
 
         float GetRandomFloat()
         {

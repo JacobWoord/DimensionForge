@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharpDX;
+using System;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,8 @@ namespace DimensionForge._2D.Models
     public partial class Rectangle2D :  Shape2D
     {
         private float width = 100;
+
+        public Vector2 Posision { get; set; }
         public float Width
         {
             get => width;
