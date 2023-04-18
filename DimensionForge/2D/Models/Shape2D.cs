@@ -39,9 +39,7 @@ namespace DimensionForge._2D.Models
         {
             ID = Guid.NewGuid().ToString();
         }
-
-      
-      
+   
 
         partial void OnIsSelectedChanged(bool oldValue, bool newValue)
         {
