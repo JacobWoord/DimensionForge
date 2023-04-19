@@ -12,11 +12,16 @@ namespace DimensionForge._2D.Models
     {
         [ObservableProperty]
         float diameter = 300f;
+
+        [ObservableProperty]
+        Point centerPosition;
    
         public Circle2D()
         {
 
         }
+
+       
 
     }
 }

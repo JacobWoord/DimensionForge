@@ -51,7 +51,7 @@
                             Width="{Binding Diameter}"
                             Height="{Binding Diameter}"
                             Fill="{Binding FillColor, Converter={StaticResource color2brush}}"
-                            Stroke="{Binding StrokeColor}"
+                            Stroke="{Binding StrokeColor,Converter={StaticResource color2brush}}"
                             StrokeThickness="{Binding StrokeThickness}">
                             <Ellipse.RenderTransform>
                                 <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}" />
@@ -85,6 +85,24 @@
                     </DataTemplate>
 
 
+                    <DataTemplate DataType="{x:Type models2D:Line2D}">
+                        <Line X1="{Binding P0.X}"
+                              Y1="{Binding P0.Y}" 
+                              X2="{Binding P1.X}" 
+                              Y2="{Binding P1.Y}" 
+                              Stroke="Black" 
+                              StrokeThickness="4">
+                            <i:Interaction.Behaviors>
+                                <local:ShapeDragBehavior/>
+                                <local:ShapeClickBehavior Command="{Binding SelectCommand}" />
+                            </i:Interaction.Behaviors>
+                          
+                            
+                        </Line>
+
+                    </DataTemplate>
+
+
 
 
 
@@ -96,13 +114,22 @@
 
         <StackPanel VerticalAlignment="Bottom" Orientation="Vertical">
             <Button
-                Width="100"
+                Width="Auto"
                 Height="30"
                 Margin="0,0,10,10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding DrawCircleCommand}"
-                Content="Click me!" />
+                Command="{Binding PartIICommand}"
+                Content="Test PartII" />
+
+            <Button
+                Width="auto"
+                Height="30"
+                Margin="0,0,10,10"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Command="{Binding SpawnBallsCommand}"
+                Content="spawn balls" />
 
             <Button
                 Width="Auto"
@@ -110,8 +137,8 @@
                 Margin="0,0,10,10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding DrawParticleCommand}"
-                Content="Change Position!" />
+                Command="{Binding DrawLineCommand}"
+                Content="Draw Line" />
         </StackPanel>
 
 
