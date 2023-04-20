@@ -22,10 +22,11 @@ namespace DimensionForge._3D.Models
 {
     public partial class Shape3D : ObservableObject, IShape3D
     {
-    
+        public string Name { get; set; }    
         public string Id { get; set; }
         public Color4 Color { get; set; }
-        public Vector3 position { get; set; }
+        public Vector3 Position { get; set; }
+        public Vector3 OldPosition { get; set; }
         public bool IsSelected { get; set; }
 
         public Shape3D()
@@ -155,7 +156,7 @@ namespace DimensionForge._3D.Models
         }
         public Material SetMaterial()
         {
-            var material = PhongMaterials.Silver;
+            var material = PhongMaterials.Red;
             material.DiffuseColor = Color;
             return material;
         }

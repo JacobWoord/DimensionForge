@@ -8,7 +8,7 @@ using System.Windows.Media;
 
 namespace DimensionForge._2D.Models
 {  
-    public partial class Circle2D : Shape2D
+    public partial class Sphere3D : Shape2D
     {
         [ObservableProperty]
         float diameter = 300f;
@@ -16,7 +16,7 @@ namespace DimensionForge._2D.Models
         [ObservableProperty]
         Point centerPosition;
    
-        public Circle2D()
+        public Sphere3D()
         {
 
         }

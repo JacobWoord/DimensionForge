@@ -37,11 +37,16 @@ namespace DimensionForge
             ServiceCollection serviceCollection = new ServiceCollection();
 
             serviceCollection.AddSingleton<MainViewModel>();
+           
             serviceCollection.AddSingleton<Canvas2DViewModel>();
             serviceCollection.AddSingleton<MainWindow>();
-            serviceCollection.AddSingleton<Canvas3DViewModel>();           
+            serviceCollection.AddSingleton<Canvas3DViewModel>();
+ 
 
-
+            serviceCollection.AddTransient<TransformationsViewModel>();
+            serviceCollection.AddTransient<verletIntigrationViewModel>();
+            serviceCollection.AddTransient<Edit3DObjectsViewModel>();
+           
             serviceProvider = serviceCollection.BuildServiceProvider();
             Ioc.Default.ConfigureServices(serviceProvider);
 

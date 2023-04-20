@@ -29,16 +29,17 @@
         <Border BorderBrush="Black" BorderThickness="2">
             <ItemsControl
                 x:Name="canvas"
-                Margin="5"
-                ItemsSource="{Binding Shapes}">
+                Margin="0"
+                ItemsSource="{Binding Shapes}"
+                >
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas
-                            x:Name="canvasElement"
+                           
                             Width="{Binding ActualWidth, ElementName=canvas}"
                             Height="{Binding ActualHeight, ElementName=canvas}"
                             Background="White">
-                           
+                         
                         </Canvas>
                         
                    
@@ -46,7 +47,7 @@
                 </ItemsControl.ItemsPanel>
 
                 <ItemsControl.Resources>
-                    <DataTemplate DataType="{x:Type models2D:Circle2D}">
+                    <DataTemplate DataType="{x:Type models2D:Sphere3D}">
                         <Ellipse
                             Width="{Binding Diameter}"
                             Height="{Binding Diameter}"
@@ -119,8 +120,8 @@
                 Margin="0,0,10,10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding PartIICommand}"
-                Content="Test PartII" />
+                Command="{Binding SpawnStickCommand}"
+                Content="Spawn Stick" />
 
             <Button
                 Width="auto"

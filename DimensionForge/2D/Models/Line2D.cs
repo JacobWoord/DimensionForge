@@ -28,9 +28,21 @@ namespace DimensionForge._2D.Models
         [ObservableProperty]
         bool hidden;
 
-        public Line2D()
+        [ObservableProperty]
+        Sphere3D circle1;
+
+        [ObservableProperty]
+        Sphere3D circle2;
+
+        
+
+        public Line2D(Sphere3D c1, Sphere3D c2)
         {
+            circle1 = c1;
+            circle2 = c2; 
             
+            p0 = circle1.Position;
+            p1 = circle2.Position;
         }
 
 

@@ -15,7 +15,7 @@ namespace DimensionForge.Main.ViewModels
 
         public MainViewModel()
         {
-            CurrentViewModel = Ioc.Default.GetService<Canvas2DViewModel>();
+            CurrentViewModel = Ioc.Default.GetService<Canvas3DViewModel>();
         }
 
         [RelayCommand]

@@ -10,7 +10,7 @@ namespace DimensionForge._3D.Models
     public class Sphere3D : Shape3D
     {
         public float Radius { get; set; }
-        public Vector3 Position { get; set; }
+       
 
         public Sphere3D()
         {       
