@@ -8,8 +8,6 @@ namespace DimensionForge._3D.Models
 {
     public partial class Polygon3D : Shape3D
     {
-
-
         public Polygon3D()
         {
             

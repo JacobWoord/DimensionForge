@@ -17,7 +17,7 @@
 
             <Button Margin="5" Command="{Binding RandomCylinderCommand}">random Cyl</Button>
             <Button Margin="5" Command="{Binding RandomSpereCommand}">random Sphere</Button>
-            <Button Margin="5" Command="{Binding CreateFloorCommand}">Create Floor</Button>
+            <Button Margin="5" Command="{Binding ImportCommand}">Import OBJ</Button>
           
         </StackPanel>
 

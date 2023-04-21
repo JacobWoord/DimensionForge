@@ -1,10 +1,13 @@
-﻿using DimensionForge._3D.interfaces;
+﻿using DimensionForge._2D.ViewModels;
+using DimensionForge._3D.interfaces;
 using DimensionForge._3D.Models;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using SharpDX;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,7 +22,6 @@ namespace DimensionForge._3D.ViewModels
     public partial class Canvas3DViewModel : ObservableObject
     {
 
-
         [JsonIgnore]
         public HelixToolkit.Wpf.SharpDX.OrthographicCamera Camera { get; set; }
 
@@ -29,17 +31,17 @@ namespace DimensionForge._3D.ViewModels
         [JsonIgnore]
         public Viewport3DX MyViewPort { get; set; }
 
-
         //property to control the content control
         [ObservableProperty]
         ObservableObject selectedToolPanel;
 
-
-
+        [ObservableProperty]
+        List<Node3D> verletNodes = new();
         public Canvas3DViewModel()
         {
-            this.EffectsManager = new DefaultEffectsManager();
+            //when creating a viewPort3DX remember that an effects manager is essential 
 
+            this.EffectsManager = new DefaultEffectsManager();
             // Create and set up the camera
             Camera = new HelixToolkit.Wpf.SharpDX.OrthographicCamera
             {
@@ -50,15 +52,12 @@ namespace DimensionForge._3D.ViewModels
                 NearPlaneDistance = -1000,
                 Width = 100,
             };
+
             Camera.CreateViewMatrix();
-
-
-
-            //  SelectedTool = new TransformationsViewModel();
-
         }
 
         [RelayCommand]
+        [property: JsonIgnore]
         async Task UpdateVerlet()
         {
             await Task.Run(async () =>
@@ -71,38 +70,35 @@ namespace DimensionForge._3D.ViewModels
             });
         }
 
+        [property: JsonIgnore]
         void UpdatePhysics()
         {
+            //generates a loop that stays on the same thread as the UI thread
+
             for (int i = 0; i < shapes.Count(); i++)
             {
-                if (shapes[i] is not Models.Sphere3D)
+                if (!(shapes[i] is Sphere3D))
+                {
                     continue;
-
-
+                    break;
+                }
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                   
-                        UpdatePositions(shapes[i]);
-                      
-                    for (int j = 0; j < 20; j++)
+
+                    for (int x = 0; x < 1; x++)
                     {
-                        if (shapes.Count() > 2)
-                            Find_collision(shapes[i]);
-                    }
-
+                        UpdatePositions(shapes[i]);
+                        for (int j = 0; j < 3; j++)
+                        {
+                            if (shapes.Count() > 2)
+                                Find_collision(shapes[i]);
+                        }
                         ConstrainGround(shapes[i]);
-
-
-                    // UpdateConstrains(shapes[i]);
+                    }
                     Draw();
                 });
-
             }
-
-
         }
-
-
         void Find_collision(IShape3D shape)
         {
 
@@ -116,7 +112,7 @@ namespace DimensionForge._3D.ViewModels
             for (int i = 0; i < shapes.Count(); i++)
             {
                 //if the itterations is on the shape to check it skips
-                if (shapes[i] == shapes[mainShapeIndex] || shapes[i] is Floor3D)
+                if (shapes[i] == shapes[mainShapeIndex] || shapes[i] is not Sphere3D)
                     continue;
                 //if the itterations is on a line it skips
 
@@ -144,15 +140,15 @@ namespace DimensionForge._3D.ViewModels
 
                     shapeToCheck.Position = mainPosition;
                     otherShape.Position = otherPosition;
-                   // shapeToCheck.OldPosition = mainPosition -5;
-                   // otherShape.OldPosition = mainPosition -5;
+                    // shapeToCheck.OldPosition = mainPosition -5;
+                    // otherShape.OldPosition = mainPosition -5;
                 }
             }
         }
-
         public void ConstrainGround(IShape3D ishape)
         {
 
+            //adding constrains to the ground
             var shape = ishape as Models.Sphere3D;
 
             var xv = shape.Position.X - shape.OldPosition.X;  // x velocity
@@ -166,17 +162,18 @@ namespace DimensionForge._3D.ViewModels
                 shape.Position = new Vector3(shape.Position.X, shape.Position.Y, shape.Radius);
                 shape.OldPosition = new Vector3(shape.OldPosition.X, shape.OldPosition.Y, shape.Position.Z + zv * bounce);
             }
-        }
 
+        }
         void UpdatePositions(IShape3D shape)
         {
+            //update the position of the models by setting the current and the old position
             var sphere = shape as Models.Sphere3D;
             // to implement the bounce we multiply the OldVelocity by Bounce
-            var bounce = 0.2f;
-            // to implement gravity we add it to the position.Y after we add velocity
-            var gravity = new Vector3(0, 0, -0.81f);
+            var bounce = 0.8f;
+            // to implement gravity we add it to the position.Z after we add velocity
+            var gravity = new Vector3(0, 0, -0.99f);
             //multiply the velocity by friction to slow it down
-            var friction = 0.950f;
+            var friction = 0.900f;
             var radius = sphere.Radius;
             var position = sphere.Position;
             var oldPosition = sphere.OldPosition;
@@ -185,70 +182,63 @@ namespace DimensionForge._3D.ViewModels
             position += velocity;
             position += gravity;
 
-
-
             sphere.Position = position;
             sphere.OldPosition = oldPosition;
-
         }
 
-        void UpdateConstrains(IShape3D shape)
+        [RelayCommand]
+        void DrawVerletNodes()
         {
-            if (shape is not Sphere3D)
-                return;
-
-            var sphere = shape as Models.Sphere3D;
-            // to implement the bounce we multiply the OldVelocity by Bounce
-            var bounce = 0.7f;
-            // to implement gravity we add it to the position.Y after we add velocity
-            var gravity = new Vector2(0, 10.0f);
-            //multiply the velocity by friction to slow it down
-            var friction = 0.900f;
-            var radius = sphere.Radius;
-            var position = sphere.Position;
-            var oldPosition = sphere.OldPosition;
-            var velocity = (position - oldPosition) * friction;
-
-            // oldPosition = position;
-            // position += velocity;
-            // position += gravity;
-
-            var height1 = 40 - (radius);
-            var width1 = 50 - (radius);
-
-            //constrain for the right wall
-            if (position.X > width1 - radius)
-            {
-                width1 = width1 - radius;
-                position = new Vector3(width1, position.Y, position.Z);
-                oldPosition += new Vector3(velocity.X * bounce, 0, 0);
-            }
-            //constrain for the left wall
-            else if (position.X < radius)
-            {
-                position = new Vector3(radius, position.Y, position.Z);
-                oldPosition += new Vector3(velocity.X * bounce, position.Y, position.Z);
-            }
-            //constrain for top
-            else if (position.Y > height1 - radius)
-            {
-                position = new Vector3(position.X, height1 - radius, position.Z);
-                oldPosition += new Vector3(0, velocity.Y * bounce, position.Z);
-            }
-            //constrain for bottom
-            else if (position.Y < radius)
-            {
-                position = new Vector3(position.X, radius, position.Z);
-                oldPosition += new Vector3(0, velocity.Y * bounce, position.Z);
-            }
-
-            sphere.Position = position;
-            sphere.OldPosition = oldPosition;
+            verletNodes.ForEach(n => shapes.Add(new CornerPoint3D { NodePosition = n }));
+            Draw();
         }
+        
+        
+        [property: JsonIgnore]
+        [RelayCommand]
+        void VerletShape()
+        {
+            List<Node3D> nodeList = new();
+            //bottom
+            nodeList.Add(new Node3D(new Vector3(0, 0, 0)));//0
+            nodeList.Add(new Node3D(new Vector3(0, 10, 0)));//1
+            nodeList.Add(new Node3D(new Vector3(10, 10, 0)));//2
+            nodeList.Add(new Node3D(new Vector3(10, 0, 0)));//3
+            //top
+            nodeList.Add(new Node3D(new Vector3(0, 0, 10)));//4
+            nodeList.Add(new Node3D(new Vector3(0, 10, 10)));//5
+            nodeList.Add(new Node3D(new Vector3(10, 10, 10)));//6
+            nodeList.Add(new Node3D(new Vector3(10, 0, 10)));//7
 
+            foreach (var node in nodeList)
+            {
+                var point = new Sphere3D { Radius = 1, Color = Color.Red, Position = node.Position };
+                point.Draw();
+                shapes.Add(point);
 
+            }
 
+            List<Tube3D> tubeList = new();
+            tubeList.Add(new Tube3D(nodeList[0].Position, nodeList[1].Position));
+            tubeList.Add(new Tube3D(nodeList[1].Position, nodeList[2].Position));
+            tubeList.Add(new Tube3D(nodeList[2].Position, nodeList[3].Position));
+            tubeList.Add(new Tube3D(nodeList[3].Position, nodeList[0].Position));
+            tubeList.Add(new Tube3D(nodeList[4].Position, nodeList[5].Position));
+            tubeList.Add(new Tube3D(nodeList[5].Position, nodeList[6].Position));
+            tubeList.Add(new Tube3D(nodeList[6].Position, nodeList[7].Position));
+            tubeList.Add(new Tube3D(nodeList[7].Position, nodeList[4].Position));
+            tubeList.Add(new Tube3D(nodeList[0].Position, nodeList[4].Position));
+            tubeList.Add(new Tube3D(nodeList[1].Position, nodeList[5].Position));
+            tubeList.Add(new Tube3D(nodeList[2].Position, nodeList[6].Position));
+            tubeList.Add(new Tube3D(nodeList[3].Position, nodeList[7].Position));
 
+            foreach (var tube in tubeList)
+            {
+                tube.Draw();
+                shapes.Add(tube);
+            }
+
+        }
 
         [RelayCommand]
         void Navigate(string destination)
@@ -268,25 +258,20 @@ namespace DimensionForge._3D.ViewModels
 
             }
         }
-
-
-
-
         public async Task Draw()
         {
             foreach (var s in shapes.ToList())
             {
                 if (s is Shape3D shape3D)
                     shape3D.Draw();
-                else if (s is ImportedModel b)
-                {
-                    var model = new ImportedModel(b.FileName);
-                    shapes.Remove(b);
-                    await model.Import();
-                    shapes.Add(model);
-                }
             }
         }
+
+
+
+
+
+
 
 
 
@@ -298,7 +283,6 @@ namespace DimensionForge._3D.ViewModels
             foreach (var shape in shapes)
                 shape.ConvertTransform3DGroupToTransformData();
         }
-
 
         [RelayCommand]
         [property: JsonIgnore]
@@ -312,20 +296,34 @@ namespace DimensionForge._3D.ViewModels
 
 
 
+        [RelayCommand]
+        [property: JsonIgnore]
+        public async Task ChangeNode()
+        {
+            var b = shapes.First(x => x is ImportedModel) as ImportedModel;
+            var node = b.cornerNodes.First();
+            node.Position += 1;
+            await Draw();
+        }
+
 
 
         [RelayCommand]
         [property: JsonIgnore]
         public void ObjectedClicked(IShape3D shape)
         {
+
+            if (shape is ImportedModel || shape is Floor3D)
+            {
+
+                return;
+            }
+
             var shape3d = shape as Shape3D;
             shape3d.Color = Color.Red;
             Draw();
 
         }
-
-
-
 
         [property: JsonIgnore]
         async void CreateFloor()
@@ -334,15 +332,11 @@ namespace DimensionForge._3D.ViewModels
             Shapes.Add(floor);
             await Draw();
         }
-
-
-
         public async void OnViewportInitialized(Viewport3DX viewport)
         {
             MyViewPort = viewport;
             CreateFloor();
         }
-
 
         [ObservableProperty]
         ObservableCollection<IShape3D> shapes = new();

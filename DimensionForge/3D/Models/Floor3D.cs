@@ -1,10 +1,8 @@
-﻿using DimensionForge._3D.Data;
-using HelixToolkit.SharpDX.Core;
+﻿using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
 using SharpDX;
 using System;
-using System.Collections.Generic;
-using Color = SharpDX.Color;
+using Newtonsoft.Json;
 namespace DimensionForge._3D.Models
 {
     public partial class Floor3D : Shape3D
@@ -16,25 +14,18 @@ namespace DimensionForge._3D.Models
 
         public Floor3D()
         {
-            //Init
-           
+            //Init          
             Name = "Floor";
             Id = Guid.NewGuid().ToString();
             PhongMaterial p = PhongMaterials.Red;
-
-           
+            
             p.DiffuseMap = new TextureModel("C:\\Users\\jacob\\Downloads\\pexels-jonathan-borba-5489194.jpg");
             p.RenderDiffuseMap = true;
             p.DiffuseColor = SharpDX.Color.DimGray.ToColor4();        
             Material = p;
 
-
-
             Draw();
-
-
         }
-
 
         public override void Draw()
         {
@@ -42,7 +33,6 @@ namespace DimensionForge._3D.Models
 
             // Floor Geometry
             MeshBuilder mesh = new MeshBuilder();
-
 
             mesh.AddBox(new Vector3(0, 0, -Height / 2), Length, Width, Height);
 
@@ -52,7 +42,6 @@ namespace DimensionForge._3D.Models
             {
                 (Geometry as MeshGeometry3D).TextureCoordinates[i] *= 5;
             }
-
 
         }
 

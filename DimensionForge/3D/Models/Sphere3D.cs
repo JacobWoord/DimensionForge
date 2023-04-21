@@ -11,7 +11,6 @@ namespace DimensionForge._3D.Models
     {
         public float Radius { get; set; }
        
-
         public Sphere3D()
         {       
 

@@ -13,7 +13,7 @@
         <StackPanel Orientation="Horizontal"
                     Margin="5">
             <Button Margin="5" Command="{Binding ZoomToCommand}">ZoomTo</Button>
-            <Button Margin="5">transform</Button>
+            <Button Margin="5" Command="{Binding ScaleDownCommand}">ScaleDown</Button>
             <Button Margin="5">Rotate</Button>
             <Button Margin="5">Rotate</Button>
         </StackPanel>

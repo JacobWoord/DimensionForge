@@ -27,16 +27,5 @@ namespace DimensionForge._3D.ViewModels
        
         }
 
-
-      
-
-
-        
-      
-      
-
-
-
-
     }
 }

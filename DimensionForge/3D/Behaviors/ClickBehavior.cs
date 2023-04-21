@@ -7,7 +7,7 @@ using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
 using Microsoft.Xaml.Behaviors;
 
-namespace  DimensionForge._3D.Behaviors
+namespace DimensionForge._3D.Behaviors
 {
     public class ClickBehavior : Behavior<Viewport3DX>
     {
@@ -39,23 +39,33 @@ namespace  DimensionForge._3D.Behaviors
 
             foreach (var hit in hits)
             {
-                if (hit.ModelHit is MeshGeometryModel3D m) 
+                if (hit.ModelHit is MeshGeometryModel3D m)
                 {
-                    var clickedObject = m;
-                    if (m.DataContext is IShape3D c) 
+                    var meshObject = m;
+                    if (m.DataContext is IShape3D c)
                     {
                         var cyl = c;
-
                         Command.Execute(cyl);
-
-                   
+                    }
+                }
+                else if (hit.ModelHit is BatchedMeshGeometryModel3D b)
+                {
+                    var batchObject = b;
+                    if (b.DataContext is IShape3D c)
+                    {
+                        var obj = c;
+                        Command.Execute(obj);
                     }
 
                 }
 
-              
-                 
-                
+
+
+
+
+
+
+
             }
         }
     }

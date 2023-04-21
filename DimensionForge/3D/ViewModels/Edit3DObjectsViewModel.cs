@@ -6,6 +6,9 @@ using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using System.Linq;
+using MaterialDesignThemes.Wpf;
+using System.Globalization;
 
 namespace DimensionForge._3D.ViewModels
 {
@@ -63,8 +66,7 @@ namespace DimensionForge._3D.ViewModels
         }
 
 
-      
-       
+
         [RelayCommand]
         [property: JsonIgnore]
         async Task Import()
@@ -82,7 +84,16 @@ namespace DimensionForge._3D.ViewModels
                 await Import(filePath);
             }
 
+            var model = canvasViewModel.Shapes.FirstOrDefault(x => x is ImportedModel) as ImportedModel;
+            model.ScaleModel(0.1);
+            model.SetCornerList();
+
+           // model.cornerNodes.ForEach(x => canvasViewModel.Shapes.Add(new CornerPoint3D { NodePosition = x, Color = Color.Blue , Radius = 1}));
+
+            canvasViewModel.Draw();
         }
+          
+            
 
         async Task Import(string filePath)
         {
@@ -90,7 +101,12 @@ namespace DimensionForge._3D.ViewModels
             await batchedmodel.OpenFile();
             canvasViewModel.Shapes.Add(batchedmodel);
 
+            var model = canvasViewModel.Shapes.FirstOrDefault(x => x is BathedModel3D);
+
+            model.ScaleModel(0.1);
+            
         }
+         
 
     }
 }

@@ -26,14 +26,12 @@ namespace DimensionForge._2D.ViewModels
     public partial class Canvas2DViewModel : ObservableObject
     {
 
-     
 
         [ObservableProperty]
         float width = 1400;
 
         [ObservableProperty]
         float _height = 750;
-
 
         [ObservableProperty]
         ObservableCollection<IShape2D> shapes = new();
@@ -46,6 +44,8 @@ namespace DimensionForge._2D.ViewModels
 
         }
 
+
+        [property:JsonIgnore]
         async Task UpdateVerlet()
         {
             await Task.Run(async () =>
@@ -59,6 +59,8 @@ namespace DimensionForge._2D.ViewModels
             });
 
         }
+
+        [property: JsonIgnore]
         void Update_Physics(ObservableCollection<IShape2D> shapesCopy)
         {
             foreach (IShape2D shape in shapesCopy.ToArray())
@@ -94,6 +96,8 @@ namespace DimensionForge._2D.ViewModels
                 }
             }
         }
+
+        [property: JsonIgnore]
         void UpdateConstrains(IShape2D shape)
         {
             if (shape is not Sphere3D)
