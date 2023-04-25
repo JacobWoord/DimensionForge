@@ -50,17 +50,17 @@ namespace DimensionForge._3D.ViewModels
 
         [RelayCommand]
         [property: JsonIgnore]
-        void DoorTrans()
+        void CalcDoorTrans()
         { 
 
-            var door = canvasViewModel.Shapes.FirstOrDefault(x => x is BathedModel3D) as BathedModel3D;
-            door.SetCornerList();
+            //var door = canvasViewModel.Shapes.FirstOrDefault(x => x is BathedModel3D) as BathedModel3D;
+            //var center = canvasViewModel.VerletNodes;
 
-            door.cornerNodes.ForEach(nodes => canvasViewModel.Shapes.Add(new Sphere3D() { Color = Color.Blue, Position = nodes.Position}));
-
-            canvasViewModel.Draw();
-           
         }
+
+
+           
+           
 
 
 

@@ -1,5 +1,6 @@
 ﻿using SharpDX;
 using System;
+using DimensionForge.Common;
 
 namespace DimensionForge._3D.Models
 {
@@ -11,6 +12,8 @@ namespace DimensionForge._3D.Models
         public Vector3 Position { get; set; }
         public Vector3 OldPosition { get; set; }
         public float RadiusInMeters { get; set; } = 0.1f;
+        public NodePosition NodePos { get; set; }
+        public Color Color { get; set; } 
 
         public Node3D(Vector3 pos) 
         { 

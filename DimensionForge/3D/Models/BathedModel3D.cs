@@ -13,24 +13,24 @@ using DimensionForge._3D.Data;
 using Quaternion = System.Windows.Media.Media3D.Quaternion;
 using HelixToolkit.Wpf.SharpDX;
 using DimensionForge.HelperTools;
-using System.Windows.Media;
-using System.Windows;
 using DimensionForge._3D.ViewModels;
-using System.Runtime.CompilerServices;
+using DimensionForge.Common;
 
 namespace DimensionForge._3D.Models
 {
 
     public partial class BathedModel3D : ObservableObject, IShape3D
     {
-        public List<Node3D> cornerNodes = new();
-        public List<Node3D> verletElements = new();
+        // public List<Node3D> cornerNodes = new();
+        // public List<Node3D> verletElements = new();
 
         public string ID = Guid.NewGuid().ToString();
         public string Name { get; set; }
         public string Description { get; set; }
         public string FileName { get; set; }
-
+        
+        
+        public VerletBox3D Box3D = new VerletBox3D();
 
         public IList<TransformData> TransformDatas { get; set; }
 
@@ -198,7 +198,7 @@ namespace DimensionForge._3D.Models
             }
             this.ScaleModel(0.1);
             this.ScaleModel(0.1);
-           
+
         }
         public BoundingBox GetBoundingBox()
         {
@@ -229,7 +229,7 @@ namespace DimensionForge._3D.Models
 
             return new BoundingBox(min, max);
         }
-        
+
         public Vector3 GetLocation()
         {
             Vector3 location = new Vector3();
@@ -257,61 +257,74 @@ namespace DimensionForge._3D.Models
         }
         public async Task Import()
         {
-            await OpenFile();        
-            var bb = this.GetBoundingBox();
-            var corners = bb.GetCorners();
-            corners.ToList().ForEach(c => this.cornerNodes.Add(new Node3D(c)));
+            //    await OpenFile();        
+            // var bb = this.GetBoundingBox();
+            //  var corners = bb.GetCorners();
+            //corners.ToList().ForEach(c => this.cornerNodes.Add(new Node3D(c)));
+            //corners.ToList().ForEach(c => this.cornerNodes.Add(new Node3D(c)));
         }
+
+
+
+
+
+
         public void SetCornerList()
         {
+            Box3D = new VerletBox3D();
             var bb = this.GetBoundingBox();
-            var corners = bb.GetCorners();
-            corners.ToList().ForEach(c => this.cornerNodes.Add(new Node3D(c)));
-            //add the node references to the list in the viewmodel
-            var nodelist = Ioc.Default.GetService<Canvas3DViewModel>().VerletNodes;
-            //cornerNodes.ForEach(node => { nodelist.Add(node); });
-
-            verletElements = ConvertBoundingBoxToSquare(cornerNodes);
-            verletElements.ForEach(n => nodelist.Add(n));
-            cornerNodes = verletElements;
-
-        }
-        public static List<Node3D> ConvertBoundingBoxToSquare(List<Node3D> boundingBox)
-        {
-            // Find the minimum and maximum coordinates in each dimension
-            float minX = boundingBox.Min(p => p.Position.X);
-            float minY = boundingBox.Min(p => p.Position.Y);
-            float minZ = boundingBox.Min(p => p.Position.Z);
-            float maxX = boundingBox.Max(p => p.Position.X);
-            float maxY = boundingBox.Max(p => p.Position.Y);
-            float maxZ = boundingBox.Max(p => p.Position.Z);
-
-            // Determine the half-depth of the square
-            float halfDepth = (maxZ - minZ);
-
-            // Calculate the 4 corner points of the square
-            List<Node3D> square = new List<Node3D>();
-            square.Add(new Node3D(new Vector3( minX , minY, minZ)));
-            square.Add(new Node3D(new Vector3(maxX , minY , minZ + halfDepth)));
-            square.Add(new Node3D(new Vector3(maxX, maxY , minZ + halfDepth )));
-            square.Add(new Node3D(new Vector3(minX, maxY , minZ )));
-            return square;
-        }
-        public void Translate(Vector3 translation)
-        {
+            var eightCorners = bb.GetCorners();
+            var fourCorners = ConvertBoundingBoxToSquare(eightCorners.ToList());
             
-            transform.Children.Add(new TranslateTransform3D(translation.X, translation.Y, translation.Z));
+            Box3D.CornerList = fourCorners;
 
-        } 
-        public void Select()
-        {
-            throw new NotImplementedException();
-        }
-        public void Deselect()
-        {
-            throw new NotImplementedException();
-        }
+                //corners.ToList().ForEach(c => this.cornerNodes.Add(new Node3D(c)));
+                //add the node references to the list in the viewmodel
+               // var nodelist = Ioc.Default.GetService<Canvas3DViewModel>().VerletNodes;
+                //cornerNodes.ForEach(node => { nodelist.Add(node); });
+                //verletElements = ConvertBoundingBoxToSquare(Box3D.cornerPoints);
+                //verletElements.ForEach(n => nodelist.Add(n));
+                // cornerNodes = verletElements;
 
-       
+
+            
+            }
+        public List<Node3D> ConvertBoundingBoxToSquare(List<Vector3> boundingBox)
+            {
+                // Find the minimum and maximum coordinates in each dimension
+                float minX = boundingBox.Min(p => p.X);
+                float minY = boundingBox.Min(p => p.Y);
+                float minZ = boundingBox.Min(p => p.Z);
+                float maxX = boundingBox.Max(p => p.X);
+                float maxY = boundingBox.Max(p => p.Y);
+                float maxZ = boundingBox.Max(p => p.Z);
+
+                // Determine the half-depth of the square
+                float halfDepth = (maxZ - minZ);
+
+                // Calculate the 4 corner points of the square
+                List<Node3D> square = new List<Node3D>();
+                square.Add(new Node3D(new Vector3(minX, minY, minZ)) { NodePos = NodePosition.BottomLeft, Color = Color.Red });
+                square.Add(new Node3D(new Vector3(maxX, minY, minZ + halfDepth)) { NodePos = NodePosition.LeftTop, Color = Color.Green });
+                square.Add(new Node3D(new Vector3(maxX, maxY, minZ + halfDepth)) { NodePos = NodePosition.RightTop, Color = Color.Yellow });
+                square.Add(new Node3D(new Vector3(minX, maxY, minZ)) { NodePos = NodePosition.BottomRight, Color = Color.Purple });
+                return square;
+            }
+            public void Translate(Vector3 translation)
+            {
+
+                transform.Children.Add(new TranslateTransform3D(translation.X, translation.Y, translation.Z));
+
+            }
+            public void Select()
+            {
+                throw new NotImplementedException();
+            }
+            public void Deselect()
+            {
+                throw new NotImplementedException();
+            }
+
+
+        }
     }
-}
