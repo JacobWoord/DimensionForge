@@ -16,6 +16,7 @@ using DimensionForge.HelperTools;
 using System.Windows.Media;
 using System.Windows;
 using DimensionForge._3D.ViewModels;
+using System.Runtime.CompilerServices;
 
 namespace DimensionForge._3D.Models
 {
@@ -62,10 +63,21 @@ namespace DimensionForge._3D.Models
         [ObservableProperty]
         [property: JsonIgnore]
         Transform3DGroup transform;
-
-
-
-
+        private TranslateTransform3D translateTransform;
+        public void SetModelPosition(Vector3 pos)
+        {
+            if (translateTransform == null)
+            {
+                translateTransform = new TranslateTransform3D(pos.X, pos.Y, pos.Z);
+                Transform.Children.Add(translateTransform);
+            }
+            else
+            {
+                translateTransform.OffsetX = pos.X;
+                translateTransform.OffsetY = pos.Y;
+                translateTransform.OffsetZ = pos.Z;
+            }
+        }
         public void Rotate(Vector3D Axis, double Angle)
         {
             var trans = new RotateTransform3D(
@@ -75,7 +87,6 @@ namespace DimensionForge._3D.Models
 
             transform.Children.Add(trans);
         }
-
         public void ScaleModel(double scaleFactor)
         {
             ScaleTransform3D scaleTransform = new ScaleTransform3D(scaleFactor, scaleFactor, scaleFactor);
@@ -185,6 +196,9 @@ namespace DimensionForge._3D.Models
             {
                 Nodes.Add(item.Location);
             }
+            this.ScaleModel(0.1);
+            this.ScaleModel(0.1);
+           
         }
         public BoundingBox GetBoundingBox()
         {
@@ -215,6 +229,7 @@ namespace DimensionForge._3D.Models
 
             return new BoundingBox(min, max);
         }
+        
         public Vector3 GetLocation()
         {
             Vector3 location = new Vector3();
@@ -236,32 +251,13 @@ namespace DimensionForge._3D.Models
 
             return location;
         }
-
-        //public BoundingBox GetBoundingBox()
-        //{
-
-        //    // Create a new bounding box
-        //    var boundingBox = new SharpDX.BoundingBox();
-
-        //    // Iterate over the geometries and expand the bounding box
-        //    foreach (var config in batchedMeshes)
-        //    {
-        //        config.Geometry.UpdateBounds();
-        //        var box = config.Geometry.Bound;
-        //        boundingBox = SharpDX.BoundingBox.Merge(boundingBox, box);
-        //    }
-        //    return boundingBox;
-        //}
-
         public HelixToolkit.Wpf.SharpDX.Material SetMaterial()
         {
             return null;
         }
         public async Task Import()
         {
-            await OpenFile();
-
-            this.ScaleModel(0.1);
+            await OpenFile();        
             var bb = this.GetBoundingBox();
             var corners = bb.GetCorners();
             corners.ToList().ForEach(c => this.cornerNodes.Add(new Node3D(c)));
@@ -277,9 +273,9 @@ namespace DimensionForge._3D.Models
 
             verletElements = ConvertBoundingBoxToSquare(cornerNodes);
             verletElements.ForEach(n => nodelist.Add(n));
+            cornerNodes = verletElements;
 
         }
-
         public static List<Node3D> ConvertBoundingBoxToSquare(List<Node3D> boundingBox)
         {
             // Find the minimum and maximum coordinates in each dimension
@@ -301,22 +297,21 @@ namespace DimensionForge._3D.Models
             square.Add(new Node3D(new Vector3(minX, maxY , minZ )));
             return square;
         }
-
-
         public void Translate(Vector3 translation)
         {
+            
             transform.Children.Add(new TranslateTransform3D(translation.X, translation.Y, translation.Z));
 
-        }
-
+        } 
         public void Select()
         {
             throw new NotImplementedException();
         }
-
         public void Deselect()
         {
             throw new NotImplementedException();
         }
+
+       
     }
 }

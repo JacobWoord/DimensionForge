@@ -55,9 +55,9 @@ namespace DimensionForge._3D.ViewModels
             Color[] colors = { Color.DarkRed, Color.Yellow, Color.Green, Color.Blue };
             float radius = (float)(rand.NextDouble() * (maxRadius - minRadius) + minRadius);
             Color color = colors[rand.Next(colors.Length)];
-            Vector3 startPos = new Vector3((float)rand.NextDouble() * 50 - 25, (float)rand.NextDouble() * 200 - 50, (float)rand.NextDouble() * 0 - 25);
-            Vector3 endPos = new Vector3((float)rand.NextDouble() * 50 - 25, (float)rand.NextDouble() * 200 - 50, (float)rand.NextDouble() * 0 - 25);
-            float length = Vector3.Distance(startPos, endPos);
+            Node3D startPos =new Node3D(new Vector3((float)rand.NextDouble() * 50 - 25, (float)rand.NextDouble() * 200 - 50, (float)rand.NextDouble() * 0 - 25));
+            Node3D endPos = new Node3D( new Vector3((float)rand.NextDouble() * 50 - 25, (float)rand.NextDouble() * 200 - 50, (float)rand.NextDouble() * 0 - 25));
+            float length = Vector3.Distance(startPos.Position, endPos.Position);
             var cylinder = new Cylinder3D { Radius = radius, Color = color, P1 = startPos, P2 = endPos };
             canvasViewModel.Shapes.Add(cylinder);
 
@@ -85,13 +85,12 @@ namespace DimensionForge._3D.ViewModels
             }
 
             var model = canvasViewModel.Shapes.FirstOrDefault(x => x is ImportedModel) as ImportedModel;
-            model.ScaleModel(0.1);
             model.SetCornerList();
-
-           // model.cornerNodes.ForEach(x => canvasViewModel.Shapes.Add(new CornerPoint3D { NodePosition = x, Color = Color.Blue , Radius = 1}));
-
             canvasViewModel.Draw();
         }
+
+      
+
           
             
 
@@ -103,7 +102,7 @@ namespace DimensionForge._3D.ViewModels
 
             var model = canvasViewModel.Shapes.FirstOrDefault(x => x is BathedModel3D);
 
-            model.ScaleModel(0.1);
+     
             
         }
          

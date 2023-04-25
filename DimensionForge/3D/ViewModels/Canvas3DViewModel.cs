@@ -1,4 +1,4 @@
-﻿using DimensionForge._2D.ViewModels;
+﻿
 using DimensionForge._3D.interfaces;
 using DimensionForge._3D.Models;
 using HelixToolkit.SharpDX.Core;
@@ -50,10 +50,10 @@ namespace DimensionForge._3D.ViewModels
                 UpDirection = new Vector3D(0, 1, 0),
                 FarPlaneDistance = 1000,
                 NearPlaneDistance = -1000,
-                Width = 100,
+                Width = 1000,
             };
 
-            Camera.CreateViewMatrix();
+        Camera.CreateViewMatrix();
         }
 
         [RelayCommand]
@@ -71,34 +71,89 @@ namespace DimensionForge._3D.ViewModels
         }
 
         [property: JsonIgnore]
-        void UpdatePhysics()
+        async Task UpdatePhysics()
         {
+            var door = shapes.FirstOrDefault(x => x is BathedModel3D) as BathedModel3D;
             //generates a loop that stays on the same thread as the UI thread
 
-            for (int i = 0; i < shapes.Count(); i++)
+            for (int i = 0; i < verletNodes.Count(); i++)
             {
-                if (!(shapes[i] is Sphere3D))
+                if (Application.Current is not null)
                 {
-                    continue;
-                    break;
-                }
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-
-                    for (int x = 0; x < 1; x++)
-                    {
-                        UpdatePositions(shapes[i]);
-                        for (int j = 0; j < 3; j++)
+                    await Application.Current.Dispatcher.Invoke(async () =>
                         {
-                            if (shapes.Count() > 2)
-                                Find_collision(shapes[i]);
-                        }
-                        ConstrainGround(shapes[i]);
-                    }
-                    Draw();
-                });
+                            for (int x = 0; x < 1; x++)
+                            {
+                                UpdatePositions(VerletNodes[i]);
+
+
+                                
+                                var cylinders = shapes.Where(s => s is Cylinder3D).ToList();
+                                for (int y = 0; y < cylinders.Count(); y++)
+                                UpdateSticks(cylinders[y] as Cylinder3D);
+                                
+                                
+                                ConstrainGround(VerletNodes[i]);
+                                //for (int j = 0; j < 3; j++)
+                                //{
+                                //    //if (shapes.Count() > 2)
+                                //    //    Find_collision(shapes[i]);
+                                //}
+                                await Draw();
+
+                                await UpdateDoorsPosition();
+                            }
+                        });
+                }
+                continue;
+
+
             }
+
         }
+
+        async Task UpdateDoorsPosition()
+        {
+            foreach (var model in shapes.Where(x => x is BathedModel3D))
+            {
+                (model as BathedModel3D).SetModelPosition(verletNodes.Last().Position);
+
+
+            }
+
+        }
+
+        void UpdateSticks(Cylinder3D stick)
+        {
+            //reference to the Node3D of the Cylinder
+            var node1 = stick.P1;
+            var node2 = stick.P2;
+            var pos1 = node1.Position;
+            var pos2 = node2.Position;
+
+            var dx = pos2.X - pos1.X;
+            var dy = pos2.Y - pos1.Y;
+            var distance = Vector3.Distance(node1.Position, node2.Position);
+            var stickLength = stick.Lentgh;
+            var differnce = stickLength - distance;
+            var percent = differnce / distance / 2;
+            var offsetX = dx * percent;
+            var offsetY = dy * percent;
+
+            pos1.X -= offsetX;
+            pos1.Y -= offsetY;
+            pos2.X += offsetX;
+            pos2.Y += offsetY;
+
+            stick.P1.Position = pos1;
+            stick.P2.Position = pos2;
+
+
+
+        }
+
+
+
         void Find_collision(IShape3D shape)
         {
 
@@ -145,55 +200,124 @@ namespace DimensionForge._3D.ViewModels
                 }
             }
         }
-        public void ConstrainGround(IShape3D ishape)
+        public void ConstrainGround(Node3D node)
         {
 
             //adding constrains to the ground
-            var shape = ishape as Models.Sphere3D;
 
-            var xv = shape.Position.X - shape.OldPosition.X;  // x velocity
-            var yv = shape.Position.Y - shape.OldPosition.Y;  // y velocity
-            var zv = shape.Position.Z - shape.OldPosition.Z;  // z velocity
+            var xv = node.Position.X - node.OldPosition.X;  // x velocity
+            var yv = node.Position.Y - node.OldPosition.Y;  // y velocity
+            var zv = node.Position.Z - node.OldPosition.Z;  // z velocity
 
             var bounce = 0.8f;
 
-            if (shape.Position.Z < shape.Radius)
+            if (node.Position.Z < node.RadiusInMeters)
             {
-                shape.Position = new Vector3(shape.Position.X, shape.Position.Y, shape.Radius);
-                shape.OldPosition = new Vector3(shape.OldPosition.X, shape.OldPosition.Y, shape.Position.Z + zv * bounce);
+                node.Position = new Vector3(node.Position.X, node.Position.Y, node.RadiusInMeters);
+                node.OldPosition = new Vector3(node.OldPosition.X, node.OldPosition.Y, node.Position.Z + zv * bounce);
             }
 
         }
-        void UpdatePositions(IShape3D shape)
+        void UpdatePositions(Node3D node)
         {
             //update the position of the models by setting the current and the old position
-            var sphere = shape as Models.Sphere3D;
+            var position = node.Position;
             // to implement the bounce we multiply the OldVelocity by Bounce
             var bounce = 0.8f;
             // to implement gravity we add it to the position.Z after we add velocity
             var gravity = new Vector3(0, 0, -0.99f);
             //multiply the velocity by friction to slow it down
             var friction = 0.900f;
-            var radius = sphere.Radius;
-            var position = sphere.Position;
-            var oldPosition = sphere.OldPosition;
+            var radius = node.RadiusInMeters;
+
+            var oldPosition = node.OldPosition;
             var velocity = (position - oldPosition) * friction;
             oldPosition = position;
             position += velocity;
             position += gravity;
 
-            sphere.Position = position;
-            sphere.OldPosition = oldPosition;
+            node.Position = position;
+            node.OldPosition = oldPosition;
         }
 
+
+
+
+
+        //test method to add verlet on the boundries of the door.
         [RelayCommand]
         void DrawVerletNodes()
         {
             verletNodes.ForEach(n => shapes.Add(new CornerPoint3D { NodePosition = n }));
+
+            //stick 1
+            var s1 = new Cylinder3D();
+            s1.P1 = verletNodes[0];
+            s1.P2 = verletNodes[1];
+            s1.Color = Color.Green;
+            s1.Lentgh = Vector3.Distance(s1.P1.Position, s1.P2.Position);
+            Shapes.Add(s1);
+            //stick 2
+            var s2 = new Cylinder3D();
+            s2.P1 = verletNodes[1];
+            s2.P2 = verletNodes[2];
+            s2.Color = Color.Green;
+            s2.Lentgh = Vector3.Distance(s2.P1.Position, s2.P2.Position);
+            Shapes.Add(s2);
+            //stick 3
+            var s3 = new Cylinder3D();
+            s3.P1 = verletNodes[2];
+            s3.P2 = verletNodes[3];
+            s3.Color = Color.Green;
+            s3.Lentgh = Vector3.Distance(s3.P1.Position, s3.P2.Position);
+            Shapes.Add(s3);
+            //stick 4
+            var s4 = new Cylinder3D();
+            s4.P1 = verletNodes[3];
+            s4.P2 = verletNodes[0];
+            s4.Lentgh = Vector3.Distance(s4.P1.Position, s4.P2.Position);
+            s4.Color = Color.Green;
+            Shapes.Add(s4);
+            //stick 5 Diagonal
+            var rightTop = VerletNodes.Where(v => v.Position.X >= verletNodes[0].Position.X && v.Position.Y >= verletNodes[0].Position.Y)
+                 .OrderBy(v => v.Position.X)
+                 .ThenByDescending(v => v.Position.Y)
+                 .FirstOrDefault();
+            var leftBottom = VerletNodes.Where(v => v.Position.X <= verletNodes[2].Position.X && v.Position.Y <= verletNodes[2].Position.Y)
+                .OrderByDescending(v => v.Position.X)
+                .ThenBy(v => v.Position.Y)
+                .FirstOrDefault();
+            var s5 = new Cylinder3D();
+            s5.P1 = rightTop;
+            s5.P2 = leftBottom;
+            s5.Color = Color.Green;
+            s5.Lentgh = Vector3.Distance(s5.P1.Position, s5.P2.Position);
+            Shapes.Add(s5);
+            //Stick 6 Diagonal
+            var leftTop = VerletNodes.Where(v => v.Position.X >= verletNodes[1].Position.X && v.Position.Y >= verletNodes[1].Position.Y)
+                 .OrderBy(v => v.Position.X)
+                 .ThenByDescending(v => v.Position.Y)
+                 .FirstOrDefault();
+            var rightBottom = VerletNodes.Where(v => v.Position.X <= verletNodes[3].Position.X && v.Position.Y <= verletNodes[3].Position.Y)
+                .OrderByDescending(v => v.Position.X)
+                .ThenBy(v => v.Position.Y)
+                .FirstOrDefault();
+            var s6 = new Cylinder3D();
+            s6.P1 = leftTop;
+            s6.P2 = rightBottom;
+            s6.Color = Color.Green;
+            s6.Lentgh = Vector3.Distance(s6.P1.Position, s6.P2.Position);
+            Shapes.Add(s6);
+
+
+
+
+
+
             Draw();
         }
-        
-        
+
+
         [property: JsonIgnore]
         [RelayCommand]
         void VerletShape()
@@ -264,6 +388,8 @@ namespace DimensionForge._3D.ViewModels
             {
                 if (s is Shape3D shape3D)
                     shape3D.Draw();
+
+
             }
         }
 

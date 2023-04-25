@@ -4,6 +4,7 @@ using SharpDX;
 using System.Collections.Generic;
 using System.Net;
 using Newtonsoft.Json;
+using System;
 
 namespace DimensionForge._3D.Models
 {
@@ -16,7 +17,7 @@ namespace DimensionForge._3D.Models
         public Vector3[] path { get; set; }
 
         [ObservableProperty]
-        double diameter = 0.3;
+        double diameter = 0.5;
 
         [ObservableProperty]
         int thetaDiv = 30;
@@ -25,6 +26,8 @@ namespace DimensionForge._3D.Models
             Material = PhongMaterials.Green;
             
             NodeList = path;
+
+           
             
             Name = "Tube";
             Draw();

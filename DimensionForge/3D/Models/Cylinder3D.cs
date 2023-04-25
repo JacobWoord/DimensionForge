@@ -12,27 +12,29 @@ namespace DimensionForge._3D.Models
     {
 
         [ObservableProperty]
-        Vector3 p1;
+        Node3D p1;
 
         [ObservableProperty]
-        Vector3 p2;
+        Node3D p2;
 
         [ObservableProperty]
-        float radius;
+        float radius = 0.8f;
 
         [ObservableProperty]
         float lentgh;
 
         public Cylinder3D()
         {
-            Draw();
+
         }
 
 
         public override void Draw()
         {
+            
+
             MeshBuilder meshbuilder = new MeshBuilder();
-            meshbuilder.AddCylinder(p1, p2, radius, 32);
+            meshbuilder.AddCylinder(P1.Position, P2.Position, Radius, 32);
             Material = SetMaterial();
             Geometry = meshbuilder.ToMeshGeometry3D();
         }

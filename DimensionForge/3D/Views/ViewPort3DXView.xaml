@@ -9,7 +9,7 @@
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:local="clr-namespace:DimensionForge._3D.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:tb="[tb ]clr-namespace:DimensionForge._3D.Views.ToolbarViews"
+    xmlns:tb="clr-namespace:DimensionForge._3D.Views.ToolbarViews"
     xmlns:viewmodels3D="clr-namespace:DimensionForge._3D.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels3D:Canvas3DViewModel}"
     d:DesignHeight="450"
@@ -36,21 +36,24 @@
     </UserControl.Resources>
 
     <Grid>
-
+        
         <helix:Viewport3DX
             x:Name="view1"
             BackgroundColor="White"
             Camera="{Binding Camera}"
+            EffectsManager="{Binding EffectsManager}"
             CameraMode="Inspect"
             CameraRotationMode="Trackball"
-            EffectsManager="{Binding EffectsManager}"
-            FixedRotationPointEnabled="True"
+            IsChangeFieldOfViewEnabled="true"         
+            FixedRotationPointEnabled="False"
             IsZoomEnabled="True"
             ShowCameraInfo="True"
             ShowCoordinateSystem="True"
             ShowFrameDetails="True"
             ShowTriangleCountInfo="True"
-            ZoomExtentsWhenLoaded="true">
+            ZoomExtentsWhenLoaded="true"
+            ZoomSensitivity="0.3">
+                
 
             <i:Interaction.Behaviors>
                 <extensions:Viewport3DXBehavior />
@@ -67,7 +70,8 @@
                             Geometry="{Binding Geometry}"
                             Material="{Binding Material}"
                             RenderWireframe="False"
-                            Transform="{Binding Transform}" />
+                            Transform="{Binding Transform}" 
+                            />
 
                     </DataTemplate>
 
@@ -122,13 +126,6 @@
                 Draw verletNodes
             </Button>
 
-            <Button
-                Margin="10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Command="{Binding ChangeNodeCommand}">
-                Change Node
-            </Button>
         </StackPanel>
 
         <StackPanel

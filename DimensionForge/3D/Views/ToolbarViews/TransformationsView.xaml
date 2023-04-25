@@ -14,7 +14,7 @@
                     Margin="5">
             <Button Margin="5" Command="{Binding ZoomToCommand}">ZoomTo</Button>
             <Button Margin="5" Command="{Binding ScaleDownCommand}">ScaleDown</Button>
-            <Button Margin="5">Rotate</Button>
+            <Button Margin="5" Command="{Binding DoorTransCommand}">Door Trans</Button>
             <Button Margin="5">Rotate</Button>
         </StackPanel>
             

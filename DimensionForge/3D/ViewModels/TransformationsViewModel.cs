@@ -35,6 +35,8 @@ namespace DimensionForge._3D.ViewModels
                shape.ScaleModel(0.1);
             }
         }
+
+
         [RelayCommand]
         [property: JsonIgnore]
         void Translate()
@@ -45,6 +47,22 @@ namespace DimensionForge._3D.ViewModels
 
             }
         }
+
+        [RelayCommand]
+        [property: JsonIgnore]
+        void DoorTrans()
+        { 
+
+            var door = canvasViewModel.Shapes.FirstOrDefault(x => x is BathedModel3D) as BathedModel3D;
+            door.SetCornerList();
+
+            door.cornerNodes.ForEach(nodes => canvasViewModel.Shapes.Add(new Sphere3D() { Color = Color.Blue, Position = nodes.Position}));
+
+            canvasViewModel.Draw();
+           
+        }
+
+
 
         [RelayCommand]
         [property: JsonIgnore]
