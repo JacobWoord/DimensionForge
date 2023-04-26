@@ -1,6 +1,6 @@
 ﻿using DimensionForge._3D.Data;
 using HelixToolkit.SharpDX.Core;
-
+using Color = SharpDX.Color;
 using SharpDX;
 using System;
 
@@ -13,7 +13,7 @@ namespace DimensionForge._3D.Models
        
         public Sphere3D()
         {       
-
+            Color = SharpDX.Color.Red;
         }
 
         public override void Draw()

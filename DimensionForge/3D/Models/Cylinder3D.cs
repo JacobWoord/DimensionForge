@@ -12,10 +12,10 @@ namespace DimensionForge._3D.Models
     {
 
         [ObservableProperty]
-        Node3D p1;
+        Node3D p1 = new Node3D(Vector3.Zero);
 
         [ObservableProperty]
-        Node3D p2;
+        Node3D p2 = new Node3D(Vector3.Zero);
 
         [ObservableProperty]
         float radius = 0.8f;

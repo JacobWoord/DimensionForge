@@ -12,6 +12,6 @@ namespace DimensionForge.Common
         RightTop,
         BottomLeft,
         BottomRight,
-
+        Center
     }
 }

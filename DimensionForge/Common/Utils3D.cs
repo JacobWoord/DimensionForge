@@ -11,12 +11,34 @@ using System.Diagnostics;
 using System.Windows;
 using System.IO;
 
-namespace Net_Designer_MVVM {
-    public static class Utils3D {
+namespace Net_Designer_MVVM
+{
+    public static class Utils3D
+    {
 
         private static readonly float EPS = 0.1f;
 
-        public static Vector3 TranslatedReferencePoint(Plane plane, int transInCm, Vector3 point) {
+
+
+
+        public static float AngleBetweenAxes(Vector3 axis1Vec1, Vector3 axis1Vec2, Vector3 axis2Vec1, Vector3 axis2Vec2)
+        {
+            // Calculate the vectors for each axis
+            Vector3 axis1 = Vector3.Normalize(axis1Vec2 - axis1Vec1);
+            Vector3 axis2 = Vector3.Normalize(axis2Vec2 - axis2Vec1);
+
+            // Calculate the dot product between the two axes
+            float dotProduct = Vector3.Dot(axis1, axis2);
+
+            // Calculate the angle between the two axes
+            float angle = MathF.Acos(dotProduct);
+
+
+            return angle;
+        }
+
+        public static Vector3 TranslatedReferencePoint(Plane plane, int transInCm, Vector3 point)
+        {
             //init
             var point3D = point;
             var cmToTranslate = transInCm / 100;
@@ -33,7 +55,8 @@ namespace Net_Designer_MVVM {
         /// <summary>
         /// Rotate a Vector3 over an axis defined by two points.
         /// </summary>
-        public static Vector3 RotateVectorOverAxis(Vector3 axis1, Vector3 axis2, Vector3 vectorToRotate, float angle) {
+        public static Vector3 RotateVectorOverAxis(Vector3 axis1, Vector3 axis2, Vector3 vectorToRotate, float angle)
+        {
 
 
             // Define the point to be rotated
@@ -70,15 +93,18 @@ namespace Net_Designer_MVVM {
         /// <summary>
         /// Calculates the distance between a point and a plane.
         /// </summary>     
-        public static float DistancePointToPlane(Vector3 point, SharpDX.Plane plane) {
+        public static float DistancePointToPlane(Vector3 point, SharpDX.Plane plane)
+        {
             /*ORGINEEL */
             float distance = Vector3.Dot(plane.Normal, point);
             distance -= plane.D;
             // Return the absolute value of the distance, since the sign indicates which side of the plane the point is on.
             return Math.Abs(distance) / plane.Normal.Length();
         }
-        public static SceneNodeGroupModel3D OpenFile(string path) {
-            if (File.Exists(path) == false) {
+        public static SceneNodeGroupModel3D OpenFile(string path)
+        {
+            if (File.Exists(path) == false)
+            {
                 MessageBox.Show($"bestand ({path}) bestaat niet.");
                 return null;
             }
@@ -93,17 +119,23 @@ namespace Net_Designer_MVVM {
 
 
 
-            if (scene != null) {
-                if (scene.Root != null) {
+            if (scene != null)
+            {
+                if (scene.Root != null)
+                {
                     Debug.WriteLine("scene.Root != null");
 
-                    foreach (var node in scene.Root.Traverse()) {
-                        if (node is MaterialGeometryNode m) {
+                    foreach (var node in scene.Root.Traverse())
+                    {
+                        if (node is MaterialGeometryNode m)
+                        {
                             //m.Geometry.SetAsTransient();
-                            if (m.Material is PBRMaterialCore pbr) {
+                            if (m.Material is PBRMaterialCore pbr)
+                            {
                                 pbr.RenderEnvironmentMap = true;
                             }
-                            else if (m.Material is PhongMaterialCore phong) {
+                            else if (m.Material is PhongMaterialCore phong)
+                            {
                                 phong.RenderEnvironmentMap = true;
                             }
                         }
@@ -126,7 +158,8 @@ namespace Net_Designer_MVVM {
         /// <param name="v2"></param>
         /// <returns></returns>
         /// 
-        public static bool VectorEquals(SharpDX.Vector3 v1, SharpDX.Vector3 v2) {
+        public static bool VectorEquals(SharpDX.Vector3 v1, SharpDX.Vector3 v2)
+        {
             if (Math.Abs(v1.X - v2.X) < EPS && Math.Abs(v1.Y - v2.Y) < EPS && Math.Abs(v1.Z - v2.Z) < EPS)
                 return true;
             else
@@ -139,7 +172,8 @@ namespace Net_Designer_MVVM {
         /// <param name="vmin"></param>
         /// <param name="vmax"></param>
         /// <returns></returns>
-        public static SharpDX.Color4 GetColour(float v, float vmin, float vmax) {
+        public static SharpDX.Color4 GetColour(float v, float vmin, float vmax)
+        {
             //https://stackoverflow.com/questions/7706339/grayscale-to-red-green-blue-matlab-jet-color-scale
             var c = new SharpDX.Color4(1.0f, 1.0f, 1.0f, 1.0f);// white
             float dv;
@@ -150,19 +184,23 @@ namespace Net_Designer_MVVM {
                 v = vmax;
             dv = vmax - vmin;
 
-            if (v < (vmin + 0.25f * dv)) {
+            if (v < (vmin + 0.25f * dv))
+            {
                 c.Red = 0;
                 c.Green = 4f * (v - vmin) / dv;
             }
-            else if (v < (vmin + 0.5f * dv)) {
+            else if (v < (vmin + 0.5f * dv))
+            {
                 c.Red = 0;
                 c.Green = 1f + 4f * (vmin + 0.25f * dv - v) / dv;
             }
-            else if (v < (vmin + 0.75 * dv)) {
+            else if (v < (vmin + 0.75 * dv))
+            {
                 c.Red = 4f * (v - vmin - 0.5f * dv) / dv;
                 c.Blue = 0;
             }
-            else {
+            else
+            {
                 c.Green = 1f + 4f * (vmin + 0.75f * dv - v) / dv;
                 c.Blue = 0;
             }
@@ -175,7 +213,7 @@ namespace Net_Designer_MVVM {
             c.Alpha = 1.0f;
             return c;
         }
-       
+
     }
 }
 

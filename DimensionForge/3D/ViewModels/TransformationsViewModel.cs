@@ -8,6 +8,7 @@ using System;
 using HelixToolkit.Wpf.SharpDX;
 using DimensionForge._2D.ViewModels;
 using System.Linq;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 
 namespace DimensionForge._3D.ViewModels
 {
@@ -17,15 +18,12 @@ namespace DimensionForge._3D.ViewModels
         private Canvas3DViewModel canvasViewModel;
 
 
-
         public TransformationsViewModel()
         {
             canvasViewModel = Ioc.Default.GetService<Canvas3DViewModel>();
         }
 
      
-
-
         [RelayCommand]
         [property: JsonIgnore]
         void ScaleDown()
@@ -36,7 +34,39 @@ namespace DimensionForge._3D.ViewModels
             }
         }
 
+        [RelayCommand]
+        void RotateDoor(string axis)
+        {
+            Vector3D definedVector;
 
+            switch (axis)
+            {
+                case "X":
+                    definedVector = new Vector3D(1, 0, 0);
+                    break;
+                case "Y":
+                    definedVector = new Vector3D(0, 1, 0);
+                    break;
+                case "Z":
+                    definedVector = new Vector3D(0, 0, 1);
+                    break;
+            } 
+
+            var door = canvasViewModel.Shapes.FirstOrDefault(x => x is BathedModel3D) as BathedModel3D;
+            door.Rotate(definedVector, 20);
+        }
+
+
+
+        [RelayCommand]
+        void SetCornerNodes()
+        {
+            var door =canvasViewModel.Shapes.FirstOrDefault(x => x is BathedModel3D) as BathedModel3D;
+            door.cornerNodes.ForEach(x =>canvasViewModel.Shapes.Add(new CornerPoint3D() { LinkedNode = x , Radius=10, Color= Color.Green}));
+            canvasViewModel.Draw();
+        }
+            
+           
         [RelayCommand]
         [property: JsonIgnore]
         void Translate()

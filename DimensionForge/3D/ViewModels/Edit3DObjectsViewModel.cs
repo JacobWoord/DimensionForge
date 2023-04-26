@@ -101,7 +101,7 @@ namespace DimensionForge._3D.ViewModels
             canvasViewModel.Shapes.Add(batchedmodel);
 
             var model = canvasViewModel.Shapes.FirstOrDefault(x => x is BathedModel3D)as BathedModel3D;
-            model.SetModelPosition(new Vector3(0, 0, 100));
+            model.TranslateTo(new Vector3(0, 0, 100));
 
         
             

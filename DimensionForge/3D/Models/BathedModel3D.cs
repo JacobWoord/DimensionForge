@@ -15,25 +15,23 @@ using HelixToolkit.Wpf.SharpDX;
 using DimensionForge.HelperTools;
 using DimensionForge._3D.ViewModels;
 using DimensionForge.Common;
+using System.Windows.Controls;
 
 namespace DimensionForge._3D.Models
 {
 
     public partial class BathedModel3D : ObservableObject, IShape3D
     {
-        // public List<Node3D> cornerNodes = new();
-        // public List<Node3D> verletElements = new();
 
+
+        public List<Node3D> cornerNodes = new();
         public string ID = Guid.NewGuid().ToString();
         public string Name { get; set; }
         public string Description { get; set; }
         public string FileName { get; set; }
-        
-        
-        public VerletBox3D Box3D = new VerletBox3D();
-
+        public Vector3 Location { get; set; }
+        public VerletData3D VerletData = new VerletData3D();
         public IList<TransformData> TransformDatas { get; set; }
-
         public BathedModel3D()
         {
             batchedMeshes = new List<BatchedMeshGeometryConfig>();
@@ -44,6 +42,10 @@ namespace DimensionForge._3D.Models
 
 
         }
+
+
+
+
 
         [ObservableProperty]
         [property: JsonIgnore]
@@ -63,21 +65,47 @@ namespace DimensionForge._3D.Models
         [ObservableProperty]
         [property: JsonIgnore]
         Transform3DGroup transform;
+
         private TranslateTransform3D translateTransform;
-        public void SetModelPosition(Vector3 pos)
+
+        //TRANSLATIONS
+        public void TranslateTo(Vector3 newlocation)
         {
-            if (translateTransform == null)
+            var dif = -Location + newlocation;
+            var trans = new TranslateTransform3D(dif.ToVector3D());
+            Transform.Dispatcher.Invoke(() =>
             {
-                translateTransform = new TranslateTransform3D(pos.X, pos.Y, pos.Z);
-                Transform.Children.Add(translateTransform);
-            }
-            else
-            {
-                translateTransform.OffsetX = pos.X;
-                translateTransform.OffsetY = pos.Y;
-                translateTransform.OffsetZ = pos.Z;
-            }
+                Transform.Children.Add(trans);
+            });
+
+            Location = newlocation;
+            cornerNodes.ForEach(x => x.Position += dif);
         }
+
+
+      
+        public Vector3 GetLocation()
+        {
+            Vector3 location = new Vector3();
+
+            foreach (var batchedMesh in batchedMeshes)
+            {
+                var transform = batchedMesh.ModelTransform;
+
+                // Combine the model transform and the current transform group
+                var combinedTransform = Transform3DHelper.Combine(new MatrixTransform3D(new Matrix3D(transform.M11, transform.M12, transform.M13, transform.M14,
+                                                                                                transform.M21, transform.M22, transform.M23, transform.M24,
+                                                                                                transform.M31, transform.M32, transform.M33, transform.M34,
+                                                                                                0, 0, 0, 1)),
+                                                                    this.transform);
+
+                // Transform the origin point (0, 0, 0) to get the location of the model
+                location = Vector3.TransformCoordinate(new Vector3(0, 0, 0), combinedTransform.Value.ToSharpDX());
+            }
+
+            return location;
+        }
+
         public void Rotate(Vector3D Axis, double Angle)
         {
             var trans = new RotateTransform3D(
@@ -86,7 +114,18 @@ namespace DimensionForge._3D.Models
                      angle: Angle));
 
             transform.Children.Add(trans);
+
+
+            for (int i = 0; i < cornerNodes.Count; i++)
+            {
+                var node = cornerNodes[i];
+                var transformedPoint = trans.Transform(new Point3D(node.Position.X, node.Position.Y, node.Position.Z));
+                cornerNodes[i] = new Node3D(new Vector3((float)transformedPoint.X, (float)transformedPoint.Y, (float)transformedPoint.Z)) { NodePos = node.NodePos, Color = node.Color };
+            }
+
         }
+
+
         public void ScaleModel(double scaleFactor)
         {
             ScaleTransform3D scaleTransform = new ScaleTransform3D(scaleFactor, scaleFactor, scaleFactor);
@@ -98,6 +137,7 @@ namespace DimensionForge._3D.Models
             transform.Children.Add(scaleTransform);
 
             Nodes.ForEach(n => n *= (float)scaleFactor);
+
 
         }
         public void ConvertTransform3DGroupToTransformData()
@@ -229,28 +269,6 @@ namespace DimensionForge._3D.Models
 
             return new BoundingBox(min, max);
         }
-
-        public Vector3 GetLocation()
-        {
-            Vector3 location = new Vector3();
-
-            foreach (var batchedMesh in batchedMeshes)
-            {
-                var transform = batchedMesh.ModelTransform;
-
-                // Combine the model transform and the current transform group
-                var combinedTransform = Transform3DHelper.Combine(new MatrixTransform3D(new Matrix3D(transform.M11, transform.M12, transform.M13, transform.M14,
-                                                                                                transform.M21, transform.M22, transform.M23, transform.M24,
-                                                                                                transform.M31, transform.M32, transform.M33, transform.M34,
-                                                                                                0, 0, 0, 1)),
-                                                                    this.transform);
-
-                // Transform the origin point (0, 0, 0) to get the location of the model
-                location = Vector3.TransformCoordinate(new Vector3(0, 0, 0), combinedTransform.Value.ToSharpDX());
-            }
-
-            return location;
-        }
         public HelixToolkit.Wpf.SharpDX.Material SetMaterial()
         {
             return null;
@@ -263,68 +281,135 @@ namespace DimensionForge._3D.Models
             //corners.ToList().ForEach(c => this.cornerNodes.Add(new Node3D(c)));
             //corners.ToList().ForEach(c => this.cornerNodes.Add(new Node3D(c)));
         }
-
-
-
-
-
-
         public void SetCornerList()
         {
-            Box3D = new VerletBox3D();
+            VerletData = new VerletData3D();
             var bb = this.GetBoundingBox();
             var eightCorners = bb.GetCorners();
+
+
             var fourCorners = ConvertBoundingBoxToSquare(eightCorners.ToList());
-            
-            Box3D.CornerList = fourCorners;
 
-                //corners.ToList().ForEach(c => this.cornerNodes.Add(new Node3D(c)));
-                //add the node references to the list in the viewmodel
-               // var nodelist = Ioc.Default.GetService<Canvas3DViewModel>().VerletNodes;
-                //cornerNodes.ForEach(node => { nodelist.Add(node); });
-                //verletElements = ConvertBoundingBoxToSquare(Box3D.cornerPoints);
-                //verletElements.ForEach(n => nodelist.Add(n));
-                // cornerNodes = verletElements;
+            VerletData.CornerList = fourCorners;
+
+            //CornerNodes of the door
+            cornerNodes.Add(new Node3D(fourCorners[0].Position) { NodePos = fourCorners[0].NodePos, Color = fourCorners[0].Color });
+            cornerNodes.Add(new Node3D(fourCorners[1].Position) { NodePos = fourCorners[1].NodePos, Color = fourCorners[1].Color });
+            cornerNodes.Add(new Node3D(fourCorners[2].Position) { NodePos = fourCorners[2].NodePos, Color = fourCorners[2].Color });
+            cornerNodes.Add(new Node3D(fourCorners[3].Position) { NodePos = fourCorners[3].NodePos, Color = fourCorners[3].Color });
+
+            //fourCorners.ForEach(corner => cornerNodes.Add(new Node3D(corner.Position) { NodePos = corner.NodePos}));
+
+        }
+        public void RotateAroundCenter(Vector3D axis, double angle)
+        {
+            // Get the center point of the model
+            Vector3 center = this.GetModelCenter();
+
+            // Translate the model to the origin
+            Transform3D translateToOrigin = new TranslateTransform3D(-center.X, -center.Y, -center.Z);
+
+            // Apply the rotation transform
+            Transform3D rotateTransform = new RotateTransform3D(new AxisAngleRotation3D(axis, angle));
+
+            // Translate the model back to its original position
+            Transform3D translateBack = new TranslateTransform3D(center.X, center.Y, center.Z);
 
 
-            
-            }
-        public List<Node3D> ConvertBoundingBoxToSquare(List<Vector3> boundingBox)
+            Transform.Children.Add(translateToOrigin);
+            Transform.Children.Add(rotateTransform);
+            Transform.Children.Add(translateBack);
+
+            if (cornerNodes is not null)
             {
-                // Find the minimum and maximum coordinates in each dimension
-                float minX = boundingBox.Min(p => p.X);
-                float minY = boundingBox.Min(p => p.Y);
-                float minZ = boundingBox.Min(p => p.Z);
-                float maxX = boundingBox.Max(p => p.X);
-                float maxY = boundingBox.Max(p => p.Y);
-                float maxZ = boundingBox.Max(p => p.Z);
-
-                // Determine the half-depth of the square
-                float halfDepth = (maxZ - minZ);
-
-                // Calculate the 4 corner points of the square
-                List<Node3D> square = new List<Node3D>();
-                square.Add(new Node3D(new Vector3(minX, minY, minZ)) { NodePos = NodePosition.BottomLeft, Color = Color.Red });
-                square.Add(new Node3D(new Vector3(maxX, minY, minZ + halfDepth)) { NodePos = NodePosition.LeftTop, Color = Color.Green });
-                square.Add(new Node3D(new Vector3(maxX, maxY, minZ + halfDepth)) { NodePos = NodePosition.RightTop, Color = Color.Yellow });
-                square.Add(new Node3D(new Vector3(minX, maxY, minZ)) { NodePos = NodePosition.BottomRight, Color = Color.Purple });
-                return square;
-            }
-            public void Translate(Vector3 translation)
-            {
-
-                transform.Children.Add(new TranslateTransform3D(translation.X, translation.Y, translation.Z));
-
-            }
-            public void Select()
-            {
-                throw new NotImplementedException();
-            }
-            public void Deselect()
-            {
-                throw new NotImplementedException();
+                cornerNodes.ForEach(cornerNode => cornerNode.transform = this.transform);
             }
 
 
         }
+        public void MoveCenterToPosition(Vector3 position)
+        {
+            // Get the center point of the model
+            Vector3 center = GetModelCenter();
+
+            // Calculate the translation vector
+            Vector3 translation = position - center;
+
+            // Apply the translation transform
+            Transform3D translateTransform = new TranslateTransform3D(translation.X, translation.Y, translation.Z);
+
+            // Combine the transforms
+            // Transform3DGroup transform = new Transform3DGroup();
+            Transform.Children.Add(translateTransform);
+
+            if (cornerNodes is not null)
+            {
+                cornerNodes.ForEach(cornerNode => cornerNode.transform = this.transform);
+            }
+            // Apply the transform to the model
+
+        }
+        public void Select()
+        {
+            throw new NotImplementedException();
+        }
+        public void Deselect()
+        {
+            throw new NotImplementedException();
+        }
+        public void Translate(Vector3 translation)
+        {
+
+            transform.Children.Add(new TranslateTransform3D(translation.X, translation.Y, translation.Z));
+
+        }
+        public Vector3 GetModelCenter()
+        {
+            BoundingBox bounds = this.GetBoundingBox();
+            Vector3 center = bounds.Center;
+
+            return center;
+        }
+        public List<Node3D> ConvertBoundingBoxToSquare(List<Vector3> boundingBox)
+        {
+            // Find the minimum and maximum coordinates in each dimension
+            float minX = boundingBox.Min(p => p.X);
+            float minY = boundingBox.Min(p => p.Y);
+            float minZ = boundingBox.Min(p => p.Z);
+            float maxX = boundingBox.Max(p => p.X);
+            float maxY = boundingBox.Max(p => p.Y);
+            float maxZ = boundingBox.Max(p => p.Z);
+
+            // Determine the half-depth of the square
+            float halfDepth = (maxZ - minZ);
+
+            // Calculate the 4 corner points of the square
+            List<Node3D> square = new List<Node3D>();
+            square.Add(new Node3D(new Vector3(minX, minY, minZ)) { NodePos = NodePosition.BottomRight, Color = Color.Red });
+            square.Add(new Node3D(new Vector3(maxX, minY, minZ + halfDepth)) { NodePos = NodePosition.LeftTop, Color = Color.Green });
+            square.Add(new Node3D(new Vector3(maxX, maxY, minZ + halfDepth)) { NodePos = NodePosition.RightTop, Color = Color.Yellow });
+            square.Add(new Node3D(new Vector3(minX, maxY, minZ)) { NodePos = NodePosition.BottomLeft, Color = Color.Purple });
+
+            // Calculate the center point of the square
+            Vector3 center = new Vector3((minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2);
+
+            // Add a center node to the list
+            square.Add(new Node3D(center) { NodePos = NodePosition.Center, Color = Color.White });
+
+            return square;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
+}
