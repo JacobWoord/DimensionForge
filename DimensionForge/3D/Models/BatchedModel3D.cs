@@ -20,11 +20,13 @@ using System.Windows.Controls;
 namespace DimensionForge._3D.Models
 {
 
-    public partial class BathedModel3D : ObservableObject, IShape3D
+    public partial class BatchedModel3D : ObservableObject, IShape3D
     {
 
 
         public List<Node3D> cornerNodes = new();
+
+
         public string ID = Guid.NewGuid().ToString();
         public string Name { get; set; }
         public string Description { get; set; }
@@ -32,7 +34,7 @@ namespace DimensionForge._3D.Models
         public Vector3 Location { get; set; }
         public VerletData3D VerletData = new VerletData3D();
         public IList<TransformData> TransformDatas { get; set; }
-        public BathedModel3D()
+        public BatchedModel3D()
         {
             batchedMeshes = new List<BatchedMeshGeometryConfig>();
             modelMaterials = new List<HelixToolkit.Wpf.SharpDX.Material>();
@@ -81,9 +83,6 @@ namespace DimensionForge._3D.Models
             Location = newlocation;
             cornerNodes.ForEach(x => x.Position += dif);
         }
-
-
-      
         public Vector3 GetLocation()
         {
             Vector3 location = new Vector3();
@@ -105,9 +104,14 @@ namespace DimensionForge._3D.Models
 
             return location;
         }
-
         public void Rotate(Vector3D Axis, double Angle)
         {
+
+            if (double.IsNaN(Angle))
+            {
+                Angle = 0;
+            }
+
             var trans = new RotateTransform3D(
                  new AxisAngleRotation3D(
                      axis: Axis,
@@ -124,8 +128,6 @@ namespace DimensionForge._3D.Models
             }
 
         }
-
-
         public void ScaleModel(double scaleFactor)
         {
             ScaleTransform3D scaleTransform = new ScaleTransform3D(scaleFactor, scaleFactor, scaleFactor);
@@ -140,6 +142,8 @@ namespace DimensionForge._3D.Models
 
 
         }
+
+        //TRANSFORMDATAS
         public void ConvertTransform3DGroupToTransformData()
         {
             // Initialize default values
@@ -212,6 +216,8 @@ namespace DimensionForge._3D.Models
             transform = transformGroup;
 
         }
+
+        //IMPORT SERVICE
         public async Task OpenFile()
         {
             if (string.IsNullOrEmpty(FileName))
@@ -240,39 +246,6 @@ namespace DimensionForge._3D.Models
             this.ScaleModel(0.1);
 
         }
-        public BoundingBox GetBoundingBox()
-        {
-            Vector3 min = new Vector3(float.MaxValue);
-            Vector3 max = new Vector3(float.MinValue);
-
-            foreach (var batchedMesh in batchedMeshes)
-            {
-                var geometry = batchedMesh.Geometry;
-                var transform = batchedMesh.ModelTransform;
-
-                // Combine the model transform and the current transform group
-                var combinedTransform = Transform3DHelper.Combine(new MatrixTransform3D(new Matrix3D(transform.M11, transform.M12, transform.M13, transform.M14,
-                                                                                            transform.M21, transform.M22, transform.M23, transform.M24,
-                                                                                            transform.M31, transform.M32, transform.M33, transform.M34,
-                                                                                            0, 0, 0, 1)),
-                                                                   this.transform);
-
-                for (int i = 0; i < geometry.Positions.Count; i++)
-                {
-                    Vector4 position4 = Vector3.Transform(geometry.Positions[i], combinedTransform.Value.ToSharpDX());
-                    Vector3 position = new Vector3(position4.X, position4.Y, position4.Z);
-
-                    min = Vector3.Min(min, position);
-                    max = Vector3.Max(max, position);
-                }
-            }
-
-            return new BoundingBox(min, max);
-        }
-        public HelixToolkit.Wpf.SharpDX.Material SetMaterial()
-        {
-            return null;
-        }
         public async Task Import()
         {
             //    await OpenFile();        
@@ -281,7 +254,14 @@ namespace DimensionForge._3D.Models
             //corners.ToList().ForEach(c => this.cornerNodes.Add(new Node3D(c)));
             //corners.ToList().ForEach(c => this.cornerNodes.Add(new Node3D(c)));
         }
-        public void SetCornerList()
+
+
+
+        public HelixToolkit.Wpf.SharpDX.Material SetMaterial()
+        {
+            return null;
+        }
+        public void SetCornerNodes()
         {
             VerletData = new VerletData3D();
             var bb = this.GetBoundingBox();
@@ -290,17 +270,17 @@ namespace DimensionForge._3D.Models
 
             var fourCorners = ConvertBoundingBoxToSquare(eightCorners.ToList());
 
-            VerletData.CornerList = fourCorners;
-
             //CornerNodes of the door
-            cornerNodes.Add(new Node3D(fourCorners[0].Position) { NodePos = fourCorners[0].NodePos, Color = fourCorners[0].Color });
-            cornerNodes.Add(new Node3D(fourCorners[1].Position) { NodePos = fourCorners[1].NodePos, Color = fourCorners[1].Color });
-            cornerNodes.Add(new Node3D(fourCorners[2].Position) { NodePos = fourCorners[2].NodePos, Color = fourCorners[2].Color });
-            cornerNodes.Add(new Node3D(fourCorners[3].Position) { NodePos = fourCorners[3].NodePos, Color = fourCorners[3].Color });
+            cornerNodes.Add(new Node3D(fourCorners[0].Position) { NodePos = fourCorners[0].NodePos, Color = fourCorners[0].Color, IsDoorNode = true });
+            cornerNodes.Add(new Node3D(fourCorners[1].Position) { NodePos = fourCorners[1].NodePos, Color = fourCorners[1].Color, IsDoorNode = true });
+            cornerNodes.Add(new Node3D(fourCorners[2].Position) { NodePos = fourCorners[2].NodePos, Color = fourCorners[2].Color, IsDoorNode = true });
+            cornerNodes.Add(new Node3D(fourCorners[3].Position) { NodePos = fourCorners[3].NodePos, Color = fourCorners[3].Color, IsDoorNode = true });
 
             //fourCorners.ForEach(corner => cornerNodes.Add(new Node3D(corner.Position) { NodePos = corner.NodePos}));
 
         }
+
+       
         public void RotateAroundCenter(Vector3D axis, double angle)
         {
             // Get the center point of the model
@@ -398,18 +378,47 @@ namespace DimensionForge._3D.Models
 
             return square;
         }
+        public BoundingBox GetBoundingBox()
+        {
+            Vector3 min = new Vector3(float.MaxValue);
+            Vector3 max = new Vector3(float.MinValue);
 
+            foreach (var batchedMesh in batchedMeshes)
+            {
+                var geometry = batchedMesh.Geometry;
+                var transform = batchedMesh.ModelTransform;
 
+                // Combine the model transform and the current transform group
+                var combinedTransform = Transform3DHelper.Combine(new MatrixTransform3D(new Matrix3D(transform.M11, transform.M12, transform.M13, transform.M14,
+                                                                                            transform.M21, transform.M22, transform.M23, transform.M24,
+                                                                                            transform.M31, transform.M32, transform.M33, transform.M34,
+                                                                                            0, 0, 0, 1)),
+                                                                   this.transform);
 
+                for (int i = 0; i < geometry.Positions.Count; i++)
+                {
+                    Vector4 position4 = Vector3.Transform(geometry.Positions[i], combinedTransform.Value.ToSharpDX());
+                    Vector3 position = new Vector3(position4.X, position4.Y, position4.Z);
 
+                    min = Vector3.Min(min, position);
+                    max = Vector3.Max(max, position);
+                }
+            }
 
+            return new BoundingBox(min, max);
+        }
 
+        public  List<verletElement3D> GetElements()
+        {
+            var elements = new List<verletElement3D>();
+           
+            elements.Add(new verletElement3D() { Start = new Node3D(cornerNodes[0].Position), End = new Node3D(cornerNodes[1].Position) { IsDoorNode = true } });
+            elements.Add(new verletElement3D() { Start = new Node3D(cornerNodes[1].Position), End = new Node3D(cornerNodes[2].Position) { IsDoorNode = true } });
+            elements.Add(new verletElement3D() { Start = new Node3D(cornerNodes[2].Position), End = new Node3D(cornerNodes[3].Position) { IsDoorNode = true } });
+            elements.Add(new verletElement3D() { Start = new Node3D(cornerNodes[3].Position), End = new Node3D(cornerNodes[0].Position) { IsDoorNode = true } });
+         
 
-
-
-
-
-
-
+            return elements;
+        }
     }
 }

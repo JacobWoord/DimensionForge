@@ -176,5 +176,12 @@ namespace DimensionForge._3D.Models
         {
            
         }
+
+        public virtual List<verletElement3D> GetElements()
+        {
+
+            var elements = new List<verletElement3D>();
+            return elements;
+        }
     }
 }

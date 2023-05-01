@@ -3,6 +3,7 @@ using HelixToolkit.SharpDX.Core;
 using Color = SharpDX.Color;
 using SharpDX;
 using System;
+using System.Collections.Generic;
 
 namespace DimensionForge._3D.Models
 {
@@ -22,8 +23,12 @@ namespace DimensionForge._3D.Models
             meshbuilder.AddSphere(Position, Radius, 10, 10);
             Material = SetMaterial();
             Geometry = meshbuilder.ToMeshGeometry3D();
+            Color = SharpDX.Color.Red;
         }
-
+        public override List<verletElement3D> GetElements()
+        {
+            return base.GetElements();
+        }
 
     }
 }

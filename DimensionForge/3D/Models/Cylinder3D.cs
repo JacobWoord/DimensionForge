@@ -3,6 +3,7 @@ using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
 using SharpDX;
 using SharpDX.Direct3D9;
+using System.Collections.Generic;
 using Material = HelixToolkit.Wpf.SharpDX.Material;
 
 
@@ -25,7 +26,7 @@ namespace DimensionForge._3D.Models
 
         public Cylinder3D()
         {
-
+            Color = SharpDX.Color.Green;
         }
 
 
@@ -37,6 +38,11 @@ namespace DimensionForge._3D.Models
             meshbuilder.AddCylinder(P1.Position, P2.Position, Radius, 32);
             Material = SetMaterial();
             Geometry = meshbuilder.ToMeshGeometry3D();
+        }
+
+        public override List<verletElement3D> GetElements()
+        {
+            return base.GetElements();
         }
 
     }

@@ -3,6 +3,8 @@ using HelixToolkit.Wpf.SharpDX;
 using SharpDX;
 using System;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+
 namespace DimensionForge._3D.Models
 {
     public partial class Floor3D : Shape3D
@@ -43,6 +45,12 @@ namespace DimensionForge._3D.Models
                 (Geometry as MeshGeometry3D).TextureCoordinates[i] *= 5;
             }
 
+        }
+
+
+        public override List<verletElement3D> GetElements()
+        {
+            return base.GetElements();
         }
 
     }

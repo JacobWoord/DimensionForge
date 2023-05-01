@@ -85,7 +85,7 @@ namespace DimensionForge._3D.ViewModels
             }
 
             var model = canvasViewModel.Shapes.FirstOrDefault(x => x is ImportedModel) as ImportedModel;
-            model.SetCornerList();
+            model.SetCornerNodes();
             canvasViewModel.Draw();
         }
 
@@ -100,7 +100,7 @@ namespace DimensionForge._3D.ViewModels
             await batchedmodel.OpenFile();
             canvasViewModel.Shapes.Add(batchedmodel);
 
-            var model = canvasViewModel.Shapes.FirstOrDefault(x => x is BathedModel3D)as BathedModel3D;
+            var model = canvasViewModel.Shapes.FirstOrDefault(x => x is BatchedModel3D)as BatchedModel3D;
             model.TranslateTo(new Vector3(0, 0, 100));
 
         

@@ -49,7 +49,7 @@ namespace DimensionForge._3D.Models
 
             //secondPoint -- secondPoint + Normal* 100
             P1 = firstPoint;
-            P2 = P1 - Normal + 100;
+            P2 = P1 + Normal * 100;
 
             Angle =Utils3D. AngleBetweenAxes(secondPoint, firstPoint, secondPoint, thirdPoint);
 

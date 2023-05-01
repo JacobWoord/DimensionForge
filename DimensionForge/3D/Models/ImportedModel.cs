@@ -8,7 +8,7 @@ using System.Xml.Linq;
 
 namespace DimensionForge._3D.Models
 {
-    public partial class ImportedModel : BathedModel3D
+    public partial class ImportedModel : BatchedModel3D
     {
         public ImportedModel(string fileName)
         {
@@ -17,6 +17,8 @@ namespace DimensionForge._3D.Models
             FileName = fileName;
 
         }
+
+       
 
 
         

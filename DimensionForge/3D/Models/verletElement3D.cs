@@ -1,4 +1,6 @@
-﻿using HelixToolkit.SharpDX.Core;
+﻿using DimensionForge._3D.interfaces;
+using HelixToolkit.SharpDX.Core;
+using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,38 +9,55 @@ using System.Threading.Tasks;
 
 namespace DimensionForge._3D.Models
 {
-    public partial class verletElement3D : Shape3D
+    public partial class verletElement3D : IElement3D
     {
+        private Node3D start;
+        public Node3D Start
+        {
+            get { return start; }
+            set
+            {
+                start = value;
+                GetElementLength();
+            }
+        }
+        private Node3D end;
+        public Node3D End
+        {
+            get { return end; }
+            set
+            {
+                end = value;
+                GetElementLength();
+            }
+        }
+        public float Length { get; set; } = 0;
 
-        [ObservableProperty]
-        Node3D p1;
+        public float radius = 0.8f;
 
-        [ObservableProperty]
-        Node3D p2;
 
-        [ObservableProperty]
-        float length;
 
-        [ObservableProperty]
-        float radius = 0.8f;
 
         public verletElement3D()
         {
 
-           
 
         }
 
-        public override void Draw()
+        private void GetElementLength()
         {
-            MeshBuilder meshbuilder = new MeshBuilder();
-            meshbuilder.AddCylinder(p1.Position, p2.Position, 0.2, 32);
-            meshbuilder.AddSphere(p1.Position, 0.5);
-            meshbuilder.AddSphere(p2.Position, 0.5);
-            Material = SetMaterial();
-            Geometry = meshbuilder.ToMeshGeometry3D();
-        }
-    }
 
+            if (Start != null && End != null)
+            {
+                Length = Vector3.Distance(Start.Position, End.Position);
+
+            }
+
+        }
+
+
+
+
+    }
 }
 

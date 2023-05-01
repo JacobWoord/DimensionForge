@@ -1,4 +1,5 @@
 ﻿using DimensionForge._3D.Data;
+using DimensionForge._3D.Models;
 using SharpDX;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,5 +18,6 @@ namespace DimensionForge._3D.interfaces
         public void Translate(Vector3 translation);
         public void Select();
         public void Deselect();
+        public List<verletElement3D> GetElements();
     }
 }

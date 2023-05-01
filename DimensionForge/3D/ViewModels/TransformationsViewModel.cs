@@ -52,7 +52,7 @@ namespace DimensionForge._3D.ViewModels
                     break;
             } 
 
-            var door = canvasViewModel.Shapes.FirstOrDefault(x => x is BathedModel3D) as BathedModel3D;
+            var door = canvasViewModel.Shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
             door.Rotate(definedVector, 20);
         }
 
@@ -61,7 +61,7 @@ namespace DimensionForge._3D.ViewModels
         [RelayCommand]
         void SetCornerNodes()
         {
-            var door =canvasViewModel.Shapes.FirstOrDefault(x => x is BathedModel3D) as BathedModel3D;
+            var door =canvasViewModel.Shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
             door.cornerNodes.ForEach(x =>canvasViewModel.Shapes.Add(new CornerPoint3D() { LinkedNode = x , Radius=10, Color= Color.Green}));
             canvasViewModel.Draw();
         }
@@ -108,7 +108,7 @@ namespace DimensionForge._3D.ViewModels
         public void ZoomTo()
         {
             double offset = 1;
-            var model = canvasViewModel.Shapes.FirstOrDefault(x => x is BathedModel3D) as BathedModel3D;
+            var model = canvasViewModel.Shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
             var bb = model.GetBoundingBox();
             var center = model.GetLocation();
 

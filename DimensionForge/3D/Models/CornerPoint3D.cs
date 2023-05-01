@@ -35,9 +35,12 @@ namespace DimensionForge._3D.Models
             Geometry = meshbuilder.ToMeshGeometry3D();
         }
 
+        public override List<verletElement3D> GetElements()
+        {
+            return base.GetElements();
+        }
 
 
 
-       
     }
 }

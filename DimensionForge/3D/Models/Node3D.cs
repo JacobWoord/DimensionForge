@@ -7,12 +7,10 @@ namespace DimensionForge._3D.Models
 {
     public partial class Node3D : ObservableObject
     {
-        
+        public bool IsDoorNode { get; set; } = false;
         public float Bounce { get; set; } = 1f;   
         public string Id { get; set; }
-
-        [ObservableProperty]
-        Vector3 position;
+        public Vector3 Position { get; set; } = Vector3.Zero;
         public Vector3 OldPosition { get; set; }
         public float RadiusInMeters { get; set; } = 0.1f;
         public NodePosition NodePos { get; set; }
