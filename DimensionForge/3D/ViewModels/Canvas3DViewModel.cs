@@ -41,6 +41,9 @@ namespace DimensionForge._3D.ViewModels
         [ObservableProperty]
         ObservableObject selectedToolPanel;
 
+        
+        
+
         private VerletBuildResult buildResult { get; set; }
 
 
@@ -77,7 +80,7 @@ namespace DimensionForge._3D.ViewModels
             }
             foreach (var node in buildResult.Nodes)
             {
-                shapes.Add(new Sphere3D() { Position = node.Position });
+                shapes.Add(new CornerPoint3D() { LinkedNode = node });
             }
 
             Draw();
@@ -85,10 +88,15 @@ namespace DimensionForge._3D.ViewModels
 
         private bool continueVerlet = true;
 
+        
+        
         [RelayCommand]
         [property: JsonIgnore]
         async Task UpdateVerlet()
         {
+
+            //capture the ui Dispatcher 
+            var uiDispatcher =  Application.Current.Dispatcher; 
             int duration = 33;
 
             InitBuildResult();
@@ -99,7 +107,8 @@ namespace DimensionForge._3D.ViewModels
                 {
                     var stopWatch = Stopwatch.StartNew();
                     UpdatePhysics();
-                    _ = Application.Current.Dispatcher.InvokeAsync(async () =>
+                  
+                    _ = uiDispatcher.InvokeAsync(async () =>
                     {
                         await Draw();
                     });
@@ -138,8 +147,7 @@ namespace DimensionForge._3D.ViewModels
 
             }
 
-
-
+         
 
 
 
@@ -235,7 +243,7 @@ namespace DimensionForge._3D.ViewModels
 
             var dx = pos2.X - pos1.X;
             var dy = pos2.Y - pos1.Y;
-            var distance = Vector3.Distance(pos1, pos2);
+            var distance = Vector3.Distance(node1.Position, node2.Position);
             var stickLength = stick.Length;
             var differnce = stickLength - distance;
             var percent = differnce / distance / 2;
@@ -247,8 +255,8 @@ namespace DimensionForge._3D.ViewModels
             pos2.X += offsetX;
             pos2.Y += offsetY;
 
-            stick.Start.Position = pos1;
-            stick.End.Position = pos2;
+            node1.Position = pos1;
+            node2.Position = pos2;
         }
 
 
@@ -273,12 +281,12 @@ namespace DimensionForge._3D.ViewModels
                 var otherShape = shapes[i] as Sphere3D;
 
                 //convert positions to Vector2 for easier calculations
-                var otherPosition = otherShape.Position;
+                var otherPosition = otherShape.Position.Position;
                 var otherOldPosition = otherShape.OldPosition;
 
                 float radiusSum = shapeToCheck.Radius + otherShape.Radius;
-                var colission_axis = mainPosition - otherPosition; //n = collision_axis / 2
-                float dist = Vector3.Distance(mainPosition, otherPosition);
+                var colission_axis = mainPosition.Position - otherPosition; //n = collision_axis / 2
+                float dist = Vector3.Distance(mainPosition.Position, otherPosition);
 
                 //if the distance between 2 balls is less then the sum of both radius
                 if (dist < radiusSum)
@@ -288,11 +296,11 @@ namespace DimensionForge._3D.ViewModels
                     //delta is the value that the balls need to move to keep free of eachother 
                     float delta = radiusSum - dist;
 
-                    mainPosition += 0.5f * delta * n;
+                    mainPosition.Position += 0.5f * delta * n;
                     otherPosition -= 0.5f * delta * n;
 
                     shapeToCheck.Position = mainPosition;
-                    otherShape.Position = otherPosition;
+                    otherShape.Position.Position = otherPosition;
                     // shapeToCheck.OldPosition = mainPosition -5;
                     // otherShape.OldPosition = mainPosition -5;
                 }
@@ -453,9 +461,9 @@ namespace DimensionForge._3D.ViewModels
             {
                 if (s is Shape3D shape3D)
                     shape3D.Draw();
-
-
             }
+
+
         }
 
 

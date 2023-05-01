@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 
 namespace DimensionForge._3D.Models
 {
-    public partial class verletElement3D : IElement3D
+    public partial class verletElement3D : ObservableObject, IElement3D
     {
+       
+        
         private Node3D start;
         public Node3D Start
         {
@@ -21,6 +23,8 @@ namespace DimensionForge._3D.Models
                 GetElementLength();
             }
         }
+        
+        
         private Node3D end;
         public Node3D End
         {
@@ -31,8 +35,8 @@ namespace DimensionForge._3D.Models
                 GetElementLength();
             }
         }
-        public float Length { get; set; } = 0;
 
+        public float Length { get; set; } = 0;
         public float radius = 0.8f;
 
 

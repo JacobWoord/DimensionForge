@@ -25,7 +25,7 @@ namespace DimensionForge._3D.Models
         public string Name { get; set; }    
         public string Id { get; set; }
         public Color4 Color { get; set; }
-        public Vector3 Position { get; set; }
+        public Node3D Position { get; set; }
         public Vector3 OldPosition { get; set; }
         public bool IsSelected { get; set; }
 

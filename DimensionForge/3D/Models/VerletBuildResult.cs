@@ -27,10 +27,6 @@ namespace DimensionForge
         }
 
 
-
-
-
-
         public void GetAllElements()
         {
 
@@ -66,28 +62,30 @@ namespace DimensionForge
 
         }
 
-
         public void AddNodesToList()
         {
             HashSet<Node3D> uniqueNodes = new HashSet<Node3D>(Nodes);
 
             foreach (verletElement3D element in Elements)
             {
-                if (!uniqueNodes.Any(n => n.Position == element.Start.Position))
+                Node3D startNode = element.Start;
+                Node3D endNode = element.End;
+
+                if (!uniqueNodes.Contains(startNode) && !Nodes.Any(n => n.Position == startNode.Position))
                 {
-                    Nodes.Add(element.Start);
-                    uniqueNodes.Add(element.Start);
+                    Nodes.Add(startNode);
+                    uniqueNodes.Add(startNode);
                 }
 
-                if (!uniqueNodes.Any(n => n.Position == element.End.Position))
+                if (!uniqueNodes.Contains(endNode) && !Nodes.Any(n => n.Position == endNode.Position))
                 {
-                    Nodes.Add(element.End);
-                    uniqueNodes.Add(element.End);
+                    Nodes.Add(endNode);
+                    uniqueNodes.Add(endNode);
                 }
             }
-
-            Nodes.AddRange(uniqueNodes);
         }
+
+
 
         public void GetAllNodes()
         {

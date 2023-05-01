@@ -21,7 +21,7 @@ namespace DimensionForge._3D.Models
             Id = Guid.NewGuid().ToString();
             PhongMaterial p = PhongMaterials.Red;
             
-            p.DiffuseMap = new TextureModel("C:\\Users\\jacob\\Downloads\\pexels-jonathan-borba-5489194.jpg");
+            p.DiffuseMap = new TextureModel("C:\\Users\\jacob\\Downloads\\pexels-jonathan.jpg");
             p.RenderDiffuseMap = true;
             p.DiffuseColor = SharpDX.Color.DimGray.ToColor4();        
             Material = p;

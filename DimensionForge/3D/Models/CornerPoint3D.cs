@@ -29,7 +29,7 @@ namespace DimensionForge._3D.Models
         {
             MeshBuilder meshbuilder = new MeshBuilder();
             meshbuilder.AddSphere(linkedNode.Position, Radius, 10, 10);
-            Color = linkedNode.Color;
+            Color = SharpDX.Color.Red;
             Material = SetMaterial();
             
             Geometry = meshbuilder.ToMeshGeometry3D();
