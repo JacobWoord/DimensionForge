@@ -73,20 +73,26 @@ namespace DimensionForge._3D.ViewModels
             buildResult.GetAllElements();
             buildResult.AddNodesToList();
 
+          
+
+
+            var colors = Utils3D.GetColorList();
 
             foreach (var element in buildResult.Elements)
             {
                 shapes.Add(new Cylinder3D() { P1 = element.Start, P2 = element.End });
             }
-            foreach (var node in buildResult.Nodes)
+            for (int i = 0; i < buildResult.Nodes.Count(); i++)
             {
-                shapes.Add(new CornerPoint3D() { LinkedNode = node });
+                shapes.Add(new CornerPoint3D() { LinkedNode = buildResult.Nodes[i], Color = colors[i] });
+
             }
+            
 
 
             var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-            var ball = new CornerPoint3D() { LinkedNode = door.cornerNodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft), };
-            shapes.Add(ball);
+            //var ball = new CornerPoint3D() { LinkedNode = door.cornerNodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft), };
+            //shapes.Add(ball);
             //buildResult.Nodes.Add(ball.LinkedNode);
 
             Draw();
@@ -117,19 +123,17 @@ namespace DimensionForge._3D.ViewModels
 
                     _ = uiDispatcher.InvokeAsync(async () =>
                     {
-                       
-                          await Draw();
 
-                        
-                          UpdateDoorPosition();
-                        
+                        await Draw();
 
-                       
-                        // UpdateModelTransformations();
+
+                        UpdateDoorPosition();
+
+
 
                     });
                     var elapsed = (int)stopWatch.ElapsedMilliseconds;
-                  //  Debug.WriteLine(elapsed);
+                    //  Debug.WriteLine(elapsed);
                     int delay = duration - elapsed;
                     await Task.Delay(delay);
                 }
@@ -165,107 +169,22 @@ namespace DimensionForge._3D.ViewModels
 
         }
 
-
-
-
         void UpdateDoorPosition()
         {
             var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-            var bottomRight = buildResult.Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomRight).Position;
-            var bottomLeft = buildResult.Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft).Position;
+            var bb = door.GetBoundingBox();
+            var size = bb.Maximum - bb.Minimum; 
+            var oldCenter = bb.Minimum + size / 2;
+            
+            var bottomLeft = buildResult.Nodes.FirstOrDefault(x => x.CornerName == CornerName.BinnenLinksOnder).Position;
 
-            //transform the door each itteration to the verletShape
-            door.TranslateTo(bottomRight);
-
-            //the results variable are the retrieved values from the SetRotation method
-            var results = buildResult.SetRotation(door.cornerNodes.First(x=>x.NodePos == NodePosition.BottomRight).Position);
-            var angle = results.angle * 180 / MathF.PI;
-
-            //this is the cylinder that represents the calculated axis
-            var cyl = shapes.FirstOrDefault(x => x is Cylinder3D) as Cylinder3D;
-            cyl.P1.Position = results.p1;
-            cyl.P2.Position = results.p2;
-
-
-            //axis to rotate the door arround
-            var axis = results.normal;
-
-            //bring the door to the origin to apply the rotation 
-            door.TranslateTo(Vector3.Zero);
-            door.Rotate(axis.ToVector3D(), angle);
-
-            //translate the door back to the calculated position
-            door.TranslateTo(buildResult.Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomRight).Position);
-
-
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-        void UpdateModelTransformations()
-        {
-            var bottomRight = buildResult.Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomRight).Position;
-            var bottomLeft = buildResult.Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft).Position;
-            var side = Vector3.Zero;
           
-            
-            if (bottomLeft.X > bottomRight.X)
-            {
-                side = bottomLeft;
-            }
 
-            side = bottomRight;
+            door.TranslateTo(bottomLeft);
+            door.SetBoundingBox();
 
 
-            
-            //This functions is updating the model position to the verlet objects
-            var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-            door.TranslateTo(side);
-            //door.SetCornerNodes();
-
-            //third point for plane
-            var thirdPoint = door.cornerNodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft);
-
-            //set the rotations for the door
-            var result = buildResult.SetRotation(thirdPoint.Position);
-           
-            var angle = result.angle * 180 / MathF.PI;
-
-           
-            var cyl = shapes.FirstOrDefault(x => x is Cylinder3D) as Cylinder3D;
-            cyl.P1.Position = result.p1;
-            cyl.P2.Position = result.p2;
-            //if (angle > 3)
-            //{
-
-            var axis = result.normal.ToVector3D();
-
-            //translates the door to the origin to exercute the rotation
-            door.TranslateTo(Vector3.Zero);
-            
-            door.Rotate(axis, angle);
-            ////translates the door back to the position
-           
-            door.TranslateTo(side);
-            
-           
         }
-            
-           
-
-
-
-
 
 
         [RelayCommand]
@@ -288,9 +207,10 @@ namespace DimensionForge._3D.ViewModels
         {
             var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
            
-            var firstPoint = buildResult.Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomRight);
-            var secondPoint = buildResult.Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft);
-            var thirdPoint = door.cornerNodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft);
+            var firstPoint = buildResult.Nodes.FirstOrDefault(x => x.CornerName == CornerName.BinnenLinksOnder);
+            var secondPoint = buildResult.Nodes.FirstOrDefault(x => x.CornerName== CornerName.BinnenRechtsOnder);
+            door.SetBoundingBox();
+            var thirdPoint = door.BbCorners.FirstOrDefault(x => x.CornerName == CornerName.BinnenLinksOnder);
 
 
             // shapes.Add(new DrawPlane3D(firstPoint, secondPoint, thirdPoint));
@@ -302,23 +222,12 @@ namespace DimensionForge._3D.ViewModels
 
         }
 
-
-
-
-
-
         // Call this function to continue to the next iteration
         [RelayCommand]
         void MoveToNextIteration()
         {
             continueVerlet = !continueVerlet;
         }
-
-
-
-
-
-
 
         void UpdateSticks(verletElement3D stick)
         {
@@ -379,8 +288,6 @@ namespace DimensionForge._3D.ViewModels
             node1.Position = pos1;
             node2.Position = pos2;
         }
-
-
         void Find_collision(IShape3D shape)
         {
 
@@ -467,9 +374,6 @@ namespace DimensionForge._3D.ViewModels
             node.OldPosition = oldPosition;
         }
 
-
-
-
         [RelayCommand]
         void Navigate(string destination)
         {
@@ -488,7 +392,6 @@ namespace DimensionForge._3D.ViewModels
 
             }
         }
-
 
         public async Task Draw()
         {
@@ -574,7 +477,7 @@ namespace DimensionForge._3D.ViewModels
         {
             shapes.Clear();
             MyViewPort = viewport;
-            //CreateFloor();
+            CreateFloor();
             await Import("C:\\Users\\jacob\\OneDrive - Rapid Engineering B.V\\Bureaublad\\FISHINGBOARD_SB.obj");
 
             var dirCyl = new Cylinder3D();
@@ -594,7 +497,7 @@ namespace DimensionForge._3D.ViewModels
 
             var model = Shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
             model.TranslateTo(new Vector3(0, 0, 10));
-            model.SetCornerNodes();
+            model.SetBoundingBox();
 
 
 

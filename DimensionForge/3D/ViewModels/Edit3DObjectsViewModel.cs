@@ -85,7 +85,7 @@ namespace DimensionForge._3D.ViewModels
             }
 
             var model = canvasViewModel.Shapes.FirstOrDefault(x => x is ImportedModel) as ImportedModel;
-            model.SetCornerNodes();
+            model.SetBoundingBox();
             canvasViewModel.Draw();
         }
 

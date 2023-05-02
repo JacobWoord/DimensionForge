@@ -10,6 +10,8 @@ using System;
 using System.Diagnostics;
 using System.Windows;
 using System.IO;
+using System.Windows.Documents;
+using System.Collections.Generic;
 
 namespace Net_Designer_MVVM
 {
@@ -18,7 +20,20 @@ namespace Net_Designer_MVVM
 
         private static readonly float EPS = 0.1f;
 
+        public static List<SharpDX.Color> GetColorList()
+        {
+            List<SharpDX.Color> colors = new();
+            colors.Add(SharpDX.Color.Red);//0
+            colors.Add(SharpDX.Color.Blue);//1
+            colors.Add(SharpDX.Color.Green);//2
+            colors.Add(SharpDX.Color.Black);//3
+            colors.Add(SharpDX.Color.Purple);//4
+            colors.Add(SharpDX.Color.White);//5
+            colors.Add(SharpDX.Color.DarkSeaGreen);//6
+            colors.Add(SharpDX.Color.Brown);//7
 
+            return colors;
+        }
 
 
         public static float AngleBetweenAxes(Vector3 axis1Vec1, Vector3 axis1Vec2, Vector3 axis2Vec1, Vector3 axis2Vec2)

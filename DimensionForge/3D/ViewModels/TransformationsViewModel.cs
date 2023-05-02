@@ -53,7 +53,7 @@ namespace DimensionForge._3D.ViewModels
             } 
 
             var door = canvasViewModel.Shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-            door.Rotate(definedVector, 20);
+            door.RotateAroundCenter(definedVector, 20);
         }
 
 

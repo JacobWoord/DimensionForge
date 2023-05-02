@@ -95,6 +95,26 @@ namespace DimensionForge._3D.Models
 
         }
 
+        public void TranslateToCenter(Vector3 newlocation)
+        {
+            var bb = this.GetBoundingBox();
+            var oldcenter = bb.Minimum + (bb.Maximum - bb.Minimum) / 2;
+            var newcenter = newlocation + (bb.Maximum - bb.Minimum) / 2;
+            var dif = newcenter - oldcenter;
+            var trans = new TranslateTransform3D(dif.ToVector3D());
+
+            Transform.Dispatcher.Invoke(() =>
+            {
+                Transform.Children.Add(trans);
+            });
+
+            Location = newlocation;
+
+            foreach (var node in cornerNodes)
+            {
+                node.Position += dif;
+            }
+        }
         public virtual async Task TranslateToAsync(Vector3 newlocation)
         {
             var dif = -Location + newlocation;
@@ -109,9 +129,6 @@ namespace DimensionForge._3D.Models
 
             cornerNodes.ForEach(x => x.Position += dif);
         }
-
-
-
         public virtual async Task TranslateAsync(Vector3 translation)
         {
             Location += translation;
@@ -121,9 +138,6 @@ namespace DimensionForge._3D.Models
             });
             cornerNodes.ForEach(x => x.Position += translation);
         }
-
-
-
         public Vector3 GetLocation()
         {
             Vector3 location = new Vector3();
@@ -296,8 +310,6 @@ namespace DimensionForge._3D.Models
             //corners.ToList().ForEach(c => this.cornerNodes.Add(new Node3D(c)));
         }
 
-
-
         public HelixToolkit.Wpf.SharpDX.Material SetMaterial()
         {
             return null;
@@ -320,11 +332,6 @@ namespace DimensionForge._3D.Models
             //fourCorners.ForEach(corner => cornerNodes.Add(new Node3D(corner.Position) { NodePos = corner.NodePos}));
 
         }
-
-
-      
-
-
         public void RotateAroundCenter(Vector3D axis, double angle)
         {
             // Get the center point of the model
@@ -488,42 +495,58 @@ namespace DimensionForge._3D.Models
         {
             var bb = this.GetBoundingBox();
             var corners = bb.GetCorners();
+            var nodeCorners = new List<Node3D>();
 
 
-            foreach (var corner in corners)
+           
+
+            for (int i = 0; i < corners.Count(); i++)
             {
-                BbCorners.Add(new Node3D(corner));
+                CornerName cornerName = (CornerName)i;
+                nodeCorners.Add(new Node3D(corners[i]) { CornerName = cornerName });
             }
 
-            //for (int i = 0; i < 8; i++)
-            //{
-            //    int j = (i + 1) % 8;
-            //    var cylinder = new CylinderVisual3D()
-            //    {
-            //        Diameter = cylinderRadius * 2,
-            //        Material = cylinderMaterial,
-            //        Point1 = corners[i],
-            //        Point2 = corners[j],
-            //    };
-            //    this.Children.Add(cylinder);
-            //}
+            BbCorners = nodeCorners;
+            
+            
+ 
         }
 
         public List<verletElement3D> GetBbElements()
         {
             var elements = new List<verletElement3D>();
 
-            for (int i = 0; i < 8; i++)
-            {
-                int j = (i + 1) % 8;
-                var element = new verletElement3D()
-                {
-                    
-                    Start = BbCorners[i],
-                    End = BbCorners[j],
-                };
-                elements.Add(element);
-            }
+            
+            //Sides
+            elements.Add(new verletElement3D() { Start = BbCorners[0], End = BbCorners[1] });
+            elements.Add(new verletElement3D() { Start = BbCorners[0], End = BbCorners[3] });
+            elements.Add(new verletElement3D() { Start = BbCorners[0], End = BbCorners[4] });
+            elements.Add(new verletElement3D() { Start = BbCorners[1], End = BbCorners[5] });
+            elements.Add(new verletElement3D() { Start = BbCorners[1], End = BbCorners[2] });
+            elements.Add(new verletElement3D() { Start = BbCorners[2], End = BbCorners[3] });
+            elements.Add(new verletElement3D() { Start = BbCorners[2], End = BbCorners[6] });
+            elements.Add(new verletElement3D() { Start = BbCorners[3], End = BbCorners[7] });
+            elements.Add(new verletElement3D() { Start = BbCorners[4], End = BbCorners[7] });
+            elements.Add(new verletElement3D() { Start = BbCorners[4], End = BbCorners[5] });
+            elements.Add(new verletElement3D() { Start = BbCorners[5], End = BbCorners[6] });
+            elements.Add(new verletElement3D() { Start = BbCorners[6], End = BbCorners[7] });
+
+            //Diagonal
+            elements.Add(new verletElement3D() { Start = BbCorners[1], End = BbCorners[6] });
+            elements.Add(new verletElement3D() { Start = BbCorners[2], End = BbCorners[5] });
+            elements.Add(new verletElement3D() { Start = BbCorners[0], End = BbCorners[7] });
+            elements.Add(new verletElement3D() { Start = BbCorners[3], End = BbCorners[4] });
+            elements.Add(new verletElement3D() { Start = BbCorners[3], End = BbCorners[6] });
+            elements.Add(new verletElement3D() { Start = BbCorners[2], End = BbCorners[7] });
+            elements.Add(new verletElement3D() { Start = BbCorners[0], End = BbCorners[5] });
+            elements.Add(new verletElement3D() { Start = BbCorners[1], End = BbCorners[4] });
+            elements.Add(new verletElement3D() { Start = BbCorners[0], End = BbCorners[2] });
+            elements.Add(new verletElement3D() { Start = BbCorners[1], End = BbCorners[3] });
+            elements.Add(new verletElement3D() { Start = BbCorners[4], End = BbCorners[6] });
+            elements.Add(new verletElement3D() { Start = BbCorners[5], End = BbCorners[7] });
+         
+          
+          
 
 
             return elements;
