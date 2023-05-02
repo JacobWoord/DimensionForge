@@ -14,7 +14,7 @@
                     Margin="5">
             <Button Margin="5" Command="{Binding ZoomToCommand}">ZoomTo</Button>
             <Button Margin="5" Command="{Binding SetCornerNodesCommand}">setCornerNodes</Button>
-            <Button Margin="5" Command="{Binding CalcDoorTransCommand}">Door Trans</Button>
+            <Button Margin="5" Command="{Binding TranslateCommand}">Door Trans</Button>
             <Button Margin="5" Command="{Binding RotateDoorCommand}" CommandParameter="X">Rotate X</Button>
             <Button Margin="5" Command="{Binding RotateDoorCommand}" CommandParameter="Y">Rotate Y</Button>
             <Button Margin="5" Command="{Binding RotateDoorCommand}" CommandParameter="Z">Rotate Z</Button>

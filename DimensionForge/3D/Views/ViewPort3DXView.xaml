@@ -122,17 +122,24 @@
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding VerletShapeCommand}">
-                Add Verlet shape
+                Command="{Binding ReloadCommand}">redraw view</Button>
+
+            <Button
+                Margin="10"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Command="{Binding DrawPlaneCommand}">
+                Draw Plane Command
             </Button>
 
             <Button
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding DrawVerletNodesCommand}">
-                Draw verletNodes
+                Command="{Binding DrawCornerNodesCommand}">
+                Draw cornernodes
             </Button>
+
 
         </StackPanel>
 

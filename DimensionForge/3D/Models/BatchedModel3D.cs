@@ -16,6 +16,7 @@ using DimensionForge.HelperTools;
 using DimensionForge._3D.ViewModels;
 using DimensionForge.Common;
 using System.Windows.Controls;
+using System.Runtime.InteropServices;
 
 namespace DimensionForge._3D.Models
 {
@@ -24,8 +25,11 @@ namespace DimensionForge._3D.Models
     {
 
 
-        public List<Node3D> cornerNodes = new();
 
+        public BoundingBox BoundingBox { get; set; }
+        public List<Node3D> BbCorners { get; set; } = new();
+
+        public List<Node3D> cornerNodes = new();
 
         public string ID = Guid.NewGuid().ToString();
         public string Name { get; set; }
@@ -71,18 +75,55 @@ namespace DimensionForge._3D.Models
         private TranslateTransform3D translateTransform;
 
         //TRANSLATIONS
+
         public void TranslateTo(Vector3 newlocation)
         {
             var dif = -Location + newlocation;
             var trans = new TranslateTransform3D(dif.ToVector3D());
+
             Transform.Dispatcher.Invoke(() =>
             {
                 Transform.Children.Add(trans);
             });
 
             Location = newlocation;
+
+            foreach (var node in cornerNodes)
+            {
+                node.Position += dif;
+            }
+
+        }
+
+        public virtual async Task TranslateToAsync(Vector3 newlocation)
+        {
+            var dif = -Location + newlocation;
+            var trans = new TranslateTransform3D(dif.ToVector3D());
+            await Transform.Dispatcher.InvokeAsync(() =>
+            {
+                Transform.Children.Add(trans);
+            });
+
+            Location = newlocation;
+
+
             cornerNodes.ForEach(x => x.Position += dif);
         }
+
+
+
+        public virtual async Task TranslateAsync(Vector3 translation)
+        {
+            Location += translation;
+            await Transform.Dispatcher.InvokeAsync(() =>
+            {
+                Transform.Children.Add(new TranslateTransform3D(translation.ToVector3D()));
+            });
+            cornerNodes.ForEach(x => x.Position += translation);
+        }
+
+
+
         public Vector3 GetLocation()
         {
             Vector3 location = new Vector3();
@@ -268,19 +309,22 @@ namespace DimensionForge._3D.Models
             var eightCorners = bb.GetCorners();
 
 
-            var fourCorners = ConvertBoundingBoxToSquare(eightCorners.ToList());
+            cornerNodes = ConvertBoundingBoxToSquare(eightCorners.ToList());
 
-            //CornerNodes of the door
-            cornerNodes.Add(new Node3D(fourCorners[0].Position) { NodePos = fourCorners[0].NodePos, Color = fourCorners[0].Color, IsDoorNode = true });
-            cornerNodes.Add(new Node3D(fourCorners[1].Position) { NodePos = fourCorners[1].NodePos, Color = fourCorners[1].Color, IsDoorNode = true });
-            cornerNodes.Add(new Node3D(fourCorners[2].Position) { NodePos = fourCorners[2].NodePos, Color = fourCorners[2].Color, IsDoorNode = true });
-            cornerNodes.Add(new Node3D(fourCorners[3].Position) { NodePos = fourCorners[3].NodePos, Color = fourCorners[3].Color, IsDoorNode = true });
+            ////CornerNodes of the door
+            //cornerNodes.Add(new Node3D(fourCorners[0].Position) { NodePos = fourCorners[0].NodePos, Color = fourCorners[0].Color, IsDoorNode = true ,Pinned = true});
+            //cornerNodes.Add(new Node3D(fourCorners[1].Position) { NodePos = fourCorners[1].NodePos, Color = fourCorners[1].Color, IsDoorNode = true, Pinned = true });
+            //cornerNodes.Add(new Node3D(fourCorners[2].Position) { NodePos = fourCorners[2].NodePos, Color = fourCorners[2].Color, IsDoorNode = true, Pinned = true });
+            //cornerNodes.Add(new Node3D(fourCorners[3].Position) { NodePos = fourCorners[3].NodePos, Color = fourCorners[3].Color, IsDoorNode = true, Pinned = true });
 
             //fourCorners.ForEach(corner => cornerNodes.Add(new Node3D(corner.Position) { NodePos = corner.NodePos}));
 
         }
 
-       
+
+      
+
+
         public void RotateAroundCenter(Vector3D axis, double angle)
         {
             // Get the center point of the model
@@ -365,16 +409,16 @@ namespace DimensionForge._3D.Models
 
             // Calculate the 4 corner points of the square
             List<Node3D> square = new List<Node3D>();
-            square.Add(new Node3D(new Vector3(minX, minY, minZ)) { NodePos = NodePosition.BottomLeft, Color = Color.Red });
-            square.Add(new Node3D(new Vector3(maxX, minY, minZ + halfDepth)) { NodePos = NodePosition.LeftTop, Color = Color.Green });
-            square.Add(new Node3D(new Vector3(maxX, maxY, minZ + halfDepth)) { NodePos = NodePosition.RightTop, Color = Color.Yellow });
-            square.Add(new Node3D(new Vector3(minX, maxY, minZ)) { NodePos = NodePosition.BottomRight, Color = Color.Purple });
+            square.Add(new Node3D(new Vector3(minX, minY, minZ)) { NodePos = NodePosition.BottomRight, Color = Color.Red, Pinned = true });
+            square.Add(new Node3D(new Vector3(maxX, minY, minZ + halfDepth)) { NodePos = NodePosition.LeftTop, Color = Color.Green, Pinned = true });
+            square.Add(new Node3D(new Vector3(maxX, maxY, minZ + halfDepth)) { NodePos = NodePosition.RightTop, Color = Color.Yellow, Pinned = true });
+            square.Add(new Node3D(new Vector3(minX, maxY, minZ)) { NodePos = NodePosition.BottomLeft, Color = Color.Purple, Pinned = true });
 
             // Calculate the center point of the square
-            Vector3 center = new Vector3((minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2);
+            // Vector3 center = new Vector3((minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2);
 
             // Add a center node to the list
-            square.Add(new Node3D(center) { NodePos = NodePosition.Center, Color = Color.White });
+            //square.Add(new Node3D(center) { NodePos = NodePosition.Center, Color = Color.White });
 
             return square;
         }
@@ -408,24 +452,79 @@ namespace DimensionForge._3D.Models
             return new BoundingBox(min, max);
         }
 
-        public  List<verletElement3D> GetElements()
+        public List<verletElement3D> GetElements()
         {
             var elements = new List<verletElement3D>();
-           
-            elements.Add(new verletElement3D() { Start = new Node3D(new Vector3(cornerNodes[0].Position.X, cornerNodes[0].Position.Y, cornerNodes[0].Position.Z)), End = new Node3D(new Vector3(cornerNodes[1].Position.X, cornerNodes[1].Position.Y, cornerNodes[1].Position.Z)) { IsDoorNode = true } });
-            elements.Add(new verletElement3D() { Start = new Node3D(new Vector3(cornerNodes[1].Position.X, cornerNodes[1].Position.Y, cornerNodes[1].Position.Z)), End = new Node3D(new Vector3(cornerNodes[2].Position.X, cornerNodes[2].Position.Y, cornerNodes[2].Position.Z)) { IsDoorNode = true } });
-            elements.Add(new verletElement3D() { Start = new Node3D(new Vector3(cornerNodes[2].Position.X, cornerNodes[2].Position.Y, cornerNodes[2].Position.Z)), End = new Node3D(new Vector3(cornerNodes[3].Position.X, cornerNodes[3].Position.Y, cornerNodes[3].Position.Z)) { IsDoorNode = true } });
-            elements.Add(new verletElement3D() { Start = new Node3D(new Vector3(cornerNodes[3].Position.X, cornerNodes[3].Position.Y, cornerNodes[3].Position.Z)), End = new Node3D(new Vector3(cornerNodes[0].Position.X, cornerNodes[0].Position.Y, cornerNodes[0].Position.Z)) { IsDoorNode = true } });
+            var nodes = new List<Node3D>();
 
 
-            var leftTop = cornerNodes.FirstOrDefault(x => x.NodePos == NodePosition.LeftTop).Position;
-            var bottomRight = cornerNodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomRight).Position;
-            var rightTop = cornerNodes.FirstOrDefault(x => x.NodePos == NodePosition.RightTop).Position;
-            var bottomLeft = cornerNodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft).Position;
-            
-            elements.Add(new verletElement3D() { Start = new Node3D(new Vector3(leftTop.X, leftTop.Y,leftTop.Z)), End = new Node3D(new Vector3(bottomRight.X,bottomRight.Y,bottomRight.Z))});
-            elements.Add(new verletElement3D() { Start = new Node3D(new Vector3(rightTop.X,rightTop.Y,rightTop.Z)), End = new Node3D(new Vector3(bottomLeft.X,bottomLeft.Y,bottomLeft.Z))});    
-         
+            //references from the corner nodes
+            var leftTop = cornerNodes.FirstOrDefault(x => x.NodePos == NodePosition.LeftTop);
+            var bottomRight = cornerNodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomRight);
+            var rightTop = cornerNodes.FirstOrDefault(x => x.NodePos == NodePosition.RightTop);
+            var bottomLeft = cornerNodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft);
+
+            //new nodes for the verlet elements
+            nodes.Add(new Node3D(new Vector3(leftTop.Position.X, leftTop.Position.Y, leftTop.Position.Z)) { NodePos = leftTop.NodePos, Pinned = true });
+            nodes.Add(new Node3D(new Vector3(rightTop.Position.X, rightTop.Position.Y, rightTop.Position.Z)) { NodePos = rightTop.NodePos, Pinned = true });
+            nodes.Add(new Node3D(new Vector3(bottomRight.Position.X, bottomRight.Position.Y, bottomRight.Position.Z)) { NodePos = bottomRight.NodePos, Pinned = true });
+            nodes.Add(new Node3D(new Vector3(bottomLeft.Position.X, bottomLeft.Position.Y, bottomLeft.Position.Z)) { NodePos = bottomLeft.NodePos, Pinned = true });
+
+            //generate verelet elements 
+            elements.Add(new verletElement3D() { Start = nodes[0], End = nodes[1] });
+            elements.Add(new verletElement3D() { Start = nodes[1], End = nodes[2] });
+            elements.Add(new verletElement3D() { Start = nodes[2], End = nodes[3] });
+            elements.Add(new verletElement3D() { Start = nodes[3], End = nodes[0] });
+            elements.Add(new verletElement3D() { Start = nodes[0], End = nodes[2] });
+            elements.Add(new verletElement3D() { Start = nodes[1], End = nodes[3] });
+
+
+
+            return elements;
+
+
+        }
+        public void SetBoundingBox()
+        {
+            var bb = this.GetBoundingBox();
+            var corners = bb.GetCorners();
+
+
+            foreach (var corner in corners)
+            {
+                BbCorners.Add(new Node3D(corner));
+            }
+
+            //for (int i = 0; i < 8; i++)
+            //{
+            //    int j = (i + 1) % 8;
+            //    var cylinder = new CylinderVisual3D()
+            //    {
+            //        Diameter = cylinderRadius * 2,
+            //        Material = cylinderMaterial,
+            //        Point1 = corners[i],
+            //        Point2 = corners[j],
+            //    };
+            //    this.Children.Add(cylinder);
+            //}
+        }
+
+        public List<verletElement3D> GetBbElements()
+        {
+            var elements = new List<verletElement3D>();
+
+            for (int i = 0; i < 8; i++)
+            {
+                int j = (i + 1) % 8;
+                var element = new verletElement3D()
+                {
+                    
+                    Start = BbCorners[i],
+                    End = BbCorners[j],
+                };
+                elements.Add(element);
+            }
+
 
             return elements;
         }

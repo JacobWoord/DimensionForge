@@ -89,10 +89,7 @@ namespace DimensionForge._3D.ViewModels
             canvasViewModel.Draw();
         }
 
-      
 
-          
-            
 
         async Task Import(string filePath)
         {

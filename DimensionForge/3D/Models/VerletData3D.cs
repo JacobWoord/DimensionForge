@@ -36,25 +36,6 @@ namespace DimensionForge._3D.Models
         
 
 
-        public void SetRotation(Vector3 tp)
-        {
-            var firstPoint = cornerList.FirstOrDefault(x => x.NodePos == NodePosition.BottomRight).Position;
-            var secondPoint = cornerList.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft).Position;
-
-            var thirdPoint = tp;
-            VerletPlane = new Plane(firstPoint,secondPoint,thirdPoint);
-           
-            //take the normal to generate a rotation axis
-            Normal = verletPlane.Normal;
-
-            //secondPoint -- secondPoint + Normal* 100
-            P1 = firstPoint;
-            P2 = P1 + Normal * 100;
-
-            Angle =Utils3D. AngleBetweenAxes(secondPoint, firstPoint, secondPoint, thirdPoint);
-
-        }
-
 
 
 
