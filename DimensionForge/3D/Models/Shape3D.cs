@@ -17,6 +17,7 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Material = HelixToolkit.Wpf.SharpDX.Material;
 using System.Windows.Media.Media3D;
 using System.Collections.Generic;
+using DimensionForge.Common;
 
 namespace DimensionForge._3D.Models
 {
@@ -42,6 +43,7 @@ namespace DimensionForge._3D.Models
         }
 
         public IList<TransformData> TransformDatas { get; set; }
+        public UseCase UseCase { get; set; }
 
         [ObservableProperty]
         [property: JsonIgnore]

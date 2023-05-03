@@ -46,6 +46,7 @@ namespace DimensionForge
             serviceCollection.AddTransient<TransformationsViewModel>();
             serviceCollection.AddTransient<verletIntigrationViewModel>();
             serviceCollection.AddTransient<Edit3DObjectsViewModel>();
+            serviceCollection.AddTransient<FloorTexturesViewModel>();
            
             serviceProvider = serviceCollection.BuildServiceProvider();
             Ioc.Default.ConfigureServices(serviceProvider);

@@ -8,14 +8,14 @@ namespace DimensionForge.Common
 {
     public enum NodePosition
     {
-        LeftTop,
         RightTop,
+        LeftTop,
         BottomLeft,
-        BottomRight,
-        Center
+        BottomRight
+        
     }
 
-    public enum CornerName
+    public enum BbCornerName
     {
         BinnenLinksBoven = 0,
         BuitenLinksBoven =1,
@@ -25,6 +25,16 @@ namespace DimensionForge.Common
         BuitenRechtsOnder =5,
         BuitenLinksOnder =6,
         BinnenRechtsOnder = 7
+    }
+
+   
+
+    public enum UseCase
+    {
+        verlet,
+        direction,
+        boundings,
+        anchorPoints
     }
 
 }

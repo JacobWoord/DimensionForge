@@ -62,7 +62,7 @@ namespace DimensionForge._3D.ViewModels
         void SetCornerNodes()
         {
             var door =canvasViewModel.Shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-            door.cornerNodes.ForEach(x =>canvasViewModel.Shapes.Add(new CornerPoint3D() { LinkedNode = x , Radius=10, Color= Color.Green}));
+            door.Bbcorners.ForEach(x =>canvasViewModel.Shapes.Add(new CornerPoint3D() { LinkedNode = x , Radius=10, Color= Color.Green}));
             canvasViewModel.Draw();
         }
             

@@ -1,5 +1,6 @@
 ﻿using DimensionForge._3D.Data;
 using DimensionForge._3D.Models;
+using DimensionForge.Common;
 using SharpDX;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -19,5 +20,6 @@ namespace DimensionForge._3D.interfaces
         public void Select();
         public void Deselect();
         public List<verletElement3D> GetElements();
+        public UseCase UseCase {get; set;}
     }
 }

@@ -1,4 +1,5 @@
 ﻿using DimensionForge._3D.Data;
+using DimensionForge.Common;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
 using SharpDX;
@@ -23,6 +24,8 @@ namespace DimensionForge._3D.Models
 
         [ObservableProperty]
         float lentgh;
+
+        public UseCase UseCase { get; set; } = UseCase.verlet;
 
         public Cylinder3D()
         {

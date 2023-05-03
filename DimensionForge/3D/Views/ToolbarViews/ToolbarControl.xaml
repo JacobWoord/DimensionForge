@@ -25,6 +25,9 @@
             <Button Command="{Binding NavigateCommand}" 
                     CommandParameter="3D"
                     Margin="5">3D Objects</Button>
+            <Button Command="{Binding NavigateCommand}" 
+                    CommandParameter="FloorTextures"
+                    Margin="5">FloorTextures</Button>
 
 
 

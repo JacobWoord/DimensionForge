@@ -4,6 +4,7 @@ using SharpDX;
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using SharpDX.DirectWrite;
 
 namespace DimensionForge._3D.Models
 {
@@ -13,24 +14,31 @@ namespace DimensionForge._3D.Models
         public float Length {get; set;} = 1000;
         public float Height {get; set;} = 0.1f;
        
+        public string FloorNumber { get; set;} = "1";
+       
 
-        public Floor3D()
+        public Floor3D(string num)
         {
             //Init          
             Name = "Floor";
             Id = Guid.NewGuid().ToString();
+            FloorNumber = num;
             PhongMaterial p = PhongMaterials.Red;
-            
-            p.DiffuseMap = new TextureModel("C:\\Users\\jacob\\Downloads\\pexels-jonathan.jpg");
+
+            p.DiffuseMap = new TextureModel(SetFloor());
             p.RenderDiffuseMap = true;
-            p.DiffuseColor = SharpDX.Color.DimGray.ToColor4();        
+            p.DiffuseColor = SharpDX.Color.DimGray.ToColor4();
             Material = p;
 
-            Draw();
+            
+
+
         }
 
         public override void Draw()
         {
+
+         
             var pos = new Vector3(0, Length / 4, -Height / 2);
 
             // Floor Geometry
@@ -44,6 +52,36 @@ namespace DimensionForge._3D.Models
             {
                 (Geometry as MeshGeometry3D).TextureCoordinates[i] *= 5;
             }
+
+        }
+
+
+        private string SetFloor()
+        {
+            string path = "";
+
+            switch (FloorNumber)
+            {
+                case "1":
+                    path = "C:\\Users\\jacob\\source\\repos\\DimensionForge\\Textures\\granite.jpg";
+                    break;
+                    case "2":
+                    path = "C:\\Users\\jacob\\source\\repos\\DimensionForge\\Textures\\wood.jpg";
+                    break;
+                    case "3":
+                    path = "C:\\Users\\jacob\\source\\repos\\DimensionForge\\Textures\\blue.jpg";
+                    break;
+                    case "4":
+                    path = "C:\\Users\\jacob\\source\\repos\\DimensionForge\\Textures\\sand.jpg";
+                    break;
+                    case "5": 
+                    path = "C:\\Users\\jacob\\source\\repos\\DimensionForge\\Textures\\abstract.jpg";
+                    break;
+               
+            }
+
+
+            return path;
 
         }
 

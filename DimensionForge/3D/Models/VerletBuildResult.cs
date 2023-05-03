@@ -33,17 +33,17 @@ namespace DimensionForge
 
 
 
-        public (float angle, Vector3 p1, Vector3 p2, Vector3 normal) SetRotation(Vector3 tp)
+        public (float angle, Vector3 p1, Vector3 p2, Vector3 normal) SetRotationVerticalOriginal(Vector3 tp)
         {
-            var firstPoint = Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomRight).Position;
-            var secondPoint = Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft).Position;
+            var binnenLinks = Nodes.FirstOrDefault(x => x.CornerName == BbCornerName.BinnenLinksOnder).Position;
+            var binnenRechts = Nodes.FirstOrDefault(x => x.CornerName == BbCornerName.BinnenRechtsOnder).Position;
 
             var thirdPoint = tp;
             if (thirdPoint.Z < 0)
             {
                 thirdPoint.Z = 1;
             }
-            var plane  = new Plane(firstPoint, secondPoint, thirdPoint);
+            var plane  = new Plane(binnenLinks, binnenRechts, thirdPoint);
 
            
             
@@ -54,12 +54,103 @@ namespace DimensionForge
                 normal.Z = 1;
             }
             //secondPoint -- secondPoint + Normal* 100
-            var p1 = firstPoint;
+            var p1 = binnenLinks;
             var p2 = p1 + normal * 100;
 
 
-           var angle = Utils3D.AngleBetweenAxes(secondPoint, firstPoint, secondPoint, thirdPoint);
+           var angle = Utils3D.AngleBetweenAxes(binnenLinks, thirdPoint, binnenLinks, binnenRechts);
           // var angle = Utils3D.AngleBetweenAxes(firstPoint, thirdPoint, secondPoint, thirdPoint);
+
+            return (angle, p1, p2, normal);
+        }
+        public (float angle, Vector3 p1, Vector3 p2, Vector3 normal) SetRotationVertical(Vector3 tp)
+        {
+            var binnenLinks = Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft).Position;
+            var binnenRechts = Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomRight).Position;
+
+            var thirdPoint = tp;
+            if (thirdPoint.Z < 0)
+            {
+                thirdPoint.Z = 1;
+            }
+            var plane = new Plane(binnenLinks, binnenRechts, thirdPoint);
+
+
+
+            //take the normal to generate a rotation axis
+            var normal = plane.Normal;
+            if (normal.Z < 0)
+            {
+                normal.Z = 1;
+            }
+            //secondPoint -- secondPoint + Normal* 100
+            var p1 = binnenLinks;
+            var p2 = p1 + normal * 100;
+
+
+            var angle = Utils3D.AngleBetweenAxes(binnenLinks, thirdPoint, binnenLinks, binnenRechts);
+            // var angle = Utils3D.AngleBetweenAxes(firstPoint, thirdPoint, secondPoint, thirdPoint);
+
+            return (angle, p1, p2, normal);
+        }
+
+        public (float angle, Vector3 p1, Vector3 p2, Vector3 normal) SetRotationHorizontalOriginal (Vector3 tp)
+        {
+            var binnenLinksOnder = Nodes.FirstOrDefault(x => x.CornerName == BbCornerName.BinnenLinksOnder).Position;
+            var binnenLinksBoven = Nodes.FirstOrDefault(x => x.CornerName == BbCornerName.BinnenLinksBoven).Position;
+
+            var thirdPoint = tp;
+            if (thirdPoint.Z < 0)
+            {
+                thirdPoint.Z = 1;
+            }
+            var plane = new Plane(binnenLinksOnder, binnenLinksBoven, thirdPoint);
+
+
+
+            //take the normal to generate a rotation axis
+            var normal = plane.Normal;
+            if (normal.Z < 0)
+            {
+                normal.Z = 1;
+            }
+            //secondPoint -- secondPoint + Normal* 100
+            var p1 = binnenLinksOnder;
+            var p2 = p1 + normal * 100;
+
+
+            var angle = Utils3D.AngleBetweenAxes(binnenLinksOnder, thirdPoint, binnenLinksOnder, binnenLinksBoven);
+            // var angle = Utils3D.AngleBetweenAxes(firstPoint, thirdPoint, secondPoint, thirdPoint);
+
+            return (angle, p1, p2, normal);
+        }
+
+        
+        
+        public (float angle, Vector3 p1, Vector3 p2, Vector3 normal) SetRotationHorizontal(Vector3 tp)
+        {
+            var binnenLinksOnder = Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft).Position;
+            var binnenLinksBoven = Nodes.FirstOrDefault(x => x.NodePos == NodePosition.LeftTop).Position;
+
+            var thirdPoint = tp;
+            if (thirdPoint.Z < 0)
+            {
+                thirdPoint.Z = 1;
+            }
+            var plane = new Plane(binnenLinksOnder, binnenLinksBoven, thirdPoint);
+
+
+
+            //take the normal to generate a rotation axis
+            var normal = plane.Normal;
+            
+            //secondPoint -- secondPoint + Normal* 100
+            var p1 = binnenLinksOnder;
+            var p2 = p1 + normal * 100;
+
+
+            var angle = Utils3D.AngleBetweenAxes(binnenLinksOnder, thirdPoint, binnenLinksOnder, binnenLinksBoven);
+            // var angle = Utils3D.AngleBetweenAxes(firstPoint, thirdPoint, secondPoint, thirdPoint);
 
             return (angle, p1, p2, normal);
         }
@@ -78,8 +169,8 @@ namespace DimensionForge
                 {
 
                     var model = shapesList[i] as BatchedModel3D;
-                    var elements = model.GetBbElements();
-
+                    // var elements = model.GetBbElements();
+                    var elements = model.GetElements();
                     foreach (var el in elements)
                     {
                         Elements.Add(el);
