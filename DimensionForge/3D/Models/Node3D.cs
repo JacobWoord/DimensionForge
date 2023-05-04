@@ -18,8 +18,8 @@ namespace DimensionForge._3D.Models
 
         public Vector3 OldPosition { get; set; }
         public float RadiusInMeters { get; set; } = 0.1f;
-        public NodePosition NodePos { get; set; }
-        public Color Color { get; set; }
+        public NodePosition NodePos { get; set; } = NodePosition.None;
+        public Color Color { get; set; } = Color.White;
 
         public Transform3DGroup transform;
 

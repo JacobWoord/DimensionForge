@@ -20,7 +20,7 @@ namespace DimensionForge._3D.Models
         Node3D p2 = new Node3D(Vector3.Zero);
 
         [ObservableProperty]
-        float radius = 0.8f;
+        float radius = 0.5f;
 
         [ObservableProperty]
         float lentgh;

@@ -21,6 +21,7 @@ using SharpDX.Direct3D11;
 using System.Net.NetworkInformation;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Windows.Documents;
 
 namespace DimensionForge._3D.ViewModels
 {
@@ -86,7 +87,7 @@ namespace DimensionForge._3D.ViewModels
             }
             for (int i = 0; i < buildResult.Nodes.Count(); i++)
             {
-                shapes.Add(new CornerPoint3D() { LinkedNode = buildResult.Nodes[i], Color = colors[i] });
+                shapes.Add(new CornerPoint3D() { LinkedNode = buildResult.Nodes[i], Color = Color.Purple });
 
             }
 
@@ -130,13 +131,13 @@ namespace DimensionForge._3D.ViewModels
                     {
 
                         await Draw();
-                        UpdateDoorPosition();
+                        // UpdateDoorPosition();
 
                     });
                     var elapsed = (int)stopWatch.ElapsedMilliseconds;
-                    //  Debug.WriteLine(elapsed);
+                    Debug.WriteLine(elapsed);
                     int delay = duration - elapsed;
-                    await Task.Delay(delay);
+                    await Task.Delay(100);
                 }
             });
 
@@ -156,15 +157,15 @@ namespace DimensionForge._3D.ViewModels
 
             }
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 200; i++)
             {
 
                 foreach (var s in buildResult.Elements)
                     UpdateSticks(s);
 
 
-                foreach (var n in buildResult.Nodes)
-                    ConstrainGround(n);
+                //foreach (var n in buildResult.Nodes)
+                    //ConstrainGround(n);
             }
 
 
@@ -245,7 +246,7 @@ namespace DimensionForge._3D.ViewModels
             for (int i = 0; i < 30; i++)
             {
 
-                ExecuteVerticalRotation();
+               // ExecuteVerticalRotation();
 
                 if (results.angle < 2)
                 {
@@ -259,7 +260,7 @@ namespace DimensionForge._3D.ViewModels
                     directionCyl.P1.Position = axisP1;
                     directionCyl.P2.Position = axisP2;
                     directionCyl.Color = Color.Orange;
-                    ExecuteHorizontalRotation();
+                   // ExecuteHorizontalRotation();
 
                 }
 
@@ -374,7 +375,7 @@ namespace DimensionForge._3D.ViewModels
         }
 
         [RelayCommand]
-        void DrawBoundingBox()
+        async void DrawBoundingBox()
         {
             //reNew
             var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
@@ -383,8 +384,11 @@ namespace DimensionForge._3D.ViewModels
             if (boundings.Count > 0)
                 boundings.ForEach(x => shapes.Remove(x));
 
-            door.Bbcorners.ForEach(x => shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = Color.Black, UseCase = UseCase.boundings }));
-            Draw();
+
+            door.Bbcorners.ForEach(x => shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = x.Color, UseCase = UseCase.boundings }));
+            await Draw();
+
+
         }
 
 
@@ -396,7 +400,14 @@ namespace DimensionForge._3D.ViewModels
             if (anchorPoints.Count() > 0)
                 anchorPoints.ForEach(x => shapes.Remove(x));
 
-            door.Nodes.ForEach(x => shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = Color.Pink, UseCase = UseCase.anchorPoints }));
+
+
+            var lt = door.Nodes.FirstOrDefault(x => x.NodePos == NodePosition.RightTop);
+            lt.Color = Color.Green;
+
+            door.Nodes.ForEach(x => shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = x.Color, UseCase = UseCase.anchorPoints }));
+
+
             Draw();
         }
 
@@ -431,10 +442,24 @@ namespace DimensionForge._3D.ViewModels
 
         void UpdateSticks(verletElement3D stick)
         {
+
             //var delta = stick.End.Position - stick.Start.Position;
             //float deltaLength = delta.Length();
-            //float diff = (deltaLength - stick.Length);
-            //var offset = delta * (diff / deltaLength) / 2;
+            //float diff = (deltaLength - stick.Length) / deltaLength;
+            ////  var offset = delta * (diff / deltaLength) / 2;
+
+            //stick.Start.Position += (delta * diff) / 2;
+            //stick.End.Position -= (delta * diff) / 2;
+
+
+
+            var delta = stick.End.Position - stick.Start.Position;
+            float deltaLength = delta.Length();
+            float diff = (deltaLength - stick.Length);
+            var offset = delta * (diff / deltaLength) / 2;
+
+            stick.Start.Position += offset;
+            stick.End.Position -= offset;
 
             //if (!stick.Start.Pinned)
             //{
@@ -462,31 +487,31 @@ namespace DimensionForge._3D.ViewModels
 
 
             //reference to the Node3D of the Cylinder
-            var node1 = stick.Start;
-            var node2 = stick.End;
-            var pos1 = node1.Position;
-            var pos2 = node2.Position;
+            //var node1 = stick.Start;
+            //var node2 = stick.End;
+            //var pos1 = node1.Position;
+            //var pos2 = node2.Position;
 
-            var dx = pos2.X - pos1.X;
-            var dy = pos2.Y - pos1.Y;
-            var dz = pos2.Z - pos1.Z;
-            var distance = Vector3.Distance(node1.Position, node2.Position);
-            var stickLength = stick.Length;
-            var differnce = stickLength - distance;
-            var percent = differnce / distance / 2;
-            var offsetX = dx * percent;
-            var offsetY = dy * percent;
-            var offsetZ = dz * percent;
+            //var dx = pos2.X - pos1.X;
+            //var dy = pos2.Y - pos1.Y;
+            //var dz = pos2.Z - pos1.Z;
+            //var distance = Vector3.Distance(node1.Position, node2.Position);
+            //var stickLength = stick.Length;
+            //var differnce = stickLength - distance;
+            //var percent = differnce / distance / 2;
+            //var offsetX = dx * percent;
+            //var offsetY = dy * percent;
+            //var offsetZ = dz * percent;
 
-            pos1.X -= offsetX;
-            pos1.Y -= offsetY;
-            pos1.Z -= offsetZ;
-            pos2.X += offsetX;
-            pos2.Y += offsetY;
-            pos2.Z += offsetZ;
+            //pos1.X -= offsetX;
+            //pos1.Y -= offsetY;
+            //pos1.Z -= offsetZ;
+            //pos2.X += offsetX;
+            //pos2.Y += offsetY;
+            //pos2.Z += offsetZ;
 
-            node1.Position = pos1;
-            node2.Position = pos2;
+            //node1.Position = pos1;
+            //node2.Position = pos2;
         }
         void Find_collision(IShape3D shape)
         {
@@ -543,11 +568,11 @@ namespace DimensionForge._3D.ViewModels
             var yv = node.Position.Y - node.OldPosition.Y;  // y velocity
             var zv = node.Position.Z - node.OldPosition.Z;  // z velocity
 
-            var bounce = 0.8f;
+            var bounce = 0.99f;
 
-            if (node.Position.Z < node.RadiusInMeters)
+            if (node.Position.Z < 0)
             {
-                node.Position = new Vector3(node.Position.X, node.Position.Y, node.RadiusInMeters);
+                node.Position = new Vector3(node.Position.X, node.Position.Y,0);
                 node.OldPosition = new Vector3(node.Position.X, node.Position.Y, node.Position.Z + zv * bounce);
             }
 
@@ -556,12 +581,10 @@ namespace DimensionForge._3D.ViewModels
         {
             //update the position of the models by setting the current and the old position
             var position = node.Position;
-            // to implement the bounce we multiply the OldVelocity by Bounce
-            var bounce = 0.9f;
             // to implement gravity we add it to the position.Z after we add velocity
             var gravity = new Vector3(0, 0, -0.3f);
             //multiply the velocity by friction to slow it down
-            var friction = 0.950f;
+            var friction = 0.9f;
             var radius = node.RadiusInMeters;
 
             var oldPosition = node.OldPosition;
@@ -686,6 +709,8 @@ namespace DimensionForge._3D.ViewModels
             var dirCyl = new Cylinder3D();
             dirCyl.Color = Color.White;
             shapes.Add(dirCyl);
+
+
         }
 
 
@@ -699,9 +724,9 @@ namespace DimensionForge._3D.ViewModels
             Shapes.Add(batchedmodel);
 
             var model = Shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-            model.TranslateTo(new Vector3(0, 0, 5));
-            //  model.SetBoundingBox();
-            model.SetCornerNodes();
+            model.TranslateTo(new Vector3(0, 0, 10));
+          
+         
         }
 
 
