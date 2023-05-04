@@ -164,8 +164,8 @@ namespace DimensionForge._3D.ViewModels
                     UpdateSticks(s);
 
 
-                //foreach (var n in buildResult.Nodes)
-                    //ConstrainGround(n);
+                foreach (var n in buildResult.Nodes)
+                    ConstrainGround(n);
             }
 
 
