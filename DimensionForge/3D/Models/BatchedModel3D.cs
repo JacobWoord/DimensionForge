@@ -506,7 +506,27 @@ namespace DimensionForge._3D.Models
             transform.Children.Add(new TranslateTransform3D(translation.X, translation.Y, translation.Z));
         }
 
-        public Vector3 GetCentroid()
+
+        public Vector3 GetCentroid(Vector3[] vertices)
+        {
+            Vector3 centroid = new Vector3();
+
+            if (vertices == null || vertices.Length == 0)
+            {
+                return centroid;
+            }
+
+            foreach (Vector3 vertex in vertices)
+            {
+                centroid += vertex;
+            }
+
+            centroid /= vertices.Length;
+
+            return centroid;
+        }
+
+        public Vector3 GetCentroid_Original()
         {
             var vertices = Nodes.Where(x => x.NodePos != NodePosition.None).ToList();
             var centroid = new Vector3();
@@ -589,86 +609,119 @@ namespace DimensionForge._3D.Models
             return Nodes.FirstOrDefault(x => x.NodePos == nodeposition);
         }
 
-
-        public Transform3DGroup CalculateFullTransformationMatrix(Vector3[] newVertices, Vector3 centroid, Transform3DGroup transformGroup)
+        public Transform3DGroup CalculateFullTransformationMatrix(Vector3[] allVertices, Vector3[] verletVertices, Vector3 trueCentroid, Transform3DGroup transformGroup)
         {
-            // Create a matrix to transform the centroid using the current Transform3DGroup
-            var centroidTransformMatrix = Matrix.Identity;
-            if (transformGroup != null)
+            // Calculate the transformed positions for the verletVertices
+            Vector3[] transformedVerletVertices = new Vector3[verletVertices.Length];
+            for (int i = 0; i < verletVertices.Length; i++)
             {
-                foreach (Transform3D transform in transformGroup.Children)
-                {
-                    if (transform is MatrixTransform3D matrixTransform)
-                    {
-                        centroidTransformMatrix = matrixTransform.Matrix.ToSharpDX();
-                    }
-                    else if (transform is ScaleTransform3D scaleTransform)
-                    {
-                        var scaleMatrix = Matrix.Scaling((float)scaleTransform.ScaleX, (float)scaleTransform.ScaleY, (float)scaleTransform.ScaleZ);
-                        centroidTransformMatrix *= scaleMatrix;
-                    }
-                    else if (transform is RotateTransform3D rotateTransform)
-                    {
-                        var rotation = rotateTransform.Rotation as AxisAngleRotation3D;
-                        centroidTransformMatrix *= Matrix.RotationQuaternion(new Quaternion(new Vector3((float)rotation.Axis.X, (float)rotation.Axis.Y, (float)rotation.Axis.Z), (float)rotation.Angle));
-                    }
-                    else if (transform is TranslateTransform3D translateTransform)
-                    {
-                        centroidTransformMatrix *= Matrix.Translation(new Vector3((float)translateTransform.OffsetX, (float)translateTransform.OffsetY, (float)translateTransform.OffsetZ));
-                    }
-                }
+                transformedVerletVertices[i] = Vector3.TransformCoordinate(verletVertices[i], transformGroup.Value.ToSharpDX());
             }
 
-            // Transform the centroid using the current transformation matrix
-            var transformedCentroid = Vector3.TransformCoordinate(centroid, centroidTransformMatrix);
+            // Calculate the new centroid based on the transformedVerletVertices
+            Vector3 newCentroid = GetCentroid(transformedVerletVertices);
 
-            // Create a matrix to translate the transformed centroid to the origin
-            var translateToOriginMatrix = SharpDX.Matrix.Translation(-transformedCentroid);
+            // Calculate the translation required to move the trueCentroid to the newCentroid
+            Vector3 translation = newCentroid - trueCentroid;
 
-            // Create a matrix to transform the original vertices using the Transform3DGroup
-            var transformMatrix = centroidTransformMatrix;
+            // Create the translation matrix
+            Matrix translationMatrix = Matrix.Translation(translation);
 
-            // Create a matrix to transform the vertices to their new positions
-            var newVerticesMatrix = new Matrix(
-                newVertices[0].X, newVertices[0].Y, newVertices[0].Z, 0,
-                newVertices[1].X, newVertices[1].Y, newVertices[1].Z, 0,
-                newVertices[2].X, newVertices[2].Y, newVertices[2].Z, 0,
-                0, 0, 0, 1);
-
-            // Create a matrix to translate the vertices from the origin to the new centroid
-            var translateFromOriginMatrix = Matrix.Translation(transformedCentroid);
-
-            // Combine the matrices to create the full transformation matrix
-            var fullTransformMatrix = newVerticesMatrix * translateFromOriginMatrix * transformMatrix * translateToOriginMatrix;
-
-            // Convert the full transformation matrix to a Matrix3D
-            var fullTransformMatrix3D = fullTransformMatrix.ToMatrix3D();
-
-            // Create new MatrixTransform3D and TranslateTransform3D based on the full transformation matrix
-            var newMatrixTransform = new MatrixTransform3D(fullTransformMatrix3D);
-            var newTranslateTransform = new TranslateTransform3D(-transformedCentroid.X, -transformedCentroid.Y, -transformedCentroid.Z);
-
-            // Add the new transforms and the existing transforms (except for scaling) to the new Transform3DGroup
-            var newTransformGroup = new Transform3DGroup();
-            if (transformGroup != null)
+            // Apply the translation matrix to the complete set of vertices (allVertices)
+            Vector3[] transformedVertices = new Vector3[allVertices.Length];
+            for (int i = 0; i < allVertices.Length; i++)
             {
-                foreach (Transform3D transform in transformGroup.Children)
-                {
-                    if (transform is MatrixTransform3D || transform is TranslateTransform3D || transform is ScaleTransform3D)
-                    {
-                        // Do nothing, we will handle MatrixTransform3D, TranslateTransform3D, and ScaleTransform3D separately.
-                    }
-                    else
-                    {
-                        newTransformGroup.Children.Add(transform);
-                    }
-                }
+                transformedVertices[i] = Vector3.TransformCoordinate(allVertices[i], translationMatrix);
             }
-            newTransformGroup.Children.Add(newMatrixTransform);
-            newTransformGroup.Children.Add(newTranslateTransform);
 
-            return newTransformGroup;
+            // Replace the original positions in the 3D model with the transformed positions (transformedVertices)
+            // ... (You'll need to update the positions of the 3D model based on the transformedVertices array)
+
+            // Return the updated Transform3DGroup
+            return transformGroup;
         }
+
+
+
+        //public Transform3DGroup CalculateFullTransformationMatrix(Vector3[] newVertices, Vector3 centroid, Transform3DGroup transformGroup)
+        //{
+        //    // Create a matrix to transform the centroid using the current Transform3DGroup
+        //    var centroidTransformMatrix = Matrix.Identity;
+        //    if (transformGroup != null)
+        //    {
+        //        foreach (Transform3D transform in transformGroup.Children)
+        //        {
+        //            if (transform is MatrixTransform3D matrixTransform)
+        //            {
+        //                centroidTransformMatrix = matrixTransform.Matrix.ToSharpDX();
+        //            }
+        //            else if (transform is ScaleTransform3D scaleTransform)
+        //            {
+        //                var scaleMatrix = Matrix.Scaling((float)scaleTransform.ScaleX, (float)scaleTransform.ScaleY, (float)scaleTransform.ScaleZ);
+        //                centroidTransformMatrix *= scaleMatrix;
+        //            }
+        //            else if (transform is RotateTransform3D rotateTransform)
+        //            {
+        //                var rotation = rotateTransform.Rotation as AxisAngleRotation3D;
+        //                centroidTransformMatrix *= Matrix.RotationQuaternion(new Quaternion(new Vector3((float)rotation.Axis.X, (float)rotation.Axis.Y, (float)rotation.Axis.Z), (float)rotation.Angle));
+        //            }
+        //            else if (transform is TranslateTransform3D translateTransform)
+        //            {
+        //                centroidTransformMatrix *= Matrix.Translation(new Vector3((float)translateTransform.OffsetX, (float)translateTransform.OffsetY, (float)translateTransform.OffsetZ));
+        //            }
+        //        }
+        //    }
+
+        //    // Transform the centroid using the current transformation matrix
+        //    var transformedCentroid = Vector3.TransformCoordinate(centroid, centroidTransformMatrix);
+
+        //    // Create a matrix to translate the transformed centroid to the origin
+        //    var translateToOriginMatrix = SharpDX.Matrix.Translation(-transformedCentroid);
+
+        //    // Create a matrix to transform the original vertices using the Transform3DGroup
+        //    var transformMatrix = centroidTransformMatrix;
+
+        //    // Create a matrix to transform the vertices to their new positions
+        //    var newVerticesMatrix = new Matrix(
+        //        newVertices[0].X, newVertices[0].Y, newVertices[0].Z, 0,
+        //        newVertices[1].X, newVertices[1].Y, newVertices[1].Z, 0,
+        //        newVertices[2].X, newVertices[2].Y, newVertices[2].Z, 0,
+        //        0, 0, 0, 1);
+
+        //    // Create a matrix to translate the vertices from the origin to the new centroid
+        //    var translateFromOriginMatrix = Matrix.Translation(transformedCentroid);
+
+        //    // Combine the matrices to create the full transformation matrix
+        //    var fullTransformMatrix = newVerticesMatrix * translateFromOriginMatrix * transformMatrix * translateToOriginMatrix;
+
+        //    // Convert the full transformation matrix to a Matrix3D
+        //    var fullTransformMatrix3D = fullTransformMatrix.ToMatrix3D();
+
+        //    // Create new MatrixTransform3D and TranslateTransform3D based on the full transformation matrix
+        //    var newMatrixTransform = new MatrixTransform3D(fullTransformMatrix3D);
+        //    var newTranslateTransform = new TranslateTransform3D(-transformedCentroid.X, -transformedCentroid.Y, -transformedCentroid.Z);
+
+        //    // Add the new transforms and the existing transforms (except for scaling) to the new Transform3DGroup
+        //    var newTransformGroup = new Transform3DGroup();
+        //    if (transformGroup != null)
+        //    {
+        //        foreach (Transform3D transform in transformGroup.Children)
+        //        {
+        //            if (transform is MatrixTransform3D || transform is TranslateTransform3D || transform is ScaleTransform3D)
+        //            {
+        //                // Do nothing, we will handle MatrixTransform3D, TranslateTransform3D, and ScaleTransform3D separately.
+        //            }
+        //            else
+        //            {
+        //                newTransformGroup.Children.Add(transform);
+        //            }
+        //        }
+        //    }
+        //    newTransformGroup.Children.Add(newMatrixTransform);
+        //    newTransformGroup.Children.Add(newTranslateTransform);
+
+        //    return newTransformGroup;
+        //}
 
         public List<verletElement3D> GetElements()
         {

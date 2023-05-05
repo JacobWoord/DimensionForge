@@ -119,6 +119,7 @@ namespace DimensionForge._3D.ViewModels
             int duration = 33; //==30fps
 
             InitBuildResult();
+            DrawAnchorPoints();
 
             await Task.Run(async () =>
             {
@@ -149,7 +150,7 @@ namespace DimensionForge._3D.ViewModels
         [property: JsonIgnore]
         void UpdatePhysics()
         {
-
+            
             // generates a loop that stays on the same thread as the UI thread
             foreach (var n in buildResult.Nodes)
             {
@@ -198,7 +199,7 @@ namespace DimensionForge._3D.ViewModels
 
 
 
-            door.Transform = matrix;
+            //door.Transform = matrix;
            
 
 
