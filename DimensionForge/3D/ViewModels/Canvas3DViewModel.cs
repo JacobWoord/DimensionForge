@@ -132,7 +132,7 @@ namespace DimensionForge._3D.ViewModels
                     {
 
                         await Draw();
-                       // UpdateDoorPosition();
+                       UpdateDoorPosition();
 
                     });
                     var elapsed = (int)stopWatch.ElapsedMilliseconds;
@@ -191,16 +191,22 @@ namespace DimensionForge._3D.ViewModels
             {
                 verticesPositions.Add(node.Position);
             }
-            var centroid = door.GetCentroid();
-            var matrix = door.CalculateFullTransformationMatrix(verticesPositions.ToArray(), centroid,door.Transform);
-            door.ScaleModel(0.1);
-            door.ScaleModel(0.1);
-            door.ScaleModel(0.1);
+
+
+            Vector3 trueCentroid = door.GetCentroid(door.Nodes.Select(n => n.Position).ToArray());
+            Transform3DGroup updatedTransformGroup = door.CalculateFullTransformationMatrix(door.Nodes.Select(n => n.Position).ToArray(), buildResult.Nodes.Select(n => n.Position).ToArray(), trueCentroid, door.Transform);
+            door.Transform = updatedTransformGroup;
+
+            //var centroid = door.GetCentroid();
+            //var matrix = door.CalculateFullTransformationMatrix(verticesPositions.ToArray(), centroid,door.Transform);
+            //door.ScaleModel(0.1);
+            //door.ScaleModel(0.1);
+            //door.ScaleModel(0.1);
 
 
 
             //door.Transform = matrix;
-           
+
 
 
 
@@ -256,7 +262,7 @@ namespace DimensionForge._3D.ViewModels
         }
 
 
-    
+
 
         [RelayCommand]
         void ExecuteVerticalRotation()

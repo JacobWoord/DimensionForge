@@ -636,6 +636,10 @@ namespace DimensionForge._3D.Models
 
             // Replace the original positions in the 3D model with the transformed positions (transformedVertices)
             // ... (You'll need to update the positions of the 3D model based on the transformedVertices array)
+            for (int i = 0; i < this.Nodes.Count; i++)
+            {
+                this.Nodes[i].Position = transformedVertices[i];
+            }
 
             // Return the updated Transform3DGroup
             return transformGroup;
