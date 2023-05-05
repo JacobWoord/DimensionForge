@@ -180,7 +180,7 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                 Command="{Binding UpdateDoorPositionCommand}">
-                Draw boundings
+                Update Position Door
             </Button>
 
             <Button

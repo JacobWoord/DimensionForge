@@ -132,7 +132,7 @@ namespace DimensionForge._3D.ViewModels
                     {
 
                         await Draw();
-                       UpdateDoorPosition();
+                      //  UpdateDoorPosition();
 
                     });
                     var elapsed = (int)stopWatch.ElapsedMilliseconds;
@@ -193,7 +193,7 @@ namespace DimensionForge._3D.ViewModels
             }
 
 
-            Vector3 trueCentroid = door.GetCentroid(door.Nodes.Select(n => n.Position).ToArray());
+            Vector3 trueCentroid = door.GetCentroid(door.Nodes.Where(n => n.NodePos != NodePosition.None).Select(n => n.Position).ToArray());
             Transform3DGroup updatedTransformGroup = door.CalculateFullTransformationMatrix(door.Nodes.Select(n => n.Position).ToArray(), buildResult.Nodes.Select(n => n.Position).ToArray(), trueCentroid, door.Transform);
             door.Transform = updatedTransformGroup;
 
