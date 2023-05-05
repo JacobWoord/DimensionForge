@@ -614,6 +614,36 @@ namespace DimensionForge._3D.Models
             // Create a matrix to translate the centroid of the original vertices to the origin
             var translateToOriginMatrix = SharpDX.Matrix.Translation(-centroid);
 
+            // Calculate the orthogonal basis for the original and new vertices
+            Vector3 originalBasis1 = originalVertices[1] - originalVertices[0];
+            Vector3 originalBasis2 = originalVertices[2] - originalVertices[0];
+            Vector3 originalBasis3 = Vector3.Cross(originalBasis1, originalBasis2);
+
+            Vector3 newBasis1 = newVertices[1] - newVertices[0];
+            Vector3 newBasis2 = newVertices[2] - newVertices[0];
+            Vector3 newBasis3 = Vector3.Cross(newBasis1, newBasis2);
+
+            // Normalize the basis vectors
+            originalBasis1.Normalize();
+            originalBasis2.Normalize();
+            originalBasis3.Normalize();
+
+            newBasis1.Normalize();
+            newBasis2.Normalize();
+            newBasis3.Normalize();
+
+            // Calculate the transformation matrix that maps the original basis to the new basis
+            var originalToNewBasisMatrix = new Matrix(
+                newBasis1.X, newBasis1.Y, newBasis1.Z, 0,
+                newBasis2.X, newBasis2.Y, newBasis2.Z, 0,
+                newBasis3.X, newBasis3.Y, newBasis3.Z, 0,
+                0, 0, 0, 1);
+
+            var newVerticesMatrix = originalToNewBasisMatrix * SharpDX.Matrix.Translation(newVertices[0] - originalVertices[0]);
+
+            // Create a matrix to translate the vertices from the origin to the new centroid
+            var translateFromOriginMatrix = SharpDX.Matrix.Translation(centroid);
+
             // Create a matrix to transform the original vertices using the Transform3DGroup
             var transformMatrix = Matrix.Identity;
             if (transformGroup != null)
@@ -628,7 +658,6 @@ namespace DimensionForge._3D.Models
                     {
                         var scaleMatrix = Matrix.Scaling((float)scaleTransform.ScaleX, (float)scaleTransform.ScaleY, (float)scaleTransform.ScaleZ);
                         transformMatrix *= scaleMatrix;
-
                     }
                     else if (transform is RotateTransform3D rotateTransform)
                     {
@@ -642,35 +671,32 @@ namespace DimensionForge._3D.Models
                 }
             }
 
-            // Create a matrix to transform the vertices to their new positions
-            var newVerticesMatrix = new Matrix(
-                newVertices[0].X, newVertices[0].Y, newVertices[0].Z, 0,
-                newVertices[1].X, newVertices[1].Y, newVertices[1].Z, 0,
-                newVertices[2].X, newVertices[2].Y, newVertices[2].Z, 0,
-                0, 0, 0, 1);
-
-            // Create a matrix to translate the vertices from the origin to the new centroid
-            var translateFromOriginMatrix = Matrix.Translation(centroid);
-
             // Combine the matrices to create the full transformation matrix
-            var fullTransformMatrix = translateToOriginMatrix * transformMatrix * translateFromOriginMatrix * newVerticesMatrix;
+            var fullTransformMatrix = newVerticesMatrix * translateFromOriginMatrix * transformMatrix * translateToOriginMatrix;
 
             // Convert the full transformation matrix to a Matrix3D
             var fullTransformMatrix3D = fullTransformMatrix.ToMatrix3D();
-
             // Create new MatrixTransform3D and TranslateTransform3D based on the full transformation matrix
             var newMatrixTransform = new MatrixTransform3D(fullTransformMatrix3D);
             var newTranslateTransform = new TranslateTransform3D(-centroid.X, -centroid.Y, -centroid.Z);
 
-            // Create a new Transform3DGroup and add the new transforms
+            // Add the new transforms to the existing Transform3DGroup
             var newTransformGroup = new Transform3DGroup();
-            newTransformGroup.Children.Clear();
+            if (transformGroup != null)
+            {
+                foreach (Transform3D transform in transformGroup.Children)
+                {
+                    if (!(transform is MatrixTransform3D) && !(transform is TranslateTransform3D))
+                    {
+                        newTransformGroup.Children.Add(transform);
+                    }
+                }
+            }
             newTransformGroup.Children.Add(newMatrixTransform);
             newTransformGroup.Children.Add(newTranslateTransform);
 
             return newTransformGroup;
         }
-
 
 
         //public Transform3DGroup CalculateFullTransformationMatrix(Vector3[] newVertices, Vector3 centroid, Transform3DGroup transformGroup)

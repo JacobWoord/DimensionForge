@@ -171,9 +171,30 @@ namespace DimensionForge._3D.ViewModels
 
 
         }
+        [RelayCommand]
+        public void UpdateDoorPosition()
+        {
+            var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
+
+
+            if (door != null)
+            {
+                Vector3 trueCentroid = door.GetCentroid(door.Nodes.Where(n => n.NodePos != NodePosition.None).Select(n => n.Position).ToArray());
+                var originalVertices = door.Nodes.Select(n => n.Position).ToArray();
+                var newVertices = buildResult.Nodes.Where(n => n.NodePos != NodePosition.None).Select(n => n.Position).ToArray();
+
+                var updatedTransformGroup = door.CalculateFullTransformationMatrix(originalVertices, newVertices, trueCentroid, door.Transform);
+                door.Transform = updatedTransformGroup;
+                //door.ScaleModel(0.1);
+               
+            }
+        }
+
+
+
 
         [RelayCommand]
-        void UpdateDoorPosition()
+        void UpdateDoorPosition1()
         {
             //DONT FORGET TO TAKE THE RIGHT ELEMENTS BEFOR USING THIS FUNCTION
 
