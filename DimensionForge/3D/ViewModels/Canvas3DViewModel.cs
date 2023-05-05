@@ -3,7 +3,6 @@ using DimensionForge._3D.interfaces;
 using DimensionForge._3D.Models;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
-using Microsoft.Win32;
 using Newtonsoft.Json;
 using SharpDX;
 using System;
@@ -15,13 +14,9 @@ using System.Windows;
 using System.Windows.Media.Media3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using DimensionForge.Common;
-using DimensionForge._2D.ViewModels;
 using Net_Designer_MVVM;
-using SharpDX.Direct3D11;
-using System.Net.NetworkInformation;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Windows.Documents;
+using Quaternion = SharpDX.Quaternion;
 
 namespace DimensionForge._3D.ViewModels
 {
@@ -126,13 +121,17 @@ namespace DimensionForge._3D.ViewModels
                 while (continueVerlet)
                 {
                     var stopWatch = Stopwatch.StartNew();
+                    //  var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
                     UpdatePhysics();
+
+
+
 
                     _ = uiDispatcher.InvokeAsync(async () =>
                     {
 
                         await Draw();
-                      //  UpdateDoorPosition();
+                        // UpdateDoorPosition();
 
                     });
                     var elapsed = (int)stopWatch.ElapsedMilliseconds;
@@ -145,12 +144,98 @@ namespace DimensionForge._3D.ViewModels
 
         }
 
+        public Vector3 GetOrientation()
+        {
+            // Assuming nodes[0] and nodes[6] are the diagonally opposite vertices of the box
+            Vector3 point1 = buildResult.GetNode(NodePosition.LeftTop).Position;
+            Vector3 point2 = buildResult.GetNode(NodePosition.BottomRight).Position;
+            Vector3 orientation = point2 - point1;
+            orientation.Normalize();
+
+            return orientation;
+        }
+
+        public Vector3 GetModelOrientation(BatchedModel3D model)
+        {
+            // Assuming GetVertex() is a method that retrieves the vertex at the specified index
+            Vector3 point1 = model.GetNode(NodePosition.LeftTop).Position; // Replace with your method to access the first vertex
+            Vector3 point2 = model.GetNode(NodePosition.BottomRight).Position; // Replace with your method to access the opposite vertex
+
+            Vector3 orientation = point2 - point1;
+            orientation.Normalize();
+
+            return orientation;
+        }
+        public Vector3 GetCenterOfMass(List<Node3D> nodes)
+        {
+            Vector3 centerOfMass = Vector3.Zero;
+            int nodeCount = nodes.Count;
+
+            if (nodeCount == 0)
+                return centerOfMass;
+
+            foreach (Node3D node in nodes)
+            {
+                centerOfMass += node.Position;
+            }
+
+            centerOfMass /= nodeCount;
+            return centerOfMass;
+        }
+
+        public Vector3 ComputeTranslationVector(List<Node3D> nodes, BatchedModel3D model)
+        {
+            Vector3 verletCenter = GetCenterOfMass(nodes);
+            Vector3 modelCenter = model.GetModelCenter();
+            return verletCenter - modelCenter;
+        }
+
+        private (Vector3 verletOrientation, Vector3 modelOrientation) ComputeCentroidOrientations()
+        {
+            var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
+
+            Vector3 topTriangleCentroid = Utils3D.GetCentroidPosition(buildResult.GetTriangle("top"));
+            Vector3 bottomTriangleCentroid = Utils3D.GetCentroidPosition(buildResult.GetTriangle("bottom"));
+
+            Vector3 verletOrientation = bottomTriangleCentroid - topTriangleCentroid;
+
+            Vector3 modelTopTriangleCentroid = Utils3D.GetCentroidPosition(door.GetTriangle("top"));
+            Vector3 modelBottomTriangleCentroid = Utils3D.GetCentroidPosition(door.GetTriangle("bottom"));
+
+            Vector3 modelOrientation = modelBottomTriangleCentroid - modelTopTriangleCentroid;
+
+            return (verletOrientation, modelOrientation);
+        }
+
+
+        public Quaternion ComputeRotationQuaternion(List<Node3D> nodes, BatchedModel3D model)
+        {
+
+            // Compute the orientation of the Verlet shape and the 3D model
+            (Vector3 verletOrientation, Vector3 modelOrientation) = ComputeCentroidOrientations();
+           
+            // Normalize the orientation vectors
+            verletOrientation.Normalize();
+            modelOrientation.Normalize();
+
+            // Compute the rotation axis and angle
+            Vector3 rotationAxis = Vector3.Cross(modelOrientation, verletOrientation);
+            float rotationAngle = (float)Math.Acos(Vector3.Dot(modelOrientation, verletOrientation));
+
+            // Create a quaternion
+            Quaternion rotationQuaternion = Quaternion.RotationAxis(rotationAxis, rotationAngle);
+
+            return rotationQuaternion;
+        }
+
+
+
 
 
         [property: JsonIgnore]
         void UpdatePhysics()
         {
-            
+
             // generates a loop that stays on the same thread as the UI thread
             foreach (var n in buildResult.Nodes)
             {
@@ -177,17 +262,37 @@ namespace DimensionForge._3D.ViewModels
             var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
 
 
-            if (door != null)
-            {
-                Vector3 trueCentroid = door.GetCentroid(door.Nodes.Where(n => n.NodePos != NodePosition.None).Select(n => n.Position).ToArray());
-                var originalVertices = door.Nodes.Select(n => n.Position).ToArray();
-                var newVertices = buildResult.Nodes.Where(n => n.NodePos != NodePosition.None).Select(n => n.Position).ToArray();
+            Vector3 translation = ComputeTranslationVector(buildResult.Nodes, door);
+            Quaternion rotationQuaternion = ComputeRotationQuaternion(buildResult.Nodes, door);
 
-                var updatedTransformGroup = door.CalculateFullTransformationMatrix(originalVertices, newVertices, trueCentroid, door.Transform);
-                door.Transform = updatedTransformGroup;
-                //door.ScaleModel(0.1);
-               
-            }
+            // Create a Transform3DGroup and apply it to the 3D model
+            Transform3DGroup transformGroup = door.CreateTransformGroup(translation, 1.0f, rotationQuaternion);
+            
+            door.Transform = transformGroup;
+            door.ScaleModel(0.1);
+            door.ScaleModel(0.1);
+
+            
+
+
+
+
+
+
+
+
+
+            //if (door != null)
+            //{
+            //    Vector3 trueCentroid = door.GetCentroid(door.Nodes.Where(n => n.NodePos != NodePosition.None).Select(n => n.Position).ToArray());
+            //    var originalVertices = door.Nodes.Select(n => n.Position).ToArray();
+            //    var newVertices = buildResult.Nodes.Where(n => n.NodePos != NodePosition.None).Select(n => n.Position).ToArray();
+
+            //    var updatedTransformGroup = door.CalculateFullTransformationMatrix(originalVertices, newVertices, trueCentroid, door.Transform);
+            //    door.Transform = updatedTransformGroup;
+            //    //door.ScaleModel(0.1);
+
+            //}
         }
 
 
@@ -207,7 +312,7 @@ namespace DimensionForge._3D.ViewModels
 
             var verticesNodes = buildResult.Nodes;
             var verticesPositions = new List<Vector3>();
-            
+
             foreach (var node in verticesNodes)
             {
                 verticesPositions.Add(node.Position);
@@ -370,7 +475,7 @@ namespace DimensionForge._3D.ViewModels
 
             door.Nodes.ForEach(x => shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = x.Color, UseCase = UseCase.anchorPoints }));
 
-
+            door.Nodes.ForEach(x => Debug.WriteLine(x.Position));
             Draw();
         }
 
@@ -535,7 +640,7 @@ namespace DimensionForge._3D.ViewModels
 
             if (node.Position.Z < 0)
             {
-                node.Position = new Vector3(node.Position.X, node.Position.Y,0);
+                node.Position = new Vector3(node.Position.X, node.Position.Y, 0);
                 node.OldPosition = new Vector3(node.Position.X, node.Position.Y, node.Position.Z + zv * bounce);
             }
 
@@ -688,8 +793,8 @@ namespace DimensionForge._3D.ViewModels
 
             var model = Shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
             model.TranslateTo(new Vector3(0, 0, 10));
-          
-         
+
+
         }
 
 

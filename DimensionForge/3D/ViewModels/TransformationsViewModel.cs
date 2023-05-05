@@ -30,7 +30,7 @@ namespace DimensionForge._3D.ViewModels
         {
             foreach (var shape in canvasViewModel.Shapes)
             {
-               shape.ScaleModel(0.1);
+               //shape.ScaleModel(0.1);
             }
         }
 

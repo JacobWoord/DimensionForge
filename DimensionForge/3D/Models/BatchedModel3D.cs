@@ -19,6 +19,7 @@ using Vector3 = SharpDX.Vector3;
 using Matrix = SharpDX.Matrix;
 
 using System.Windows.Media;
+using SharpDX.Direct3D11;
 
 namespace DimensionForge._3D.Models
 {
@@ -208,6 +209,37 @@ namespace DimensionForge._3D.Models
 
 
 
+
+
+
+        public Transform3DGroup CreateTransformGroup(Vector3 translation, float scale, SharpDX.Quaternion rotation)
+        {
+            // Convert SharpDX types to WPF types
+            System.Windows.Media.Media3D.Vector3D wpfTranslation = new System.Windows.Media.Media3D.Vector3D(translation.X, translation.Y, translation.Z);
+            System.Windows.Media.Media3D.Quaternion wpfQuaternion = new System.Windows.Media.Media3D.Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W);
+
+            // Create the translation transform
+            TranslateTransform3D translationTransform = new TranslateTransform3D(wpfTranslation);
+
+            // Create the scaling transform
+            ScaleTransform3D scalingTransform = new ScaleTransform3D(scale, scale, scale);
+            ScaleTransform3D scalingTransform1 = new ScaleTransform3D(scale, scale, scale);
+
+            // Create the rotation transform
+            RotateTransform3D rotationTransform = new RotateTransform3D(new QuaternionRotation3D(wpfQuaternion));
+
+            // Combine the transformations
+            Transform3DGroup transformGroup = new Transform3DGroup();
+            transformGroup.Children.Add(scalingTransform);
+           // transformGroup.Children.Add(scalingTransform1);
+            transformGroup.Children.Add(rotationTransform);
+            transformGroup.Children.Add(translationTransform);
+
+            return transformGroup;
+        }
+
+
+
         //TRANSFORMDATAS
         public void ConvertTransform3DGroupToTransformData()
         {
@@ -282,6 +314,7 @@ namespace DimensionForge._3D.Models
 
         }
 
+
         //IMPORT SERVICE
         public async Task OpenFile()
         {
@@ -309,6 +342,7 @@ namespace DimensionForge._3D.Models
 
             this.ScaleModel(0.1);
             this.ScaleModel(0.1);
+          
 
 
             //creates the opposite anchorPoints baes on the existing nodes on the positive Y axis
@@ -853,19 +887,26 @@ namespace DimensionForge._3D.Models
             //  elements.Add(new verletElement3D() { Start = bbNodes[8], End = bbNodes[0] });//1  
 
 
-
-
-
-
-
-
-
-
-
-
-
-
             return elements;
+        }
+
+        public Vector3[] GetTriangle(string side) 
+        {
+            var top = Nodes.Where(n => n.NodePos == NodePosition.LeftTop || n.NodePos == NodePosition.MiddleTop || n.NodePos == NodePosition.RightTop).Select(n=> n.Position).ToArray();
+            var bottom = Nodes.Where(n => n.NodePos == NodePosition.BottomLeft || n.NodePos == NodePosition.MiddleBottom || n.NodePos == NodePosition.BottomRight).Select(n => n.Position).ToArray();
+
+
+            switch (side)
+            {
+                case "top":
+                    return top;
+                    break;
+                    case "bottom":
+                        return bottom;
+                    break;
+                default: return top;
+                    break;
+            }
         }
         public void SetBoundingBox()
         {

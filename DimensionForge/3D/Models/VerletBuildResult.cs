@@ -1,4 +1,5 @@
-﻿using DimensionForge._3D.interfaces;
+﻿
+using DimensionForge._3D.interfaces;
 using DimensionForge._3D.Models;
 using DimensionForge._3D.ViewModels;
 using DimensionForge.Common;
@@ -137,14 +138,49 @@ namespace DimensionForge
                 }
             }
         }
+        public Vector3 GetCenterOfMass(List<Node3D> nodes)
+        {
+            Vector3 centerOfMass = new Vector3(0, 0, 0);
+            int nodeCount = nodes.Count;
+
+            if (nodeCount == 0)
+                return centerOfMass;
+
+            foreach (Node3D node in nodes)
+            {
+                centerOfMass += node.Position;
+            }
+
+            centerOfMass /= nodeCount;
+            return centerOfMass;
+        }
+
         public Node3D GetNode(NodePosition nodeposition)
         {
             return Nodes.FirstOrDefault(x => x.NodePos == nodeposition);
         }
 
-      
-        
-        
+
+
+        public Vector3[] GetTriangle(string side)
+        {
+            var top = Nodes.Where(n => n.NodePos == NodePosition.LeftTop || n.NodePos == NodePosition.MiddleTop || n.NodePos == NodePosition.RightTop).Select(n => n.Position).ToArray();
+            var bottom = Nodes.Where(n => n.NodePos == NodePosition.BottomLeft || n.NodePos == NodePosition.MiddleBottom || n.NodePos == NodePosition.BottomRight).Select(n => n.Position).ToArray();
+
+
+            switch (side)
+            {
+                case "top":
+                    return top;
+                    break;
+                case "bottom":
+                    return bottom;
+                    break;
+                default:
+                    return top;
+                    break;
+            }
+        }
 
 
 
@@ -152,7 +188,7 @@ namespace DimensionForge
 
 
 
-         
+
 
 
 

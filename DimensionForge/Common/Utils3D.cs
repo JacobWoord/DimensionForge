@@ -13,12 +13,31 @@ using System.IO;
 using System.Windows.Documents;
 using System.Collections.Generic;
 
+using System.Windows.Media.Media3D;
+
 namespace Net_Designer_MVVM
 {
     public static class Utils3D
     {
 
         private static readonly float EPS = 0.1f;
+
+
+       public static Vector3 GetCentroidPosition(params Vector3[] positions)
+        {
+            Vector3 centroid = new Vector3(0, 0, 0);
+
+            foreach (Vector3 position in positions)
+            {
+                centroid += position;
+            }
+
+            centroid /= positions.Length;
+            return centroid;
+        }
+
+
+
 
         public static List<SharpDX.Color> GetColorList()
         {
