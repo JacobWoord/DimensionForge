@@ -10,13 +10,15 @@ using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
 using Newtonsoft.Json;
 using DimensionForge._3D.Data;
-using Quaternion = System.Windows.Media.Media3D.Quaternion;
+using Color = SharpDX.Color;
 using HelixToolkit.Wpf.SharpDX;
+using Quaternion = SharpDX.Quaternion;
 using DimensionForge.HelperTools;
-using DimensionForge._3D.ViewModels;
 using DimensionForge.Common;
-using System.Windows.Controls;
-using System.Runtime.InteropServices;
+using Vector3 = SharpDX.Vector3;
+using Matrix = SharpDX.Matrix;
+
+using System.Windows.Media;
 
 namespace DimensionForge._3D.Models
 {
@@ -204,6 +206,8 @@ namespace DimensionForge._3D.Models
 
         }
 
+
+
         //TRANSFORMDATAS
         public void ConvertTransform3DGroupToTransformData()
         {
@@ -213,68 +217,68 @@ namespace DimensionForge._3D.Models
             Quaternion rotation = new Quaternion(0, 0, 0, 1);
 
 
-            // Iterate through the children of the Transform3DGroup and extract the relevant data
-            if (transform is not null)
-                foreach (var transform in transform.Children)
-                {
-                    if (transform is TranslateTransform3D translateTransform)
-                    {
-                        translation = new Vector3D(translateTransform.OffsetX, translateTransform.OffsetY, translateTransform.OffsetZ);
-                    }
-                    else if (transform is ScaleTransform3D scaleTransform)
-                    {
-                        scale = new Vector3D(scaleTransform.ScaleX, scaleTransform.ScaleY, scaleTransform.ScaleZ);
-                    }
-                    else if (transform is RotateTransform3D rotateTransform)
-                    {
-                        if (rotateTransform.Rotation is AxisAngleRotation3D axisAngleRotation)
-                        {
-                            Vector3D axis = new Vector3D(
-                                axisAngleRotation.Axis.X,
-                                axisAngleRotation.Axis.Y,
-                                axisAngleRotation.Axis.Z);
-                            double angle = axisAngleRotation.Angle;
-                            rotation = new Quaternion(
-                                axis.X * Math.Sin(angle / 2),
-                                axis.Y * Math.Sin(angle / 2),
-                                axis.Z * Math.Sin(angle / 2),
-                                Math.Cos(angle / 2));
-                        }
+            //// Iterate through the children of the Transform3DGroup and extract the relevant data
+            //if (transform is not null)
+            //    foreach (var transform in transform.Children)
+            //    {
+            //        if (transform is TranslateTransform3D translateTransform)
+            //        {
+            //            translation = new Vector3D(translateTransform.OffsetX, translateTransform.OffsetY, translateTransform.OffsetZ);
+            //        }
+            //        else if (transform is ScaleTransform3D scaleTransform)
+            //        {
+            //            scale = new Vector3D(scaleTransform.ScaleX, scaleTransform.ScaleY, scaleTransform.ScaleZ);
+            //        }
+            //        else if (transform is RotateTransform3D rotateTransform)
+            //        {
+            //            if (rotateTransform.Rotation is AxisAngleRotation3D axisAngleRotation)
+            //            {
+            //                Vector3D axis = new Vector3D(
+            //                    axisAngleRotation.Axis.X,
+            //                    axisAngleRotation.Axis.Y,
+            //                    axisAngleRotation.Axis.Z);
+            //                double angle = axisAngleRotation.Angle;
+            //                rotation = new Quaternion(
+            //                    axis.X * Math.Sin(angle / 2),
+            //                    axis.Y * Math.Sin(angle / 2),
+            //                    axis.Z * Math.Sin(angle / 2),
+            //                    Math.Cos(angle / 2));
+            //            }
 
-                    }
-                    TransformDatas.Add(new TransformData(translation, scale, rotation));
-                }
+            //        }
+            //        TransformDatas.Add(new TransformData(translation, scale, rotation));
+            //    }
 
         }
         public void ConvertTransformDataToTransform3DGroup()
         {
-            Transform3DGroup transformGroup = new Transform3DGroup();
+            //Transform3DGroup transformGroup = new Transform3DGroup();
 
-            foreach (var data in TransformDatas)
-            {
-                // Add the translation transformation
-                TranslateTransform3D translation = new TranslateTransform3D(
-                    data.Translation.X,
-                    data.Translation.Y,
-                    data.Translation.Z);
-                transformGroup.Children.Add(translation);
+            //foreach (var data in TransformDatas)
+            //{
+            //    // Add the translation transformation
+            //    TranslateTransform3D translation = new TranslateTransform3D(
+            //        data.Translation.X,
+            //        data.Translation.Y,
+            //        data.Translation.Z);
+            //    transformGroup.Children.Add(translation);
 
-                // Add the scale transformation
-                ScaleTransform3D scale = new ScaleTransform3D(
-                    data.Scale.X,
-                    data.Scale.Y,
-                    data.Scale.Z);
-                transformGroup.Children.Add(scale);
+            //    // Add the scale transformation
+            //    ScaleTransform3D scale = new ScaleTransform3D(
+            //        data.Scale.X,
+            //        data.Scale.Y,
+            //        data.Scale.Z);
+            //    transformGroup.Children.Add(scale);
 
-                // Add the rotation transformation
-                Quaternion rotation = data.Rotation;
-                Vector3D axis = new Vector3D(rotation.X, rotation.Y, rotation.Z);
-                double angle = 2 * Math.Acos(rotation.W);
-                AxisAngleRotation3D axisAngleRotation = new AxisAngleRotation3D(axis, angle);
-                RotateTransform3D rotateTransform = new RotateTransform3D(axisAngleRotation);
-                transformGroup.Children.Add(rotateTransform);
-            }
-            transform = transformGroup;
+            //    // Add the rotation transformation
+            //  //  Quaternion rotation = data.Rotation;
+            //    Vector3D axis = new Vector3D(rotation.X, rotation.Y, rotation.Z);
+            //    double angle = 2 * Math.Acos(rotation.W);
+            //    AxisAngleRotation3D axisAngleRotation = new AxisAngleRotation3D(axis, angle);
+            //    RotateTransform3D rotateTransform = new RotateTransform3D(axisAngleRotation);
+            //    transformGroup.Children.Add(rotateTransform);
+            //}
+            //transform = transformGroup;
 
         }
 
@@ -307,7 +311,7 @@ namespace DimensionForge._3D.Models
             this.ScaleModel(0.1);
 
 
-            //creates the opposite anchorPoints
+            //creates the opposite anchorPoints baes on the existing nodes on the positive Y axis
             var oppositeAnchors = Nodes.GroupBy(p => p.Position.Y)
                                      .Where(g => g.Count() >= 2)
                                      .SelectMany(g => g.ToList())
@@ -335,6 +339,7 @@ namespace DimensionForge._3D.Models
             var negGroup = negativeGroupLookUp[0].ToList();
 
 
+            // set the associated nodes for the positive positions on Y axis
             for (int i = 0; i < posGroup.Count(); i++)
             {
                 NodePosition cornerName = (NodePosition)i + 3;
@@ -343,7 +348,7 @@ namespace DimensionForge._3D.Models
             }
 
 
-
+            // set the associated nodes for the negative positions on Y axis
             for (int i = 0; i < negGroup.Count(); i++)
             {
                 NodePosition cornerName = (NodePosition)i;
@@ -353,17 +358,20 @@ namespace DimensionForge._3D.Models
 
             }
 
-            Nodes.Add(new Node3D(GetModelCenter()) { NodePos = NodePosition.Center });
+            Nodes.Add(new Node3D(GetModelCenter()) { NodePos = NodePosition.MiddleCenter });
 
+
+            //calculate the node position for the middle top node
             var rt = Nodes.FirstOrDefault(x => x.NodePos == NodePosition.RightTop);
             var lt = Nodes.FirstOrDefault(x => x.NodePos == NodePosition.LeftTop);
             var middle = (rt.Position + lt.Position) / 2;
-            
-            Nodes.Add(new Node3D(new Vector3(middle.X + 4,middle.Y,middle.Z)) { NodePos = NodePosition.MiddleTop });
 
+            Nodes.Add(new Node3D(new Vector3(middle.X + 4, middle.Y, middle.Z)) { NodePos = NodePosition.MiddleTop });
+
+            //calculate the node position for the middle bottom node
             var bl = Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft);
             var br = Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomRight);
-            var middleBottom =( bl.Position + br.Position) / 2;
+            var middleBottom = (bl.Position + br.Position) / 2;
             Nodes.Add(new Node3D(new Vector3(middleBottom.X + 4, middleBottom.Y, middleBottom.Z)) { NodePos = NodePosition.MiddleBottom });
 
 
@@ -415,9 +423,6 @@ namespace DimensionForge._3D.Models
 
 
         }
-
-
-
         public async Task Import()
         {
             //    await OpenFile();        
@@ -426,7 +431,6 @@ namespace DimensionForge._3D.Models
             //corners.ToList().ForEach(c => this.cornerNodes.Add(new Node3D(c)));
             //corners.ToList().ForEach(c => this.cornerNodes.Add(new Node3D(c)));
         }
-
         public HelixToolkit.Wpf.SharpDX.Material SetMaterial()
         {
             return null;
@@ -502,7 +506,19 @@ namespace DimensionForge._3D.Models
             transform.Children.Add(new TranslateTransform3D(translation.X, translation.Y, translation.Z));
         }
 
+        public Vector3 GetCentroid()
+        {
+            var vertices = Nodes.Where(x => x.NodePos != NodePosition.None).ToList();
+            var centroid = new Vector3();
+            foreach (var vertex in vertices)
+            {
+                centroid += vertex.Position;
+            }
 
+            centroid /= vertices.Count;
+
+            return centroid;
+        }
         public Vector3 GetModelCenter()
         {
             BoundingBox bounds = this.GetBoundingBox();
@@ -558,7 +574,7 @@ namespace DimensionForge._3D.Models
 
                 for (int i = 0; i < geometry.Positions.Count; i++)
                 {
-                    Vector4 position4 = Vector3.Transform(geometry.Positions[i], combinedTransform.Value.ToSharpDX());
+                    SharpDX.Vector4 position4 = Vector3.Transform(geometry.Positions[i], combinedTransform.Value.ToSharpDX());
                     Vector3 position = new Vector3(position4.X, position4.Y, position4.Z);
 
                     min = Vector3.Min(min, position);
@@ -567,6 +583,91 @@ namespace DimensionForge._3D.Models
             }
 
             return new BoundingBox(min, max);
+        }
+        public Node3D GetNode(NodePosition nodeposition)
+        {
+            return Nodes.FirstOrDefault(x => x.NodePos == nodeposition);
+        }
+
+
+        public Transform3DGroup CalculateFullTransformationMatrix(Vector3[] newVertices, Vector3 centroid, Transform3DGroup transformGroup)
+        {
+            // Create a matrix to transform the centroid using the current Transform3DGroup
+            var centroidTransformMatrix = Matrix.Identity;
+            if (transformGroup != null)
+            {
+                foreach (Transform3D transform in transformGroup.Children)
+                {
+                    if (transform is MatrixTransform3D matrixTransform)
+                    {
+                        centroidTransformMatrix = matrixTransform.Matrix.ToSharpDX();
+                    }
+                    else if (transform is ScaleTransform3D scaleTransform)
+                    {
+                        var scaleMatrix = Matrix.Scaling((float)scaleTransform.ScaleX, (float)scaleTransform.ScaleY, (float)scaleTransform.ScaleZ);
+                        centroidTransformMatrix *= scaleMatrix;
+                    }
+                    else if (transform is RotateTransform3D rotateTransform)
+                    {
+                        var rotation = rotateTransform.Rotation as AxisAngleRotation3D;
+                        centroidTransformMatrix *= Matrix.RotationQuaternion(new Quaternion(new Vector3((float)rotation.Axis.X, (float)rotation.Axis.Y, (float)rotation.Axis.Z), (float)rotation.Angle));
+                    }
+                    else if (transform is TranslateTransform3D translateTransform)
+                    {
+                        centroidTransformMatrix *= Matrix.Translation(new Vector3((float)translateTransform.OffsetX, (float)translateTransform.OffsetY, (float)translateTransform.OffsetZ));
+                    }
+                }
+            }
+
+            // Transform the centroid using the current transformation matrix
+            var transformedCentroid = Vector3.TransformCoordinate(centroid, centroidTransformMatrix);
+
+            // Create a matrix to translate the transformed centroid to the origin
+            var translateToOriginMatrix = SharpDX.Matrix.Translation(-transformedCentroid);
+
+            // Create a matrix to transform the original vertices using the Transform3DGroup
+            var transformMatrix = centroidTransformMatrix;
+
+            // Create a matrix to transform the vertices to their new positions
+            var newVerticesMatrix = new Matrix(
+                newVertices[0].X, newVertices[0].Y, newVertices[0].Z, 0,
+                newVertices[1].X, newVertices[1].Y, newVertices[1].Z, 0,
+                newVertices[2].X, newVertices[2].Y, newVertices[2].Z, 0,
+                0, 0, 0, 1);
+
+            // Create a matrix to translate the vertices from the origin to the new centroid
+            var translateFromOriginMatrix = Matrix.Translation(transformedCentroid);
+
+            // Combine the matrices to create the full transformation matrix
+            var fullTransformMatrix = newVerticesMatrix * translateFromOriginMatrix * transformMatrix * translateToOriginMatrix;
+
+            // Convert the full transformation matrix to a Matrix3D
+            var fullTransformMatrix3D = fullTransformMatrix.ToMatrix3D();
+
+            // Create new MatrixTransform3D and TranslateTransform3D based on the full transformation matrix
+            var newMatrixTransform = new MatrixTransform3D(fullTransformMatrix3D);
+            var newTranslateTransform = new TranslateTransform3D(-transformedCentroid.X, -transformedCentroid.Y, -transformedCentroid.Z);
+
+            // Add the new transforms and the existing transforms (except for scaling) to the new Transform3DGroup
+            var newTransformGroup = new Transform3DGroup();
+            if (transformGroup != null)
+            {
+                foreach (Transform3D transform in transformGroup.Children)
+                {
+                    if (transform is MatrixTransform3D || transform is TranslateTransform3D || transform is ScaleTransform3D)
+                    {
+                        // Do nothing, we will handle MatrixTransform3D, TranslateTransform3D, and ScaleTransform3D separately.
+                    }
+                    else
+                    {
+                        newTransformGroup.Children.Add(transform);
+                    }
+                }
+            }
+            newTransformGroup.Children.Add(newMatrixTransform);
+            newTransformGroup.Children.Add(newTranslateTransform);
+
+            return newTransformGroup;
         }
 
         public List<verletElement3D> GetElements()
@@ -582,7 +683,7 @@ namespace DimensionForge._3D.Models
             var br = Nodes.FirstOrDefault(n => n.NodePos == NodePosition.BottomRight);
             var mt = Nodes.FirstOrDefault(n => n.NodePos == NodePosition.MiddleTop);
             var mb = Nodes.FirstOrDefault(n => n.NodePos == NodePosition.MiddleBottom);
-            var cen = Nodes.FirstOrDefault(n => n.NodePos == NodePosition.Center);
+            var cen = Nodes.FirstOrDefault(n => n.NodePos == NodePosition.MiddleCenter);
 
 
             //new nodes for the verlet elements
@@ -591,11 +692,9 @@ namespace DimensionForge._3D.Models
             bbNodes.Add(new Node3D(bl.Position) { NodePos = bl.NodePos, Pinned = true });//2
             bbNodes.Add(new Node3D(rt.Position) { NodePos = rt.NodePos, Pinned = true });//3
             bbNodes.Add(new Node3D(rm.Position) { NodePos = rm.NodePos, Pinned = true });//4
-            bbNodes.Add(new Node3D(br.Position) { NodePos = br.NodePos, Pinned = true });//5
-            //bbNodes.Add(new Node3D((lt.Position + bl.Position) / 2) { NodePos = NodePosition.FrontMiddleLeft, Pinned = true });//6
-            //bbNodes.Add(new Node3D((rt.Position + br.Position) / 2) { NodePos = NodePosition.FrontMiddleRight, Pinned = true });//7
+            bbNodes.Add(new Node3D(br.Position) { NodePos = br.NodePos, Pinned = true });//5          
             bbNodes.Add(new Node3D((mt.Position)) { NodePos = mt.NodePos, Pinned = true });//6
-            bbNodes.Add(new Node3D((cen.Position)) { NodePos = NodePosition.Center, Pinned = true });//7
+            bbNodes.Add(new Node3D((cen.Position)) { NodePos = NodePosition.MiddleCenter, Pinned = true });//7
             bbNodes.Add(new Node3D((mb.Position)) { NodePos = mb.NodePos, Pinned = true });//8
 
 
@@ -631,18 +730,18 @@ namespace DimensionForge._3D.Models
             elements.Add(new verletElement3D() { Start = bbNodes[6], End = bbNodes[1] });
             elements.Add(new verletElement3D() { Start = bbNodes[1], End = bbNodes[8] });
             elements.Add(new verletElement3D() { Start = bbNodes[8], End = bbNodes[4] });
-           
+
             elements.Add(new verletElement3D() { Start = bbNodes[1], End = bbNodes[5] });
             elements.Add(new verletElement3D() { Start = bbNodes[3], End = bbNodes[1] });
             elements.Add(new verletElement3D() { Start = bbNodes[3], End = bbNodes[7] });
             elements.Add(new verletElement3D() { Start = bbNodes[0], End = bbNodes[7] });
             elements.Add(new verletElement3D() { Start = bbNodes[7], End = bbNodes[2] });
             elements.Add(new verletElement3D() { Start = bbNodes[7], End = bbNodes[5] });
-            
 
 
-           // elements.Add(new verletElement3D() { Start = bbNodes[6], End = bbNodes[2] });//0
-          //  elements.Add(new verletElement3D() { Start = bbNodes[8], End = bbNodes[0] });//1  
+
+            // elements.Add(new verletElement3D() { Start = bbNodes[6], End = bbNodes[2] });//0
+            //  elements.Add(new verletElement3D() { Start = bbNodes[8], End = bbNodes[0] });//1  
 
 
 

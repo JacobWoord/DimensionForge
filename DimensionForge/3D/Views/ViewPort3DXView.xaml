@@ -50,6 +50,7 @@
             EffectsManager="{Binding EffectsManager}"
             FixedRotationPointEnabled="False"
             IsChangeFieldOfViewEnabled="true"
+            IsPanEnabled="True"
             IsZoomEnabled="True"
             ShowCameraInfo="True"
             ShowCoordinateSystem="True"
@@ -57,6 +58,20 @@
             ShowTriangleCountInfo="True"
             ZoomExtentsWhenLoaded="true"
             ZoomSensitivity="0.3">
+
+
+            <helix:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="helix:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="helix:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="helix:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="helix:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="helix:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="helix:ViewportCommands.RightView" />
+                <KeyBinding Command="helix:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="helix:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="helix:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="helix:ViewportCommands.Pan" Gesture="LeftClick" />
+            </helix:Viewport3DX.InputBindings>
 
 
             <i:Interaction.Behaviors>
@@ -164,7 +179,7 @@
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding DrawBoundingBoxCommand}">
+                Command="{Binding UpdateDoorPositionCommand}">
                 Draw boundings
             </Button>
 

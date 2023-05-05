@@ -14,14 +14,14 @@ namespace DimensionForge.Common
         LeftTop = 3,
         LeftMiddle = 4,
         BottomLeft = 5,
-        FrontMiddleRight,
         MiddleTop,
         MiddleBottom,
-        FrontMiddleLeft,
-        Center,
+        MiddleCenter,
         None
-
     }
+       
+       
+
 
     public enum BbCornerName
     {

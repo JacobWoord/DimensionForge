@@ -63,10 +63,6 @@ namespace DimensionForge
 
             return (angle, p1, p2, normal);
         }
-
-      
-        
-        
         public (float angle, Vector3 p1, Vector3 p2, Vector3 normal) SetRotationHorizontal(Vector3 tp)
         {
             var binnenLinksOnder = Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft).Position;
@@ -94,9 +90,27 @@ namespace DimensionForge
 
             return (angle, p1, p2, normal);
         }
+        public void AddNodesToList()
+        {
+             // adding the unique node of each element to the verlet buildresult list
+            foreach (verletElement3D element in Elements)
+            {
+                Node3D startNode = element.Start;
+                Node3D endNode = element.End;
 
+                if(!Nodes.Any(n => n.Id == startNode.Id))
+                {
+                    Nodes.Add(startNode); 
+                }
 
-
+                if(!Nodes.Any(n => n.Id == endNode.Id))
+                {
+                    Nodes.Add(endNode);
+                }
+                   
+              
+            }
+        }
         public void GetAllElements()
         {
 
@@ -123,6 +137,17 @@ namespace DimensionForge
                 }
             }
         }
+        public Node3D GetNode(NodePosition nodeposition)
+        {
+            return Nodes.FirstOrDefault(x => x.NodePos == nodeposition);
+        }
+
+      
+        
+        
+
+
+
 
 
 
@@ -132,27 +157,6 @@ namespace DimensionForge
 
 
 
-        public void AddNodesToList()
-        {
-             // adding the unique node of each element to the verlet buildresult list
-            foreach (verletElement3D element in Elements)
-            {
-                Node3D startNode = element.Start;
-                Node3D endNode = element.End;
-
-                if(!Nodes.Any(n => n.Id == startNode.Id))
-                {
-                    Nodes.Add(startNode); 
-                }
-
-                if(!Nodes.Any(n => n.Id == endNode.Id))
-                {
-                    Nodes.Add(endNode);
-                }
-                   
-              
-            }
-        }
 
 
 
