@@ -63,16 +63,12 @@ namespace DimensionForge._3D.ViewModels
             Camera.CreateViewMatrix();
         }
 
-        private void InitBuildResult()
+        private async Task InitBuildResult()
         {
             //INIT BUILD RESULT
             buildResult = new VerletBuildResult();
             buildResult.GetAllElements();
             buildResult.AddNodesToList();
-
-
-
-
 
             var colors = Utils3D.GetColorList();
 
@@ -93,12 +89,22 @@ namespace DimensionForge._3D.ViewModels
             cyl.P2 = new Node3D(Vector3.Zero);
             shapes.Add(cyl);
 
-
-
             var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
+            var center = door.GetModelCenter();
+            shapes.Add(new CornerPoint3D() { LinkedNode = new Node3D(center), Color = Color.Yellow, Radius = 1 });
 
 
-            Draw();
+            await Draw();
+        }
+        [RelayCommand]
+
+        public void DrawCentroid()
+        {
+            var centroid =Utils3D.GetCenterOfMass(buildResult.Nodes);
+
+
+            shapes.Add(new CornerPoint3D() { LinkedNode = new Node3D(centroid), Color = Color.Yellow, });
+
         }
 
         private bool continueVerlet = true;
@@ -124,14 +130,11 @@ namespace DimensionForge._3D.ViewModels
                     //  var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
                     UpdatePhysics();
 
-
-
-
                     _ = uiDispatcher.InvokeAsync(async () =>
                     {
+                       // UpdateDoorPosition();
 
                         await Draw();
-                        // UpdateDoorPosition();
 
                     });
                     var elapsed = (int)stopWatch.ElapsedMilliseconds;
@@ -143,50 +146,12 @@ namespace DimensionForge._3D.ViewModels
 
 
         }
-
-        public Vector3 GetOrientation()
-        {
-            // Assuming nodes[0] and nodes[6] are the diagonally opposite vertices of the box
-            Vector3 point1 = buildResult.GetNode(NodePosition.LeftTop).Position;
-            Vector3 point2 = buildResult.GetNode(NodePosition.BottomRight).Position;
-            Vector3 orientation = point2 - point1;
-            orientation.Normalize();
-
-            return orientation;
-        }
-
-        public Vector3 GetModelOrientation(BatchedModel3D model)
-        {
-            // Assuming GetVertex() is a method that retrieves the vertex at the specified index
-            Vector3 point1 = model.GetNode(NodePosition.LeftTop).Position; // Replace with your method to access the first vertex
-            Vector3 point2 = model.GetNode(NodePosition.BottomRight).Position; // Replace with your method to access the opposite vertex
-
-            Vector3 orientation = point2 - point1;
-            orientation.Normalize();
-
-            return orientation;
-        }
-        public Vector3 GetCenterOfMass(List<Node3D> nodes)
-        {
-            Vector3 centerOfMass = Vector3.Zero;
-            int nodeCount = nodes.Count;
-
-            if (nodeCount == 0)
-                return centerOfMass;
-
-            foreach (Node3D node in nodes)
-            {
-                centerOfMass += node.Position;
-            }
-
-            centerOfMass /= nodeCount;
-            return centerOfMass;
-        }
+        
 
         public Vector3 ComputeTranslationVector(List<Node3D> nodes, BatchedModel3D model)
         {
-            Vector3 verletCenter = GetCenterOfMass(nodes);
-            Vector3 modelCenter = model.GetModelCenter();
+            Vector3 verletCenter = Utils3D.GetCenterOfMass(nodes); //buildResult.Nodes.FirstOrDefault(x => x.NodePos == NodePosition.MiddleCenter).Position;
+            Vector3 modelCenter = Utils3D.GetCenterOfMass(model.Nodes.Where(n => n.NodePos != NodePosition.None).ToList());// model.Nodes.FirstOrDefault(x => x.NodePos == NodePosition.MiddleCenter).Position;
             return verletCenter - modelCenter;
         }
 
@@ -208,12 +173,12 @@ namespace DimensionForge._3D.ViewModels
         }
 
 
-        public Quaternion ComputeRotationQuaternion(List<Node3D> nodes, BatchedModel3D model)
+        public Quaternion ComputeRotationQuaternion()
         {
 
             // Compute the orientation of the Verlet shape and the 3D model
             (Vector3 verletOrientation, Vector3 modelOrientation) = ComputeCentroidOrientations();
-           
+
             // Normalize the orientation vectors
             verletOrientation.Normalize();
             modelOrientation.Normalize();
@@ -227,6 +192,8 @@ namespace DimensionForge._3D.ViewModels
 
             return rotationQuaternion;
         }
+
+
 
 
 
@@ -256,136 +223,48 @@ namespace DimensionForge._3D.ViewModels
 
 
         }
+    
+        
+        
+        
+        
+        
         [RelayCommand]
         public void UpdateDoorPosition()
         {
             var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-
+         
 
             Vector3 translation = ComputeTranslationVector(buildResult.Nodes, door);
-            Quaternion rotationQuaternion = ComputeRotationQuaternion(buildResult.Nodes, door);
+            Quaternion rotationQuaternion = ComputeRotationQuaternion();
 
             // Create a Transform3DGroup and apply it to the 3D model
             Transform3DGroup transformGroup = door.CreateTransformGroup(translation, 1.0f, rotationQuaternion);
-            
+
             door.Transform = transformGroup;
             door.ScaleModel(0.1);
             door.ScaleModel(0.1);
-
-            
-
-
-
-
-
-
-
-
-
-            //if (door != null)
-            //{
-            //    Vector3 trueCentroid = door.GetCentroid(door.Nodes.Where(n => n.NodePos != NodePosition.None).Select(n => n.Position).ToArray());
-            //    var originalVertices = door.Nodes.Select(n => n.Position).ToArray();
-            //    var newVertices = buildResult.Nodes.Where(n => n.NodePos != NodePosition.None).Select(n => n.Position).ToArray();
-
-            //    var updatedTransformGroup = door.CalculateFullTransformationMatrix(originalVertices, newVertices, trueCentroid, door.Transform);
-            //    door.Transform = updatedTransformGroup;
-            //    //door.ScaleModel(0.1);
-
-            //}
         }
 
+        //    private (Vector3 verletOrientation, Vector3 modelOrientation) ComputeCentroidOrientations(Vector3[] verletTriangle, BatchedModel3D model)
+        //    {
+        //        var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
+
+        //    Vector3 topTriangleCentroid = Utils3D.GetCentroidPosition(buildResult.GetTriangle("top"));
+        //    Vector3 bottomTriangleCentroid = Utils3D.GetCentroidPosition(buildResult.GetTriangle("bottom"));
+
+        //    Vector3 verletOrientation = bottomTriangleCentroid - topTriangleCentroid;
+
+        //    Vector3 modelTopTriangleCentroid = Utils3D.GetCentroidPosition(door.GetTriangle("top"));
+        //    Vector3 modelBottomTriangleCentroid = Utils3D.GetCentroidPosition(door.GetTriangle("bottom"));
+
+        //    Vector3 modelOrientation = modelBottomTriangleCentroid - modelTopTriangleCentroid;
+
+        //        return (verletOrientation, modelOrientation);
+        //    }
 
 
 
-        [RelayCommand]
-        void UpdateDoorPosition1()
-        {
-            //DONT FORGET TO TAKE THE RIGHT ELEMENTS BEFOR USING THIS FUNCTION
-
-            var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-
-            //Corner from the verlet box
-            var bottomLeft = buildResult.GetNode(NodePosition.BottomLeft).Position;
-            var bottomRight = buildResult.GetNode(NodePosition.BottomRight).Position;
-            var middleBottom = buildResult.GetNode(NodePosition.MiddleBottom).Position;
-
-            var verticesNodes = buildResult.Nodes;
-            var verticesPositions = new List<Vector3>();
-
-            foreach (var node in verticesNodes)
-            {
-                verticesPositions.Add(node.Position);
-            }
-
-
-            Vector3 trueCentroid = door.GetCentroid(door.Nodes.Where(n => n.NodePos != NodePosition.None).Select(n => n.Position).ToArray());
-            Transform3DGroup updatedTransformGroup = door.CalculateFullTransformationMatrix(door.Nodes.Select(n => n.Position).ToArray(), buildResult.Nodes.Select(n => n.Position).ToArray(), trueCentroid, door.Transform);
-            door.Transform = updatedTransformGroup;
-
-            //var centroid = door.GetCentroid();
-            //var matrix = door.CalculateFullTransformationMatrix(verticesPositions.ToArray(), centroid,door.Transform);
-            //door.ScaleModel(0.1);
-            //door.ScaleModel(0.1);
-            //door.ScaleModel(0.1);
-
-
-
-            //door.Transform = matrix;
-
-
-
-
-            //var translateTo = bottomLeft;
-
-            //if (middleBottom.Z < 5)
-            //    translateTo = bottomRight;
-
-            //door.TranslateTo(translateTo);
-            //door.TranslateToCenter(translateTo);
-
-            //calculate new cornerpoints 
-
-
-            //result that are retrieved from the setRotation method
-            //    var results = buildResult.SetRotationVertical(door.Bbcorners.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft).Position);
-
-
-            ////values for the direction cylinder
-            //var axisP1 = results.p1;
-            //var axisP2 = results.p2;
-            //List<Cylinder3D> list = Shapes.Where(x => x is Cylinder3D).Select(x => (Cylinder3D)x).ToList();
-            //var directionCyl = list.FirstOrDefault(x => x.UseCase == UseCase.direction);
-            //directionCyl.P1.Position = axisP1;
-            //directionCyl.P2.Position = axisP2;
-            //directionCyl.Color = Color.White;
-
-            //for (int i = 0; i < 30; i++)
-            //{
-
-            //   // ExecuteVerticalRotation();
-
-            //    if (results.angle < 2)
-            //    {
-            //        results = buildResult.SetRotationHorizontal(door.Bbcorners.FirstOrDefault(x => x.NodePos == NodePosition.RightTop).Position);
-
-            //        //values for the direction cylinder
-            //        axisP1 = results.p1;
-            //        axisP2 = results.p2;
-            //        list = Shapes.Where(x => x is Cylinder3D).Select(x => (Cylinder3D)x).ToList();
-            //        directionCyl = list.FirstOrDefault(x => x.UseCase == UseCase.direction);
-            //        directionCyl.P1.Position = axisP1;
-            //        directionCyl.P2.Position = axisP2;
-            //        directionCyl.Color = Color.Orange;
-            //       // ExecuteHorizontalRotation();
-
-            //    }
-
-            //}
-
-
-
-        }
 
 
 

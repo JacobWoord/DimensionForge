@@ -12,8 +12,10 @@ using System.Windows;
 using System.IO;
 using System.Windows.Documents;
 using System.Collections.Generic;
+using Quaternion = SharpDX.Quaternion;
 
 using System.Windows.Media.Media3D;
+using DimensionForge._3D.Models;
 
 namespace Net_Designer_MVVM
 {
@@ -22,8 +24,27 @@ namespace Net_Designer_MVVM
 
         private static readonly float EPS = 0.1f;
 
+      
 
-       public static Vector3 GetCentroidPosition(params Vector3[] positions)
+        public static Vector3 GetCenterOfMass(List<Node3D> nodes)
+        {
+            Vector3 centerOfMass = Vector3.Zero;
+            int nodeCount = nodes.Count;
+
+            if (nodeCount == 0)
+                return centerOfMass;
+
+            foreach (Node3D node in nodes)
+            {
+                centerOfMass += node.Position;
+            }
+
+            centerOfMass /= nodeCount;
+            return centerOfMass;
+        }
+
+
+        public static Vector3 GetCentroidPosition(params Vector3[] positions)
         {
             Vector3 centroid = new Vector3(0, 0, 0);
 
