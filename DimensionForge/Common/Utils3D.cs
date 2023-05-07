@@ -23,7 +23,7 @@ namespace Net_Designer_MVVM
         private static readonly float EPS = 0.1f;
 
 
-       public static Vector3 GetCentroidPosition(params Vector3[] positions)
+       public static Vector3 GetCentroidPosition(Vector3[] positions)
         {
             Vector3 centroid = new Vector3(0, 0, 0);
 
@@ -35,7 +35,6 @@ namespace Net_Designer_MVVM
             centroid /= positions.Length;
             return centroid;
         }
-
 
 
 

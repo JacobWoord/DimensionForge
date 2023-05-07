@@ -154,8 +154,8 @@
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding DrawPlaneCommand}">
-                Draw Plane Command
+                Command="{Binding MoveCenter}">
+                move to center
             </Button>
 
             <Button

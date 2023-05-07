@@ -80,7 +80,7 @@ namespace DimensionForge
 
             //take the normal to generate a rotation axis
             var normal = plane.Normal;
-            
+
             //secondPoint -- secondPoint + Normal* 100
             var p1 = binnenLinksOnder;
             var p2 = p1 + normal * 100;
@@ -91,25 +91,26 @@ namespace DimensionForge
 
             return (angle, p1, p2, normal);
         }
+
         public void AddNodesToList()
         {
-             // adding the unique node of each element to the verlet buildresult list
+            // adding the unique node of each element to the verlet buildresult list
             foreach (verletElement3D element in Elements)
             {
                 Node3D startNode = element.Start;
                 Node3D endNode = element.End;
 
-                if(!Nodes.Any(n => n.Id == startNode.Id))
+                if (!Nodes.Any(n => n.Id == startNode.Id))
                 {
-                    Nodes.Add(startNode); 
+                    Nodes.Add(startNode);
                 }
 
-                if(!Nodes.Any(n => n.Id == endNode.Id))
+                if (!Nodes.Any(n => n.Id == endNode.Id))
                 {
                     Nodes.Add(endNode);
                 }
-                   
-              
+
+
             }
         }
         public void GetAllElements()
@@ -130,7 +131,7 @@ namespace DimensionForge
                     {
                         Elements.Add(el);
                     }
-                    
+
                 }
                 else
                 {
@@ -138,22 +139,7 @@ namespace DimensionForge
                 }
             }
         }
-        public Vector3 GetCenterOfMass(List<Node3D> nodes)
-        {
-            Vector3 centerOfMass = new Vector3(0, 0, 0);
-            int nodeCount = nodes.Count;
 
-            if (nodeCount == 0)
-                return centerOfMass;
-
-            foreach (Node3D node in nodes)
-            {
-                centerOfMass += node.Position;
-            }
-
-            centerOfMass /= nodeCount;
-            return centerOfMass;
-        }
 
         public Node3D GetNode(NodePosition nodeposition)
         {
@@ -161,43 +147,20 @@ namespace DimensionForge
         }
 
 
-
-        public Vector3[] GetTriangle(string side)
+        public Vector3 GetOrientation()
         {
-            var top = Nodes.Where(n => n.NodePos == NodePosition.LeftTop || n.NodePos == NodePosition.MiddleTop || n.NodePos == NodePosition.RightTop).Select(n => n.Position).ToArray();
-            var bottom = Nodes.Where(n => n.NodePos == NodePosition.BottomLeft || n.NodePos == NodePosition.MiddleBottom || n.NodePos == NodePosition.BottomRight).Select(n => n.Position).ToArray();
+            //returns the orientation of the verlet shape
 
+            var topTrianle = Nodes.Where(n => n.NodePos == NodePosition.LeftTop || n.NodePos == NodePosition.MiddleTop || n.NodePos == NodePosition.RightTop).Select(n => n.Position).ToArray();
+            var bottomTriangle = Nodes.Where(n => n.NodePos == NodePosition.BottomLeft || n.NodePos == NodePosition.MiddleBottom || n.NodePos == NodePosition.BottomRight).Select(n => n.Position).ToArray();
 
-            switch (side)
-            {
-                case "top":
-                    return top;
-                    break;
-                case "bottom":
-                    return bottom;
-                    break;
-                default:
-                    return top;
-                    break;
-            }
+           var topCentroid =  Utils3D.GetCentroidPosition(topTrianle);
+           var bottomCentroid = Utils3D.GetCentroidPosition(bottomTriangle);
+
+            var orientation = bottomCentroid - topCentroid;
+
+            return orientation;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
