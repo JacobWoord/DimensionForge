@@ -154,7 +154,7 @@
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding MoveCenter}">
+                Command="{Binding MoveCenterCommand}">
                 move to center
             </Button>
 

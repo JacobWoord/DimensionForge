@@ -92,7 +92,7 @@ namespace DimensionForge._3D.ViewModels
             //shapes.Add(cyl);
          
 
-            //shapes.Add(new CornerPoint3D() { LinkedNode = new Node3D(Vector3.Zero), Color = Color.Red});
+            shapes.Add(new CornerPoint3D() { LinkedNode = new Node3D(Vector3.Zero), Color = Color.Red});
 
 
             await Draw();
@@ -125,7 +125,7 @@ namespace DimensionForge._3D.ViewModels
                     {
 
                         await Draw();
-                        UpdateDoorPosition();
+                       await  UpdateDoorPosition();
 
                     });
                     var elapsed = (int)stopWatch.ElapsedMilliseconds;
@@ -181,7 +181,7 @@ namespace DimensionForge._3D.ViewModels
 
 
         [RelayCommand]
-        public void UpdateDoorPosition()
+        public async Task UpdateDoorPosition()
         {
             var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
 
@@ -198,6 +198,8 @@ namespace DimensionForge._3D.ViewModels
             Transform3DGroup transformGroup = door.CreateTransformGroup(translation, 0.01f, rotationQuaternion);
 
             door.Transform = transformGroup;
+
+            door.MoveCenterToPosition(verletCenter);
 
         }
 
@@ -605,7 +607,7 @@ namespace DimensionForge._3D.ViewModels
             Shapes.Add(batchedmodel);
 
             var model = Shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-            model.TranslateTo(new Vector3(0, 0, 10));
+            model.TranslateTo(new Vector3(0, 0, 30));
 
 
         }
