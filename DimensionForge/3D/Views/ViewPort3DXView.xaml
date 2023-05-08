@@ -170,8 +170,8 @@
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding DrawCentroidCommand}">
-                Draw Centroid
+                Command="{Binding DrawBoundingBoxCommand}">
+                Draw Bounds
             </Button>
 
 

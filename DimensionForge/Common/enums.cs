@@ -23,17 +23,22 @@ namespace DimensionForge.Common
        
 
 
-    public enum BbCornerName
+
+
+    public enum CornerName
     {
-        BinnenLinksBoven = 0,
-        BuitenLinksBoven = 1,
-        BuitenRechtsBoven = 2,
-        BinnenRechtsBoven = 3,
-        BinnenLinksOnder = 4,
-        BuitenRechtsOnder = 5,
-        BuitenLinksOnder = 6,
-        BinnenRechtsOnder = 7
+        LowerLeftFrontCorner,
+        LowerRightFrontCorner,
+        UpperRightFrontCorner,
+        UpperLeftFrontCorner,
+        LowerLeftBackCorner,
+        LowerRightBackCorner,
+        UpperRightBackCorner,
+        UpperLeftBackCorner,
+        FrontPlaneCenter,
+        BackPlaneCenter
     }
+
 
 
 

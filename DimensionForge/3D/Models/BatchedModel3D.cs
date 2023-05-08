@@ -21,6 +21,7 @@ using Matrix = SharpDX.Matrix;
 using System.Windows.Media;
 using SharpDX.Direct3D11;
 using Net_Designer_MVVM;
+using System.Windows.Data;
 
 namespace DimensionForge._3D.Models
 {
@@ -243,7 +244,7 @@ namespace DimensionForge._3D.Models
             // Transform3DGroup transform = new Transform3DGroup();
             Transform.Children.Add(translateTransform);
 
-          
+
 
         }
         public void Select()
@@ -498,7 +499,7 @@ namespace DimensionForge._3D.Models
 
             Bbcorners = ConvertBoundingBoxToSquare(eightCorners.ToList());
         }
-      
+
         public void RotateAroundCenter(Vector3D axis, double angle)
         {
             // Get the center point of the model
@@ -523,10 +524,9 @@ namespace DimensionForge._3D.Models
             }
         }
 
-        public Vector3 GetOrientation()
+        public Vector3 GetOrientation1()
         {
             //returns the orientation of the model
-
             var topTrianle = Nodes.Where(n => n.NodePos == NodePosition.LeftTop || n.NodePos == NodePosition.MiddleTop || n.NodePos == NodePosition.RightTop).Select(n => n.Position).ToArray();
             var bottomTriangle = Nodes.Where(n => n.NodePos == NodePosition.BottomLeft || n.NodePos == NodePosition.MiddleBottom || n.NodePos == NodePosition.BottomRight).Select(n => n.Position).ToArray();
 
@@ -537,20 +537,81 @@ namespace DimensionForge._3D.Models
 
             return orientation;
         }
-
-        public Vector3 GetCentroid_Original()
+        public Vector3 GetOrientation()
         {
-            var vertices = Nodes.Where(x => x.NodePos != NodePosition.None).ToList();
-            var centroid = new Vector3();
-            foreach (var vertex in vertices)
-            {
-                centroid += vertex.Position;
-            }
+            var topCorners = Bbcorners.Where(n => n.CornerName == CornerName.UpperLeftFrontCorner
+            || n.CornerName == CornerName.UpperRightFrontCorner
+            || n.CornerName == CornerName.UpperLeftBackCorner
+            || n.CornerName == CornerName.UpperRightBackCorner).ToArray();
 
-            centroid /= vertices.Count;
+            var bottomCorners = Bbcorners.Where(n => n.CornerName == CornerName.LowerLeftFrontCorner
+           || n.CornerName == CornerName.LowerRightFrontCorner
+           || n.CornerName == CornerName.LowerLeftBackCorner
+           || n.CornerName == CornerName.LowerRightBackCorner).ToArray();
 
-            return centroid;
+            var topCornerPositions = topCorners.Select(n => n.Position).ToArray();
+            var bottomCornerPositions = bottomCorners.Select(n => n.Position).ToArray();
+
+
+            var topCentroid = Utils3D.GetCentroidPosition(topCornerPositions);
+            var bottomCentroid = Utils3D.GetCentroidPosition(bottomCornerPositions);
+
+            var orientation = topCentroid - bottomCentroid;
+
+            return orientation;
         }
+
+        public Vector3 GetHorizontalOrientation()
+        {
+            var frontFaceCorners = Bbcorners.Where(n => n.CornerName == CornerName.UpperLeftFrontCorner
+          || n.CornerName == CornerName.UpperRightFrontCorner
+          || n.CornerName == CornerName.LowerLeftFrontCorner
+          || n.CornerName == CornerName.LowerRightFrontCorner).ToArray();
+
+            var backFaceCorners = Bbcorners.Where(n => n.CornerName == CornerName.UpperLeftBackCorner
+       || n.CornerName == CornerName.UpperRightBackCorner
+       || n.CornerName == CornerName.LowerLeftBackCorner
+       || n.CornerName == CornerName.LowerRightBackCorner).ToArray();
+
+            var frontFaceCornersPositions = frontFaceCorners.Select(n => n.Position).ToArray();
+            var backFaceCornersPositions = backFaceCorners.Select(n => n.Position).ToArray();
+
+            Vector3 frontCentroid = Utils3D.GetCentroidPosition(frontFaceCornersPositions);
+            Vector3 backCentroid = Utils3D.GetCentroidPosition(backFaceCornersPositions);
+
+            var orientation = frontCentroid - backCentroid;
+
+            return orientation;
+
+
+        }
+
+        public Quaternion rotationQuaternion()
+        {
+            // Create an array of the bounding box vertices
+            Vector3[] boxVertices = Bbcorners.Select(item => item.Position).ToArray();
+
+            // Compute the orientation vector of the bounding box as the vector between the centroids of the top and bottom faces
+            Vector3 topCentroid = (boxVertices[0] + boxVertices[1] + boxVertices[3] + boxVertices[4]) / 4f;
+            Vector3 bottomCentroid = (boxVertices[5] + boxVertices[6] + boxVertices[7] + boxVertices[8]) / 4f;
+            Vector3 orientationVector = bottomCentroid - topCentroid;
+
+            // Normalize the orientation vector to ensure that it has unit length
+            orientationVector.Normalize();
+
+            // Compute the angle between the orientation vector and the up direction (assumed to be Vector3.UnitY)
+            float angle = (float)Math.Acos(Vector3.Dot(orientationVector, Vector3.UnitY));
+
+            // Compute the axis of rotation by taking the cross product of the orientation vector and Vector3.UnitY
+            Vector3 axis = Vector3.Cross(orientationVector, Vector3.UnitY);
+
+            // Create the quaternion that represents the rotation between the two vectors
+            Quaternion rotationQuaternion = Quaternion.RotationAxis(axis, angle);
+
+            return rotationQuaternion;
+        }
+
+
         public Vector3 GetModelCenter()
         {
             BoundingBox bounds = this.GetBoundingBox();
@@ -621,175 +682,6 @@ namespace DimensionForge._3D.Models
             return Nodes.FirstOrDefault(x => x.NodePos == nodeposition);
         }
 
-        public Transform3DGroup CalculateFullTransformationMatrix(Vector3[] originalVertices, Vector3[] newVertices, Vector3 centroid, Transform3DGroup transformGroup)
-        {
-            // Create a matrix to translate the centroid of the original vertices to the origin
-            var translateToOriginMatrix = SharpDX.Matrix.Translation(-centroid);
-
-            // Calculate the orthogonal basis for the original and new vertices
-            Vector3 originalBasis1 = originalVertices[1] - originalVertices[0];
-            Vector3 originalBasis2 = originalVertices[2] - originalVertices[0];
-            Vector3 originalBasis3 = Vector3.Cross(originalBasis1, originalBasis2);
-
-            Vector3 newBasis1 = newVertices[1] - newVertices[0];
-            Vector3 newBasis2 = newVertices[2] - newVertices[0];
-            Vector3 newBasis3 = Vector3.Cross(newBasis1, newBasis2);
-
-            // Normalize the basis vectors
-            originalBasis1.Normalize();
-            originalBasis2.Normalize();
-            originalBasis3.Normalize();
-
-            newBasis1.Normalize();
-            newBasis2.Normalize();
-            newBasis3.Normalize();
-
-            // Calculate the transformation matrix that maps the original basis to the new basis
-            var originalToNewBasisMatrix = new Matrix(
-                newBasis1.X, newBasis1.Y, newBasis1.Z, 0,
-                newBasis2.X, newBasis2.Y, newBasis2.Z, 0,
-                newBasis3.X, newBasis3.Y, newBasis3.Z, 0,
-                0, 0, 0, 1);
-
-            var newVerticesMatrix = originalToNewBasisMatrix * SharpDX.Matrix.Translation(newVertices[0] - originalVertices[0]);
-
-            // Create a matrix to translate the vertices from the origin to the new centroid
-            var translateFromOriginMatrix = SharpDX.Matrix.Translation(centroid);
-
-            // Create a matrix to transform the original vertices using the Transform3DGroup
-            var transformMatrix = Matrix.Identity;
-            if (transformGroup != null)
-            {
-                foreach (Transform3D transform in transformGroup.Children)
-                {
-                    if (transform is MatrixTransform3D matrixTransform)
-                    {
-                        transformMatrix = matrixTransform.Matrix.ToSharpDX();
-                    }
-                    else if (transform is ScaleTransform3D scaleTransform)
-                    {
-                        var scaleMatrix = Matrix.Scaling((float)scaleTransform.ScaleX, (float)scaleTransform.ScaleY, (float)scaleTransform.ScaleZ);
-                        transformMatrix *= scaleMatrix;
-                    }
-                    else if (transform is RotateTransform3D rotateTransform)
-                    {
-                        var rotation = rotateTransform.Rotation as AxisAngleRotation3D;
-                        transformMatrix *= Matrix.RotationQuaternion(new Quaternion(new Vector3((float)rotation.Axis.X, (float)rotation.Axis.Y, (float)rotation.Axis.Z), (float)rotation.Angle));
-                    }
-                    else if (transform is TranslateTransform3D translateTransform)
-                    {
-                        transformMatrix *= Matrix.Translation(new Vector3((float)translateTransform.OffsetX, (float)translateTransform.OffsetY, (float)translateTransform.OffsetZ));
-                    }
-                }
-            }
-
-            // Combine the matrices to create the full transformation matrix
-            var fullTransformMatrix = newVerticesMatrix * translateFromOriginMatrix * transformMatrix * translateToOriginMatrix;
-
-            // Convert the full transformation matrix to a Matrix3D
-            var fullTransformMatrix3D = fullTransformMatrix.ToMatrix3D();
-            // Create new MatrixTransform3D and TranslateTransform3D based on the full transformation matrix
-            var newMatrixTransform = new MatrixTransform3D(fullTransformMatrix3D);
-            var newTranslateTransform = new TranslateTransform3D(-centroid.X, -centroid.Y, -centroid.Z);
-
-            // Add the new transforms to the existing Transform3DGroup
-            var newTransformGroup = new Transform3DGroup();
-            if (transformGroup != null)
-            {
-                foreach (Transform3D transform in transformGroup.Children)
-                {
-                    if (!(transform is MatrixTransform3D) && !(transform is TranslateTransform3D))
-                    {
-                        newTransformGroup.Children.Add(transform);
-                    }
-                }
-            }
-            newTransformGroup.Children.Add(newMatrixTransform);
-            newTransformGroup.Children.Add(newTranslateTransform);
-
-            return newTransformGroup;
-        }
-
-
-        //public Transform3DGroup CalculateFullTransformationMatrix(Vector3[] newVertices, Vector3 centroid, Transform3DGroup transformGroup)
-        //{
-        //    // Create a matrix to transform the centroid using the current Transform3DGroup
-        //    var centroidTransformMatrix = Matrix.Identity;
-        //    if (transformGroup != null)
-        //    {
-        //        foreach (Transform3D transform in transformGroup.Children)
-        //        {
-        //            if (transform is MatrixTransform3D matrixTransform)
-        //            {
-        //                centroidTransformMatrix = matrixTransform.Matrix.ToSharpDX();
-        //            }
-        //            else if (transform is ScaleTransform3D scaleTransform)
-        //            {
-        //                var scaleMatrix = Matrix.Scaling((float)scaleTransform.ScaleX, (float)scaleTransform.ScaleY, (float)scaleTransform.ScaleZ);
-        //                centroidTransformMatrix *= scaleMatrix;
-        //            }
-        //            else if (transform is RotateTransform3D rotateTransform)
-        //            {
-        //                var rotation = rotateTransform.Rotation as AxisAngleRotation3D;
-        //                centroidTransformMatrix *= Matrix.RotationQuaternion(new Quaternion(new Vector3((float)rotation.Axis.X, (float)rotation.Axis.Y, (float)rotation.Axis.Z), (float)rotation.Angle));
-        //            }
-        //            else if (transform is TranslateTransform3D translateTransform)
-        //            {
-        //                centroidTransformMatrix *= Matrix.Translation(new Vector3((float)translateTransform.OffsetX, (float)translateTransform.OffsetY, (float)translateTransform.OffsetZ));
-        //            }
-        //        }
-        //    }
-
-        //    // Transform the centroid using the current transformation matrix
-        //    var transformedCentroid = Vector3.TransformCoordinate(centroid, centroidTransformMatrix);
-
-        //    // Create a matrix to translate the transformed centroid to the origin
-        //    var translateToOriginMatrix = SharpDX.Matrix.Translation(-transformedCentroid);
-
-        //    // Create a matrix to transform the original vertices using the Transform3DGroup
-        //    var transformMatrix = centroidTransformMatrix;
-
-        //    // Create a matrix to transform the vertices to their new positions
-        //    var newVerticesMatrix = new Matrix(
-        //        newVertices[0].X, newVertices[0].Y, newVertices[0].Z, 0,
-        //        newVertices[1].X, newVertices[1].Y, newVertices[1].Z, 0,
-        //        newVertices[2].X, newVertices[2].Y, newVertices[2].Z, 0,
-        //        0, 0, 0, 1);
-
-        //    // Create a matrix to translate the vertices from the origin to the new centroid
-        //    var translateFromOriginMatrix = Matrix.Translation(transformedCentroid);
-
-        //    // Combine the matrices to create the full transformation matrix
-        //    var fullTransformMatrix = newVerticesMatrix * translateFromOriginMatrix * transformMatrix * translateToOriginMatrix;
-
-        //    // Convert the full transformation matrix to a Matrix3D
-        //    var fullTransformMatrix3D = fullTransformMatrix.ToMatrix3D();
-
-        //    // Create new MatrixTransform3D and TranslateTransform3D based on the full transformation matrix
-        //    var newMatrixTransform = new MatrixTransform3D(fullTransformMatrix3D);
-        //    var newTranslateTransform = new TranslateTransform3D(-transformedCentroid.X, -transformedCentroid.Y, -transformedCentroid.Z);
-
-        //    // Add the new transforms and the existing transforms (except for scaling) to the new Transform3DGroup
-        //    var newTransformGroup = new Transform3DGroup();
-        //    if (transformGroup != null)
-        //    {
-        //        foreach (Transform3D transform in transformGroup.Children)
-        //        {
-        //            if (transform is MatrixTransform3D || transform is TranslateTransform3D || transform is ScaleTransform3D)
-        //            {
-        //                // Do nothing, we will handle MatrixTransform3D, TranslateTransform3D, and ScaleTransform3D separately.
-        //            }
-        //            else
-        //            {
-        //                newTransformGroup.Children.Add(transform);
-        //            }
-        //        }
-        //    }
-        //    newTransformGroup.Children.Add(newMatrixTransform);
-        //    newTransformGroup.Children.Add(newTranslateTransform);
-
-        //    return newTransformGroup;
-        //}
 
         public List<verletElement3D> GetElements()
         {
@@ -861,9 +753,6 @@ namespace DimensionForge._3D.Models
 
 
 
-            // elements.Add(new verletElement3D() { Start = bbNodes[6], End = bbNodes[2] });//0
-            //  elements.Add(new verletElement3D() { Start = bbNodes[8], End = bbNodes[0] });//1  
-
 
             return elements;
         }
@@ -890,27 +779,41 @@ namespace DimensionForge._3D.Models
         public void SetBoundingBox()
         {
             var bb = this.GetBoundingBox();
+            BoundingBox = bb;
             var corners = bb.GetCorners().ToList();
-            var convertedBoundingBox = ConvertBoundingBoxToSquare(corners);
 
-            for (int i = 0; i < convertedBoundingBox.Count(); i++)
+
+            var nodeCorners = new List<Node3D>();
+
+
+            // giving the corespondending names for the nodes 
+            for (int i = 0; i < corners.Count(); i++)
             {
-                NodePosition nodePosition = (NodePosition)i;
-                Bbcorners.Add(new Node3D(corners[i]) { NodePos = nodePosition });
+                CornerName cornerName = (CornerName)i;
+                nodeCorners.Add(new Node3D(corners[i]) { CornerName = cornerName });
+                Debug.WriteLine(corners[i]);
             }
+
+            Bbcorners = nodeCorners;
         }
         public List<verletElement3D> GetBbElements()
         {
             var bb = this.GetBoundingBox();
             var corners = bb.GetCorners().ToList();
             var nodeCorners = new List<Node3D>();
+
+
+
+
+            // giving the corespondending names for the nodes 
             for (int i = 0; i < corners.Count(); i++)
             {
-                BbCornerName cornerName = (BbCornerName)i;
+                CornerName cornerName = (CornerName)i;
                 nodeCorners.Add(new Node3D(corners[i]) { CornerName = cornerName });
+                Debug.WriteLine(corners[i]);
             }
 
-            //var convertertedBb = ConvertBoundingBoxToSquare(corners);
+
 
             var elements = new List<verletElement3D>();
 

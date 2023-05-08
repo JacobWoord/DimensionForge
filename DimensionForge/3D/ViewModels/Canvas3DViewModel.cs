@@ -21,6 +21,7 @@ using Assimp.Configs;
 
 namespace DimensionForge._3D.ViewModels
 {
+    //CURRENT
 
     [Serializable]
     public partial class Canvas3DViewModel : ObservableObject
@@ -67,6 +68,8 @@ namespace DimensionForge._3D.ViewModels
             buildResult = new VerletBuildResult();
             buildResult.GetAllElements();
             buildResult.AddNodesToList();
+            var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
+            door.SetBoundingBox();
 
             var colors = Utils3D.GetColorList();
 
@@ -107,7 +110,7 @@ namespace DimensionForge._3D.ViewModels
             int duration = 33; //==30fps
 
             await InitBuildResult();
-            await DrawAnchorPoints();
+          //  await DrawAnchorPoints();
 
             await Task.Run(async () =>
             {
@@ -119,7 +122,7 @@ namespace DimensionForge._3D.ViewModels
 
                     _ = uiDispatcher.InvokeAsync(async () =>
                     {
-                       // UpdateDoorPosition();
+                       
 
                         await Draw();
                        await  UpdateDoorPosition();
@@ -156,11 +159,31 @@ namespace DimensionForge._3D.ViewModels
 
 
 
-        public Quaternion ComputeRotationQuaternion(List<Node3D> nodes, BatchedModel3D model)
+        public Quaternion ComputeVerticalRotationQuaternion(List<Node3D> buildresult, BatchedModel3D model)
         {
 
             Vector3 verletOrientation = buildResult.GetOrientation();
             Vector3 modelOrientation = model.GetOrientation();
+
+            // Normalize the orientation vectors
+            verletOrientation.Normalize();
+            modelOrientation.Normalize();
+
+            // Compute the rotation axis and angle
+            Vector3 rotationAxis = Vector3.Cross(modelOrientation, verletOrientation);
+            float rotationAngle = (float)Math.Acos(Vector3.Dot(modelOrientation, verletOrientation));
+
+            // Create a quaternion
+            Quaternion rotationQuaternion = Quaternion.RotationAxis(rotationAxis, rotationAngle);
+
+            return rotationQuaternion;
+        }
+
+        public Quaternion ComputeHorizontalRotationQuaternion(List<Node3D> buildresult, BatchedModel3D model)
+        {
+
+            Vector3 verletOrientation = buildResult.GetHorizontalOrientation();
+            Vector3 modelOrientation = model.GetHorizontalOrientation();
 
             // Normalize the orientation vectors
             verletOrientation.Normalize();
@@ -188,13 +211,17 @@ namespace DimensionForge._3D.ViewModels
             Vector3 modelCenter = GetCenterOfMass(door.Nodes.Where(n => n.NodePos != NodePosition.None).ToList());//model.GetModelCenter();
             Vector3 translation = verletCenter - modelCenter;
 
+            Quaternion horizontalRotationQuaternion = ComputeHorizontalRotationQuaternion(buildResult.Nodes, door);
+            Transform3DGroup transformGroup2 = door.CreateTransformGroup(translation, 0.01f, horizontalRotationQuaternion);
 
-            Quaternion rotationQuaternion = ComputeRotationQuaternion(buildResult.Nodes, door);
 
+            Quaternion verticalRotationQuaternion = ComputeVerticalRotationQuaternion(buildResult.Nodes, door);
             // Create a Transform3DGroup and apply it to the 3D model
-            Transform3DGroup transformGroup = door.CreateTransformGroup(translation, 0.01f, rotationQuaternion);
+            Transform3DGroup transformGroup1 = door.CreateTransformGroup(translation, 0.01f, verticalRotationQuaternion);
+            
 
-            door.Transform = transformGroup;
+            door.Transform = transformGroup1;
+            door.Transform = transformGroup2;
 
             door.MoveCenterToPosition(verletCenter);
 
@@ -242,57 +269,7 @@ namespace DimensionForge._3D.ViewModels
 
 
 
-        [RelayCommand]
-        void ExecuteVerticalRotation()
-        {
 
-
-            var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-            //position below is from the verlet box
-            var crossPoint = buildResult.Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft).Position;
-
-            //values for rotation
-            var results = buildResult.SetRotationVertical(door.Bbcorners.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft).Position);
-            var alphaR = results.angle;
-            var alphaG = results.angle * 180 / Math.PI;
-            var axis = results.normal.ToVector3D();
-
-            //bring the door to the origin
-            if (alphaG > 2)
-            {
-                door.TranslateTo(Vector3.Zero);
-                door.Rotate(axis, alphaG);
-                //door.RotateAroundCenter(axis, alphaG);
-                door.TranslateTo(crossPoint);
-
-            }
-
-        }
-
-        [RelayCommand]
-        void ExecuteHorizontalRotation()
-        {
-            var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-            //position below is from the verlet box
-            var crossPoint = buildResult.Nodes.FirstOrDefault(x => x.NodePos == NodePosition.BottomLeft).Position;
-
-            //values for rotation
-            var results = buildResult.SetRotationHorizontal(door.Bbcorners.FirstOrDefault(x => x.NodePos == NodePosition.RightTop).Position);
-            var alphaR = results.angle;
-            var alphaG = results.angle * 180 / Math.PI;
-            var axis = results.normal.ToVector3D();
-
-            //bring the door to the origin
-            if (alphaG > 2)
-            {
-                door.TranslateTo(Vector3.Zero);
-                door.Rotate(axis, -alphaG);
-                //door.RotateAroundCenter(axis, alphaG);
-                door.TranslateTo(crossPoint);
-
-            }
-
-        }
 
         [RelayCommand]
         async void DrawBoundingBox()
@@ -300,11 +277,7 @@ namespace DimensionForge._3D.ViewModels
             //reNew
             var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
             //clear the list from the previous bounding shapes
-            var boundings = shapes.Where(x => x.UseCase == UseCase.boundings).ToList();
-            if (boundings.Count > 0)
-                boundings.ForEach(x => shapes.Remove(x));
-
-
+          
             door.Bbcorners.ForEach(x => shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = x.Color, UseCase = UseCase.boundings }));
             await Draw();
 
@@ -331,20 +304,7 @@ namespace DimensionForge._3D.ViewModels
 
 
 
-        [RelayCommand]
-        void DrawPlane()
-        {
-            var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-
-            var firstPoint = buildResult.Nodes.FirstOrDefault(x => x.CornerName == BbCornerName.BinnenLinksOnder);
-            var secondPoint = buildResult.Nodes.FirstOrDefault(x => x.NodePos == NodePosition.LeftTop);
-            //door.SetBoundingBox();
-            var thirdPoint = door.Bbcorners.FirstOrDefault(x => x.NodePos == NodePosition.RightTop);
-            // shapes.Add(new DrawPlane3D(firstPoint, secondPoint, thirdPoint));
-            shapes.Add(new Cylinder3D() { P1 = secondPoint, P2 = thirdPoint, Color = Color.Black });
-            Draw();
-        }
-
+    
 
 
         // Call this function to continue to the next iteration
@@ -473,7 +433,7 @@ namespace DimensionForge._3D.ViewModels
             // to implement gravity we add it to the position.Z after we add velocity
             var gravity = new Vector3(0, 0, -0.3f);
             //multiply the velocity by friction to slow it down
-            var friction = 0.9f;
+            var friction = 0.8f;
             var radius = node.RadiusInMeters;
 
             var oldPosition = node.OldPosition;
@@ -567,7 +527,7 @@ namespace DimensionForge._3D.ViewModels
             continueVerlet = false;
             shapes.Clear();
             await CreateFloor(floorNumber);
-            await Import("C:\\Users\\jacob\\source\\repos\\DimensionForge\\DimensionForge\\3D\\3DModels\\FISHINGBOARD_SB.obj");
+            await Import("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj");
         }
 
         [property: JsonIgnore]
@@ -584,7 +544,7 @@ namespace DimensionForge._3D.ViewModels
             shapes.Clear();
             MyViewPort = viewport;
             await CreateFloor();
-            await Import("C:\\Users\\jacob\\source\\repos\\DimensionForge\\DimensionForge\\3D\\3DModels\\FISHINGBOARD_SB.obj");
+            await Import("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj");
 
             var dirCyl = new Cylinder3D();
             dirCyl.Color = Color.White;
@@ -604,7 +564,7 @@ namespace DimensionForge._3D.ViewModels
             Shapes.Add(batchedmodel);
 
             var model = Shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-            model.TranslateTo(new Vector3(0, 0, 30));
+            model.TranslateTo(new Vector3(0, 0, 80));
 
 
         }
