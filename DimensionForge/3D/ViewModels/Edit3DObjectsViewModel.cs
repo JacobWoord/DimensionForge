@@ -39,9 +39,9 @@ namespace DimensionForge._3D.ViewModels
             Color color = colors[rand.Next(colors.Length)];
             Vector3 position = new Vector3(rand.Next(2,10), rand.Next(2,10) , rand.Next(2,50));
 
-           // var sphere = new Sphere3D { Radius = radius, Color = color, Position = position };
-           // canvasViewModel.Shapes.Add(sphere);
-          //  sphere.Draw();
+            var sphere = new Sphere3D { Radius = radius, Color = color, Position = new Node3D(position) };
+            canvasViewModel.Shapes.Add(sphere);
+            sphere.Draw();
         }
 
         [RelayCommand]

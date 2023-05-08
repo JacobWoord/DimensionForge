@@ -20,14 +20,13 @@ using Matrix = SharpDX.Matrix;
 
 using System.Windows.Media;
 using SharpDX.Direct3D11;
+using Net_Designer_MVVM;
 
 namespace DimensionForge._3D.Models
 {
 
     public partial class BatchedModel3D : ObservableObject, IShape3D
     {
-
-
 
         public BoundingBox BoundingBox { get; set; }
         public List<Node3D> Bbcorners { get; set; } = new();
@@ -52,9 +51,6 @@ namespace DimensionForge._3D.Models
         }
 
 
-
-
-
         [ObservableProperty]
         [property: JsonIgnore]
         IList<HelixToolkit.SharpDX.Core.BatchedMeshGeometryConfig> batchedMeshes;
@@ -77,8 +73,35 @@ namespace DimensionForge._3D.Models
 
         private TranslateTransform3D translateTransform;
 
-        //TRANSLATIONS
+        //Translation method for the 3D Model this method is generating a new tranformGroup 
+        public Transform3DGroup CreateTransformGroup(Vector3 translation, float scale, SharpDX.Quaternion rotation)
+        {
+            // Convert SharpDX types to WPF types
+            System.Windows.Media.Media3D.Vector3D wpfTranslation = new System.Windows.Media.Media3D.Vector3D(translation.X, translation.Y, translation.Z);
+            System.Windows.Media.Media3D.Quaternion wpfQuaternion = new System.Windows.Media.Media3D.Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W);
 
+            // Create the translation transform
+            TranslateTransform3D translationTransform = new TranslateTransform3D(wpfTranslation);
+
+            // Create the scaling transform
+            ScaleTransform3D scalingTransform = new ScaleTransform3D(scale, scale, scale);
+
+
+            // Create the rotation transform
+            RotateTransform3D rotationTransform = new RotateTransform3D(new QuaternionRotation3D(wpfQuaternion));
+
+            // Combine the transformations
+            Transform3DGroup transformGroup = new Transform3DGroup();
+            transformGroup.Children.Add(translationTransform);
+            transformGroup.Children.Add(rotationTransform);
+            transformGroup.Children.Add(scalingTransform);
+
+            return transformGroup;
+        }
+
+
+
+        //TRANSLATIONS
         public void TranslateTo(Vector3 newlocation)
         {
             var dif = -Location + newlocation;
@@ -96,7 +119,6 @@ namespace DimensionForge._3D.Models
             Bbcorners.ForEach(n => n.Position += dif);
 
         }
-
         public void TranslateToCenter(Vector3 newlocation)
         {
             var bb = this.GetBoundingBox();
@@ -206,36 +228,35 @@ namespace DimensionForge._3D.Models
 
 
         }
-
-
-
-
-
-
-        public Transform3DGroup CreateTransformGroup(Vector3 translation, float scale, SharpDX.Quaternion rotation)
+        public void MoveCenterToPosition(Vector3 position)
         {
-            // Convert SharpDX types to WPF types
-            System.Windows.Media.Media3D.Vector3D wpfTranslation = new System.Windows.Media.Media3D.Vector3D(translation.X, translation.Y, translation.Z);
-            System.Windows.Media.Media3D.Quaternion wpfQuaternion = new System.Windows.Media.Media3D.Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W);
+            // Get the center point of the model
+            Vector3 center = GetModelCenter();
 
-            // Create the translation transform
-            TranslateTransform3D translationTransform = new TranslateTransform3D(wpfTranslation);
+            // Calculate the translation vector
+            Vector3 translation = position - center;
 
-            // Create the scaling transform
-            ScaleTransform3D scalingTransform = new ScaleTransform3D(scale, scale, scale);
-            ScaleTransform3D scalingTransform1 = new ScaleTransform3D(scale, scale, scale);
+            // Apply the translation transform
+            Transform3D translateTransform = new TranslateTransform3D(translation.X, translation.Y, translation.Z);
 
-            // Create the rotation transform
-            RotateTransform3D rotationTransform = new RotateTransform3D(new QuaternionRotation3D(wpfQuaternion));
+            // Combine the transforms
+            // Transform3DGroup transform = new Transform3DGroup();
+            Transform.Children.Add(translateTransform);
 
-            // Combine the transformations
-            Transform3DGroup transformGroup = new Transform3DGroup();
-            transformGroup.Children.Add(scalingTransform);
-           // transformGroup.Children.Add(scalingTransform1);
-            transformGroup.Children.Add(rotationTransform);
-            transformGroup.Children.Add(translationTransform);
+          
 
-            return transformGroup;
+        }
+        public void Select()
+        {
+            throw new NotImplementedException();
+        }
+        public void Deselect()
+        {
+            throw new NotImplementedException();
+        }
+        public void Translate(Vector3 translation)
+        {
+            transform.Children.Add(new TranslateTransform3D(translation.X, translation.Y, translation.Z));
         }
 
 
@@ -340,9 +361,9 @@ namespace DimensionForge._3D.Models
             }
 
 
-            this.ScaleModel(0.1);
-            this.ScaleModel(0.1);
-          
+            this.ScaleModel(0.01);
+
+
 
 
             //creates the opposite anchorPoints baes on the existing nodes on the positive Y axis
@@ -410,7 +431,6 @@ namespace DimensionForge._3D.Models
 
 
         }
-
         private void SetNodePositions()
         {
             //Take the 3 positions on the positive Y axis
@@ -478,8 +498,7 @@ namespace DimensionForge._3D.Models
 
             Bbcorners = ConvertBoundingBoxToSquare(eightCorners.ToList());
         }
-
-
+      
         public void RotateAroundCenter(Vector3D axis, double angle)
         {
             // Get the center point of the model
@@ -504,60 +523,19 @@ namespace DimensionForge._3D.Models
             }
         }
 
-
-        public void MoveCenterToPosition(Vector3 position)
+        public Vector3 GetOrientation()
         {
-            // Get the center point of the model
-            Vector3 center = GetModelCenter();
+            //returns the orientation of the model
 
-            // Calculate the translation vector
-            Vector3 translation = position - center;
+            var topTrianle = Nodes.Where(n => n.NodePos == NodePosition.LeftTop || n.NodePos == NodePosition.MiddleTop || n.NodePos == NodePosition.RightTop).Select(n => n.Position).ToArray();
+            var bottomTriangle = Nodes.Where(n => n.NodePos == NodePosition.BottomLeft || n.NodePos == NodePosition.MiddleBottom || n.NodePos == NodePosition.BottomRight).Select(n => n.Position).ToArray();
 
-            // Apply the translation transform
-            Transform3D translateTransform = new TranslateTransform3D(translation.X, translation.Y, translation.Z);
+            var topCentroid = Utils3D.GetCentroidPosition(topTrianle);
+            var bottomCentroid = Utils3D.GetCentroidPosition(bottomTriangle);
 
-            // Combine the transforms
-            // Transform3DGroup transform = new Transform3DGroup();
-            Transform.Children.Add(translateTransform);
+            var orientation = bottomCentroid - topCentroid;
 
-            if (Bbcorners is not null)
-            {
-                Bbcorners.ForEach(cornerNode => cornerNode.transform = this.transform);
-            }
-            // Apply the transform to the model
-
-        }
-        public void Select()
-        {
-            throw new NotImplementedException();
-        }
-        public void Deselect()
-        {
-            throw new NotImplementedException();
-        }
-        public void Translate(Vector3 translation)
-        {
-            transform.Children.Add(new TranslateTransform3D(translation.X, translation.Y, translation.Z));
-        }
-
-
-        public Vector3 GetCentroid(Vector3[] vertices)
-        {
-            Vector3 centroid = new Vector3();
-
-            if (vertices == null || vertices.Length == 0)
-            {
-                return centroid;
-            }
-
-            foreach (Vector3 vertex in vertices)
-            {
-                centroid += vertex;
-            }
-
-            centroid /= vertices.Length;
-
-            return centroid;
+            return orientation;
         }
 
         public Vector3 GetCentroid_Original()
@@ -890,9 +868,9 @@ namespace DimensionForge._3D.Models
             return elements;
         }
 
-        public Vector3[] GetTriangle(string side) 
+        public Vector3[] GetTriangle(string side)
         {
-            var top = Nodes.Where(n => n.NodePos == NodePosition.LeftTop || n.NodePos == NodePosition.MiddleTop || n.NodePos == NodePosition.RightTop).Select(n=> n.Position).ToArray();
+            var top = Nodes.Where(n => n.NodePos == NodePosition.LeftTop || n.NodePos == NodePosition.MiddleTop || n.NodePos == NodePosition.RightTop).Select(n => n.Position).ToArray();
             var bottom = Nodes.Where(n => n.NodePos == NodePosition.BottomLeft || n.NodePos == NodePosition.MiddleBottom || n.NodePos == NodePosition.BottomRight).Select(n => n.Position).ToArray();
 
 
@@ -901,10 +879,11 @@ namespace DimensionForge._3D.Models
                 case "top":
                     return top;
                     break;
-                    case "bottom":
-                        return bottom;
+                case "bottom":
+                    return bottom;
                     break;
-                default: return top;
+                default:
+                    return top;
                     break;
             }
         }

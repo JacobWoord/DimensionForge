@@ -26,8 +26,8 @@ namespace DimensionForge._3D.Models
         public Node3D(Vector3 pos)
         {
             Random r = new Random();
-           // OldPosition = pos - 5;
-            OldPosition = pos -new Vector3(r.Next(0,10), r.Next(0, 10), 0);
+           OldPosition = pos - 5;
+           // OldPosition = pos -new Vector3(r.Next(0,10), r.Next(0, 10), 0);
             Position = pos;
             Id = Guid.NewGuid().ToString();
 

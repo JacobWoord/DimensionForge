@@ -29,6 +29,8 @@ namespace DimensionForge._3D.Models
         public override void Draw()
         {
             MeshBuilder meshbuilder = new MeshBuilder();
+           
+            
             meshbuilder.AddSphere(linkedNode.Position, Radius, 10, 10);
             
             Material = SetMaterial();
