@@ -14,11 +14,9 @@ namespace DimensionForge._3D.interfaces
         public void ScaleModel(double scaleFactor);
         public IList<TransformData> TransformDatas { get; set; }
         public void Rotate(Vector3D Axis, double Angle);
-        public void ConvertTransform3DGroupToTransformData();
-        public void ConvertTransformDataToTransform3DGroup();
+     
         public void Translate(Vector3 translation);
-        public void Select();
-        public void Deselect();
+       
         public List<verletElement3D> GetElements();
         public UseCase UseCase {get; set;}
     }

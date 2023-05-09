@@ -162,10 +162,17 @@
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding ExecuteVerticalRotationCommand}">
-                Set Vertical Rotation
+                Command="{Binding MoveToCenterCommand}">
+               centreer
             </Button>
 
+            <Button
+                Margin="10"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Command="{Binding DrawCentersCommand}">
+                draw centers
+            </Button>
             <Button
                 Margin="10"
                 HorizontalAlignment="Right"
@@ -179,15 +186,15 @@
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding UpdateDoorPositionCommand}">
-                Update Position Door
+                Command="{Binding NewBoundingBoxCommand}">
+                new Bounding Box
             </Button>
 
             <Button
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding DrawAnchorPointsCommand}">
+                Command="{Binding UpdateDoorPositionCommand}">
                 Draw AnchorPoints
             </Button>
 

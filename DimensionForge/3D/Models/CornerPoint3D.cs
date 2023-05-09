@@ -19,7 +19,7 @@ namespace DimensionForge._3D.Models
         [ObservableProperty]
         Node3D linkedNode;
 
-        public float Radius { get; set; } = 0.8f;
+        public float Radius { get; set; } = 0.1f;
 
         public CornerPoint3D()
         {

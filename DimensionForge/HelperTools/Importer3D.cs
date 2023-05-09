@@ -44,6 +44,7 @@ namespace RapiD.Geometry
                     {
                         if (node is HelixToolkit.SharpDX.Core.Model.Scene.MeshNode m)
                         {
+                            m.Geometry.IsDynamic=true;
                             ImportedConfig importedconfig = new()
                             {
                                 Name = m.Name,

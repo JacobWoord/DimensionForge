@@ -74,12 +74,8 @@ namespace DimensionForge._3D.ViewModels
 
            var door = canvasViewModel.Shapes.FirstOrDefault(x=> x is BatchedModel3D) as BatchedModel3D;
 
-            door.TranslateTo(door.GetLocation() + new Vector3(10, 0, 0));
-            //foreach (var shape in canvasViewModel.Shapes)
-            //{
-            //    shape.Translate(new Vector3(1, 0, 0));
-
-            //}
+            door.MoveCenterToPosition(new Vector3(0, 0, 0));
+          
         }
 
         [RelayCommand]

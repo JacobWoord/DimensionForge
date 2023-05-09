@@ -30,6 +30,9 @@ namespace DimensionForge
         public VerletBuildResult()
         {
             viewModel = Ioc.Default.GetService<Canvas3DViewModel>();
+
+            GetAllElements();
+            AddNodesToList();   
         }
 
 
@@ -126,7 +129,7 @@ namespace DimensionForge
 
                     var model = shapesList[i] as BatchedModel3D;
                     var elements = model.GetBbElements();
-                   // var elements = model.GetElements();
+                    // var elements = model.GetElements();
                     foreach (var el in elements)
                     {
                         Elements.Add(el);
@@ -147,71 +150,12 @@ namespace DimensionForge
         }
 
 
-        public Vector3 GetOrientation1()
-        {
-            //returns the orientation of the verlet shape
 
-            var topTrianle = Nodes.Where(n => n.NodePos == NodePosition.LeftTop || n.NodePos == NodePosition.MiddleTop || n.NodePos == NodePosition.RightTop).Select(n => n.Position).ToArray();
-            var bottomTriangle = Nodes.Where(n => n.NodePos == NodePosition.BottomLeft || n.NodePos == NodePosition.MiddleBottom || n.NodePos == NodePosition.BottomRight).Select(n => n.Position).ToArray();
-
-           var topCentroid =  Utils3D.GetCentroidPosition(topTrianle);
-           var bottomCentroid = Utils3D.GetCentroidPosition(bottomTriangle);
-
-            var orientation = bottomCentroid - topCentroid;
-
-            return orientation;
-        }
-        public Vector3 GetOrientation()
-        {
-            var topCorners = Nodes.Where(n => n.CornerName == CornerName.UpperLeftFrontCorner
-            || n.CornerName == CornerName.UpperRightFrontCorner
-            || n.CornerName == CornerName.UpperLeftBackCorner
-            || n.CornerName == CornerName.UpperRightBackCorner).ToArray();
-
-            var bottomCorners = Nodes.Where(n => n.CornerName == CornerName.LowerLeftFrontCorner
-           || n.CornerName == CornerName.LowerRightFrontCorner
-           || n.CornerName == CornerName.LowerLeftBackCorner
-           || n.CornerName == CornerName.LowerRightBackCorner).ToArray();
-
-            var topCornerPositions = topCorners.Select(n => n.Position).ToArray();
-            var bottomCornerPositions = bottomCorners.Select(n => n.Position).ToArray();
-
-
-            var topCentroid = Utils3D.GetCentroidPosition(topCornerPositions);
-            var bottomCentroid = Utils3D.GetCentroidPosition(bottomCornerPositions);
-
-            var orientation = bottomCentroid - topCentroid;
-
-            return orientation;
-        }
-
-        public Vector3 GetHorizontalOrientation()
-        {
-            var frontFaceCorners = Nodes.Where(n => n.CornerName == CornerName.UpperLeftFrontCorner
-          || n.CornerName == CornerName.UpperRightFrontCorner
-          || n.CornerName == CornerName.LowerLeftFrontCorner
-          || n.CornerName == CornerName.LowerRightFrontCorner).ToArray();
-
-            var backFaceCorners = Nodes.Where(n => n.CornerName == CornerName.UpperLeftBackCorner
-       || n.CornerName == CornerName.UpperRightBackCorner
-       || n.CornerName == CornerName.LowerLeftBackCorner
-       || n.CornerName == CornerName.LowerRightBackCorner).ToArray();
-
-            var frontFaceCornersPositions = frontFaceCorners.Select(n => n.Position).ToArray();
-            var backFaceCornersPositions = backFaceCorners.Select(n => n.Position).ToArray();
-
-            Vector3 frontCentroid = Utils3D.GetCentroidPosition(frontFaceCornersPositions);
-            Vector3 backCentroid = Utils3D.GetCentroidPosition(backFaceCornersPositions);
-
-            var orientation = frontCentroid - backCentroid;
-
-            return orientation;
-
-
+     
         }
 
 
 
 
     }
-}
+
