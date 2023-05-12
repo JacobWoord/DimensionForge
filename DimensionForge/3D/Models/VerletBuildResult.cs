@@ -25,17 +25,16 @@ namespace DimensionForge
         public List<Node3D> Nodes { get; set; } = new();
         public List<verletElement3D> Elements { get; set; } = new();
 
-
+      
+        
 
         public VerletBuildResult()
         {
             viewModel = Ioc.Default.GetService<Canvas3DViewModel>();
 
             GetAllElements();
-            AddNodesToList();   
+            AddNodesToList();
         }
-
-
 
         public (float angle, Vector3 p1, Vector3 p2, Vector3 normal) SetRotationVertical(Vector3 tp)
         {
@@ -94,7 +93,6 @@ namespace DimensionForge
 
             return (angle, p1, p2, normal);
         }
-
         public void AddNodesToList()
         {
             // adding the unique node of each element to the verlet buildresult list
@@ -124,11 +122,11 @@ namespace DimensionForge
             for (int i = 0; i < shapesList.Count(); i++)
             {
 
-                if (shapesList[i] is BatchedModel3D)
+                if (shapesList[i] is ObjModel3D)
                 {
 
-                    var model = shapesList[i] as BatchedModel3D;
-                    var elements = model.GetBbElements();
+                    var model = shapesList[i] as ObjModel3D;
+                    var elements = model.GetVerletElements();
                     // var elements = model.GetElements();
                     foreach (var el in elements)
                     {
@@ -144,6 +142,13 @@ namespace DimensionForge
         }
 
 
+        public float GetLength()
+        {
+            var p = Nodes.Where(x => x.CornerName == CornerName.TopBackLeft || x.CornerName == CornerName.BottomBackLeft).ToArray();
+            var length = Vector3.Distance(p[1].Position, p[0].Position);
+            return length;
+        }
+
         public Node3D GetNode(NodePosition nodeposition)
         {
             return Nodes.FirstOrDefault(x => x.NodePos == nodeposition);
@@ -151,11 +156,11 @@ namespace DimensionForge
 
 
 
-     
-        }
-
-
-
 
     }
+
+
+
+
+}
 

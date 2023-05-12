@@ -96,19 +96,9 @@
                 </helix:ItemsModel3D.ItemTemplate>
             </helix:ItemsModel3D>
 
-            <helix:ItemsModel3D ItemsSource="{Binding Shapes}">
-                <helix:ItemsModel3D.ItemTemplate>
-                    <DataTemplate>
-                        <helix:BatchedMeshGeometryModel3D
-                            BatchedGeometries="{Binding BatchedMeshes}"
-                            BatchedMaterials="{Binding ModelMaterials}"
-                            EnableViewFrustumCheck="False"
-                            Material="{Binding BaseMaterial}"
-                            Transform="{Binding Transform}" />
-                    </DataTemplate>
-                </helix:ItemsModel3D.ItemTemplate>
+            
 
-            </helix:ItemsModel3D>
+         
 
 
 
@@ -162,7 +152,7 @@
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding MoveToCenterCommand}">
+                Command="{Binding UpdateDoorPositionCommand}">
                centreer
             </Button>
 
@@ -186,8 +176,16 @@
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding NewBoundingBoxCommand}">
-                new Bounding Box
+                Command="{Binding RotateCommand}">
+                Rostate
+            </Button>
+
+            <Button
+                Margin="10"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Command="{Binding CentreerCommand}">
+                centreer model
             </Button>
 
             <Button
@@ -195,7 +193,7 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                 Command="{Binding UpdateDoorPositionCommand}">
-                Draw AnchorPoints
+                Bring To Shape 
             </Button>
 
 

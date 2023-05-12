@@ -20,7 +20,7 @@ namespace DimensionForge._3D.Models
         public override void Draw()
         {        
             MeshBuilder meshbuilder = new MeshBuilder();
-            meshbuilder.AddSphere(Position.Position, Radius, 10, 10);
+            meshbuilder.AddSphere(Position, Radius, 10, 10);
             Material = SetMaterial();
             Geometry = meshbuilder.ToMeshGeometry3D();
             Color = SharpDX.Color.Red;

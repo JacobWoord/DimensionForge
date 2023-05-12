@@ -26,7 +26,7 @@ namespace DimensionForge._3D.Models
         public string Name { get; set; }    
         public string Id { get; set; }
         public Color4 Color { get; set; }
-        public Node3D Position { get; set; }
+        public Vector3 Position { get; set; }
         public Vector3 OldPosition { get; set; }
         public bool IsSelected { get; set; }
 
@@ -69,11 +69,11 @@ namespace DimensionForge._3D.Models
             if (transform == null)
             {
 
-                transform = new Transform3DGroup();
+                Transform = new Transform3DGroup();
             }
 
 
-            transform.Children.Add(scaleTransform);
+            Transform.Children.Add(scaleTransform);
 
 
         }
@@ -84,7 +84,7 @@ namespace DimensionForge._3D.Models
                      axis: Axis,
                      angle: Angle));
 
-            transform.Children.Add(trans);
+            Transform.Children.Add(trans);
         }
         public void ConvertTransform3DGroupToTransformData()
         {

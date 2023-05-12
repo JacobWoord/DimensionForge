@@ -26,8 +26,8 @@ namespace DimensionForge._3D.Models
         public Node3D(Vector3 pos)
         {
             Random r = new Random();
-            // OldPosition = pos - 5;
-           OldPosition = pos -new Vector3(r.Next(0,10), r.Next(0, 10), 0);
+            //OldPosition = pos - 5;
+            OldPosition = pos -new Vector3(r.Next(0,2), r.Next(0, 2), 0);
             Position = pos;
             Id = Guid.NewGuid().ToString();
 
@@ -40,9 +40,9 @@ namespace DimensionForge._3D.Models
             var yv = Position.Y - OldPosition.Y;  // y velocity
             var zv = Position.Z - OldPosition.Z;  // z velocity
 
-            if (Position.Z < RadiusInMeters)
+            if (Position.Z < 0)
             {
-                Position = new Vector3(Position.X, Position.Y, RadiusInMeters);
+                Position = new Vector3(Position.X, Position.Y, 0);
                 OldPosition = new Vector3(OldPosition.X, OldPosition.Y, Position.Z + zv * Bounce);
             }
         }

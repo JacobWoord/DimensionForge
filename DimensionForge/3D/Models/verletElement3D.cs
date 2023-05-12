@@ -23,8 +23,8 @@ namespace DimensionForge._3D.Models
                 GetElementLength();
             }
         }
-        
-        
+        public Color Color { get; set; }
+
         private Node3D end;
         public Node3D End
         {

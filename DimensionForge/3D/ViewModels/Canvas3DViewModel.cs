@@ -6,7 +6,6 @@ using HelixToolkit.Wpf.SharpDX;
 using Newtonsoft.Json;
 using SharpDX;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,11 +13,20 @@ using System.Windows;
 using System.Windows.Media.Media3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using DimensionForge.Common;
-using Net_Designer_MVVM;
-using System.Diagnostics;
 using Quaternion = SharpDX.Quaternion;
-using Assimp.Configs;
+using MeshGeometry3D = HelixToolkit.SharpDX.Core.MeshGeometry3D;
 using DimensionForge.HelperTools;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using HelixToolkit.SharpDX.Core.Assimp;
+using MaterialDesignThemes.Wpf;
+using System.Collections.Generic;
+using Assimp;
+using System.Xml.Linq;
+using System.Diagnostics;
+using DimensionForge._2D.ViewModels;
+using System.Threading;
+using HelixToolkit.SharpDX.Core.Animations;
+using System.Reflection.Metadata.Ecma335;
 
 namespace DimensionForge._3D.ViewModels
 {
@@ -43,10 +51,8 @@ namespace DimensionForge._3D.ViewModels
 
         private VerletBuildResult buildResult { get; set; }
 
-
         public Canvas3DViewModel()
         {
-            //when creating a viewPort3DX remember that an effects manager is essential 
 
             this.EffectsManager = new DefaultEffectsManager();
             // Create and set up the camera
@@ -55,32 +61,49 @@ namespace DimensionForge._3D.ViewModels
                 Position = new Point3D(0, 0, 10),
                 LookDirection = new Vector3D(0, 0, -1),
                 UpDirection = new Vector3D(0, 1, 0),
-                FarPlaneDistance = 100000,
-                NearPlaneDistance = -100000,
+                FarPlaneDistance = 150,
+                NearPlaneDistance = -150,
                 Width = 1000,
             };
-
             Camera.CreateViewMatrix();
         }
+
 
         private void InitBuildResult()
         {
 
+
+            MeshGeometry();
             buildResult = new VerletBuildResult();
-            var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-            door.SetBoundingBox();
+            var door = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
+            var boundingelements = door.GetBoundingElements();
+            boundingelements.ForEach(x => shapes.Add(x));
+           
+
+
+
             foreach (var element in buildResult.Elements)
             {
-                shapes.Add(new Cylinder3D() { P1 = element.Start, P2 = element.End });
+                Shapes.Add(new Cylinder3D() { Start = element.Start, End = element.End, Color = element.Color });
             }
             for (int i = 0; i < buildResult.Nodes.Count(); i++)
             {
-                shapes.Add(new CornerPoint3D() { LinkedNode = buildResult.Nodes[i], Color = Color.Purple });
+                Shapes.Add(new CornerPoint3D() { LinkedNode = buildResult.Nodes[i], Color = Color.Purple });
 
             }
-            shapes.Add(new CornerPoint3D() { LinkedNode = new Node3D(Vector3.Zero), Color = Color.Red });
+            Shapes.Add(new CornerPoint3D() { LinkedNode = new Node3D(Vector3.Zero), Color = Color.Red });
             Draw();
         }
+
+        private async void MeshGeometry()
+        {
+            var model = new ObjModel3D(await ObjHelperClass.ImportAsMeshGeometry3D("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj"));
+            shapes.Add(model);
+            ObjHelperClass.UpdatePosition(model, new Vector3(0, 0, 10));
+        }
+
+
+
         private bool continueVerlet = true;
 
         [RelayCommand]
@@ -91,7 +114,6 @@ namespace DimensionForge._3D.ViewModels
             continueVerlet = true;
             var uiDispatcher = Application.Current.Dispatcher;
             int duration = 33; //==30fps
-            InitBuildResult();
 
             await Task.Run(async () =>
             {
@@ -100,80 +122,160 @@ namespace DimensionForge._3D.ViewModels
                     var stopWatch = Stopwatch.StartNew();
 
                     UpdatePhysics();
-
-                    _ = uiDispatcher.InvokeAsync(async () =>
+                    // UpdateExperiment();
+                    UpdateDoorPositionEMA();
+                    await uiDispatcher.InvokeAsync(() =>
                     {
-
-                        await UpdateDoorPosition();
                         Draw();
+                        return Task.CompletedTask;
+
+                        
                     });
                     var elapsed = (int)stopWatch.ElapsedMilliseconds;
-                    //Debug.WriteLine(elapsed);
-                    int delay = duration - elapsed;
+                    Debug.WriteLine(elapsed);
+                    int delay = Math.Max(0, duration - elapsed);
                     await Task.Delay(delay);
                 }
             });
         }
 
+        [RelayCommand]
+        public void MoveToCenter()
+        {
+            var door = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
+            ObjHelperClass.UpdatePosition(door, Vector3.Zero);
+
+        }
+
+        [RelayCommand]
+        void DrawCenters()
+        {
+            var door = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
+
+
+         
+            Draw();
+
+        }
+
+
+
 
         [property: JsonIgnore]
         void UpdatePhysics()
         {
-
             // generates a loop that stays on the same thread as the UI thread
             foreach (var n in buildResult.Nodes)
             {
                 UpdatePositions(n);
-
             }
-
-            for (int i = 0; i < 200; i++)
+            for (int i = 0; i < 100; i++)
             {
-
                 foreach (var s in buildResult.Elements)
                     UpdateSticks(s);
-
-
                 foreach (var n in buildResult.Nodes)
                     ConstrainGround(n);
             }
+        }
+
+
+        private void UpdateExperiment()
+        {
+            var door = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
+            var boxcenter = PositioningHelper.GetCenterOfMass(buildResult.Nodes);
+
+
+            ObjHelperClass.UpdatePosition(door,boxcenter);
 
 
         }
 
-        public async Task UpdateDoorPosition()
+
+        Queue<Quaternion> rotationHistory = new Queue<Quaternion>();
+
+        private Quaternion _previousRotation = Quaternion.Identity;
+
+        [RelayCommand]
+        public void UpdateDoorPositionEMA()
         {
+            var door = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
 
-            var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-
-
-            //First im trying to calculate the translation vector bases on the center positions of the models  (MODEL WORD NIET VERPLAATST MET HET CENTERPUNT)
+            // Calculate the translation vector based on the center positions of the models
             Vector3 verletCenter = PositioningHelper.GetCenterOfMass(buildResult.Nodes);
-            Vector3 modelCenter = PositioningHelper.GetCenterOfMass(door.Bbcorners);
+            Vector3 modelCenter = ObjHelperClass.CalculateModelCenter(door);
             Vector3 translation = verletCenter - modelCenter;
 
-            Quaternion combinedRotationQuaternion = ComputeBoxRotationHelper.ComputeRotationQuaternion(door.Bbcorners, buildResult.Nodes);
-            await door.MoveCenterToPosition(Vector3.Zero);
-            door.Transform = ComputeBoxRotationHelper.CreateTransformGroup(combinedRotationQuaternion, door.Bbcorners, door.Transform);
-            await door.MoveCenterToPosition(verletCenter);
+            // Define the alpha value for the EMA smoothing technique
+            float alpha = 0.1f; // You can experiment with this value
+
+            // Calculate the combined rotation quaternion using the EMA smoothing technique
+            Quaternion combinedRotationQuaternion = ComputeBoxRotationHelper.ComputeCombinedRotationQuaternionEMA(door.BoundingPositions, buildResult.Nodes, ref _previousRotation, alpha);
+
+            var dSize = DebugHelper.GetBoxDimensions(door.BoundingPositions);
+            var vSize = DebugHelper.GetBoxDimensions(buildResult.Nodes);
+
+            DebugHelper.DebugDimensionDifference(dSize, vSize);
+
+           // Debug.WriteLine($"MODEL DIMENSIONS: Height: {dSize.Z} Width:{dSize.Y} Depth:{dSize.X}" );
+           // Debug.WriteLine($"BOX DIMENSIONS: Height: {vSize.Z} Width:{vSize.Y} Depth:{vSize.X}");
+
+            if (!IsValidQuaternion(combinedRotationQuaternion))
+            {
+                Debug.WriteLine(":Invalid rotation quaternion detected  ");
+                return;
+            }
+
+          
+            // Apply the rotation and update the position
+            ObjHelperClass.ApplyRotation(door, combinedRotationQuaternion, modelCenter);
+            ObjHelperClass.UpdatePosition(door, verletCenter);
+        }
+
+
+        private bool IsValidQuaternion(Quaternion q)
+        {
+            float epsilon = 1e-6f;
+            float length = q.Length();
+            return (Math.Abs(length - 1) < epsilon);
+        }
 
 
 
-            //verletCenter = GetCenterOfMass(buildResult.Nodes);
-            //modelCenter = GetCenterOfMass(door.Bbcorners);
-            //translation = verletCenter - modelCenter;
-            // await door.MoveCenterToPosition(verletCenter);
 
+        [RelayCommand]
+        void Centreer()
+        {
+            var door = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
+
+            Vector3 verletCenter = PositioningHelper.GetCenterOfMass(buildResult.Nodes);
+            Vector3 modelCenter = ObjHelperClass.CalculateModelCenter(door);
+            Vector3 translation = verletCenter - modelCenter;
+
+
+            ObjHelperClass.UpdatePosition(door ,verletCenter);
+              
+               Draw();
+
+
+            
+        }
+
+
+
+        [RelayCommand]
+        void Rotate()
+        {
+            var door = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
+            ObjHelperClass.RotateGeometry(door, Vector3.UnitX, 60);
         }
 
         [RelayCommand]
         void DrawBoundingBox()
         {
-            //reNew
-            var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-            //clear the list from the previous bounding shapes
+            
+            var door = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
 
-            door.Bbcorners.ForEach(x => shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = x.Color, UseCase = UseCase.boundings }));
+            door.BoundingPositions.ForEach(x => shapes.Add(new CornerPoint3D() { Color  = Color.Yellow , LinkedNode = x}));
             Draw();
         }
 
@@ -247,6 +349,8 @@ namespace DimensionForge._3D.ViewModels
             var gravity = new Vector3(0, 0, -0.3f);
             //multiply the velocity by friction to slow it down
             var friction = 0.8f;
+
+
             var radius = node.RadiusInMeters;
 
             var oldPosition = node.OldPosition;
@@ -257,6 +361,9 @@ namespace DimensionForge._3D.ViewModels
 
             node.Position = position;
             node.OldPosition = oldPosition;
+
+
+    
         }
         [RelayCommand]
         void Navigate(string destination)
@@ -281,44 +388,35 @@ namespace DimensionForge._3D.ViewModels
         }
         public void Draw()
         {
-
-            foreach (var s in shapes.ToList())
+            foreach (var s in Shapes.ToList())
             {
                 if (s is Shape3D shape3D)
                 {
+
                     shape3D.Draw();
                 }
 
-
             }
-        }     
+        }
 
         [RelayCommand]
         [property: JsonIgnore]
         public void ObjectedClicked(IShape3D shape)
         {
 
-            if (shape is ImportedModel || shape is Floor3D)
-            {
-
-                return;
-            }
-
-            var shape3d = shape as Shape3D;
-            shape3d.Color = Color.Red;
-            Draw();
 
         }
 
         [RelayCommand]
-        public async Task Reload(string floorNumber = "1")
+        public void Reload(string floorNumber = "1")
         {
-
             continueVerlet = false;
             shapes.Clear();
             CreateFloor(floorNumber);
-            await Import("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj");
+            //await Import("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj");
+            InitBuildResult();
         }
+
 
         [property: JsonIgnore]
         void CreateFloor(string num = "1")
@@ -329,40 +427,42 @@ namespace DimensionForge._3D.ViewModels
             Shapes.Add(floor);
             Draw();
         }
-        public async Task OnViewportInitialized(Viewport3DX viewport)
+        public void OnViewportInitialized(Viewport3DX viewport)
         {
-            shapes.Clear();
+            Shapes.Clear();
             MyViewPort = viewport;
             CreateFloor();
-            await Import("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj");
+            InitBuildResult();
 
-            shapes.Add(new CornerPoint3D()
+            Shapes.Add(new CornerPoint3D()
             {
                 LinkedNode = new Node3D(new Vector3(0, 0, 0)),
                 Color = Color.Purple,
                 UseCase = UseCase.direction
             });
-            var door = shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
 
-              Draw();
+            // ZoomTo();
+
+
+            Draw();
 
         }
 
-
-
-
-
-        async Task Import(string filePath)
+        public void ZoomTo()
         {
-            var batchedmodel = new ImportedModel(filePath);
-            await batchedmodel.OpenFile();
-            Shapes.Add(batchedmodel);
+            var offset = 1;
+            var model = shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
 
-            var model = Shapes.FirstOrDefault(x => x is BatchedModel3D) as BatchedModel3D;
-            model.TranslateTo(new Vector3(0, 0, 8));
+            var rect3d = new Rect3D(ObjHelperClass.CalculateModelCenter(model).ToPoint3D(), new Size3D(model.Width + offset, model.Height + offset, model.Depth + offset));
 
-
+            MyViewPort.ZoomExtents(rect3d, 500);
+            MyViewPort.Reset();
         }
+
+
+
+
+
 
 
         [ObservableProperty]

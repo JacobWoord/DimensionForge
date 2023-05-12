@@ -14,13 +14,13 @@ namespace DimensionForge._3D.Models
     {
 
         [ObservableProperty]
-        Node3D p1 = new Node3D(Vector3.Zero);
+        Node3D start = new Node3D(Vector3.Zero);
 
         [ObservableProperty]
-        Node3D p2 = new Node3D(Vector3.Zero);
+        Node3D end = new Node3D(Vector3.Zero);
 
         [ObservableProperty]
-        float radius = 0.08f;
+        float radius = 0.01f;
 
         [ObservableProperty]
         float lentgh;
@@ -29,7 +29,7 @@ namespace DimensionForge._3D.Models
 
         public Cylinder3D()
         {
-            Color = SharpDX.Color.Green;
+            //Color = SharpDX.Color.Transparent;
         }
 
 
@@ -38,7 +38,7 @@ namespace DimensionForge._3D.Models
             
 
             MeshBuilder meshbuilder = new MeshBuilder();
-            meshbuilder.AddCylinder(P1.Position, P2.Position, Radius, 32);
+            meshbuilder.AddCylinder(Start.Position, End.Position, Radius, 32);
             Material = SetMaterial();
             Geometry = meshbuilder.ToMeshGeometry3D();
         }

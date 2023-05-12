@@ -15,24 +15,7 @@ namespace DimensionForge.HelperTools
     {
 
 
-        public static List<CornerPoint3D> NewBoundingBox(BatchedModel3D model)
-        {
-
-          
-            model.BatchedMeshes[0].Geometry.UpdateBounds();
-
-
-            var bounding = model.GetBoundingBox();
-            var corners = bounding.GetCorners();
-            var center = bounding.Center;
-
-            List<CornerPoint3D> cornersList = new();
-           
-            corners.ToList().ForEach(x => cornersList.Add(new CornerPoint3D() { LinkedNode = new Node3D(x), Color = Color.Yellow }));
-
-
-            return cornersList;
-        }
+   
 
 
         public static Vector3 GetCenterOfMass(List<Node3D> nodes)
@@ -53,42 +36,8 @@ namespace DimensionForge.HelperTools
         }
 
 
-        public  static List<CornerPoint3D> DrawCenters(BatchedModel3D model, VerletBuildResult builResult)
-        {
-
-            Vector3 verletCenter = PositioningHelper.GetCenterOfMass(builResult.Nodes);
-            Vector3 modelCenter = PositioningHelper.GetCenterOfMass(model.Bbcorners);
-
-            List<CornerPoint3D> cornerPoints = new List<CornerPoint3D>();
-
-            cornerPoints.Add(new CornerPoint3D() { LinkedNode = new Node3D(verletCenter), Color = Color.Yellow });
-            cornerPoints.Add(new CornerPoint3D() { LinkedNode = new Node3D(modelCenter), Color = Color.Yellow });
-
-
-            return cornerPoints;
-
-           
-        }
-
-        public static async Task MoveToCenterOfVerletShape(BatchedModel3D model , VerletBuildResult buidresult)
-        {
-
-       
-            //First im trying to calculate the translation vector bases on the center positions of the models  (MODEL WORD NIET VERPLAATST MET HET CENTERPUNT)
-            Vector3 verletCenter = GetCenterOfMass(buidresult.Nodes);
-            Vector3 modelCenter = GetCenterOfMass(model.Bbcorners);
-            Vector3 translation = verletCenter - modelCenter;
-
-            await model.MoveCenterToPosition(translation);
-
-        }
-
-
-        public static async Task MoveModelToOrigin(BatchedModel3D model)
-        {
-            await model.MoveCenterToPosition(Vector3.Zero);
-        }
-
+     
+     
 
         public static void Find_collision(IShape3D shape)
         {

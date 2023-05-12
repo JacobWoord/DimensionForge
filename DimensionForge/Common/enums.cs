@@ -19,25 +19,29 @@ namespace DimensionForge.Common
         MiddleCenter,
         None
     }
-       
-       
-
-
-
 
     public enum CornerName
     {
-        LowerLeftFrontCorner,
-        LowerRightFrontCorner,
-        UpperRightFrontCorner,
-        UpperLeftFrontCorner,
-        LowerLeftBackCorner,
-        LowerRightBackCorner,
-        UpperRightBackCorner,
-        UpperLeftBackCorner,
+        BottomFrontLeft,
+        BottomFrontRight,
+        BottomBackLeft,
+        BottomBackRight,
+        TopFrontLeft,
+        TopFrontRight,
+        TopBackLeft,
+        TopBackRight,
         FrontPlaneCenter,
-        BackPlaneCenter
+        BackPlaneCenter,
+        LeftPlaneCenter,
+        RightPlaneCenter,
+        TopPlaneCenter,
+        BottomPlaneCenter
     }
+
+
+
+
+   
 
 
 

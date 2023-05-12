@@ -10,9 +10,9 @@ namespace DimensionForge._3D.Models
 {
     public partial class Floor3D : Shape3D
     {
-        public float Width {get; set;} = 1000;
-        public float Length {get; set;} = 1000;
-        public float Height {get; set;} = 0.1f;
+        public float Width {get; set;} = 100;
+        public float Length {get; set;} = 100;
+        public float Height {get; set;} = 0.001f;
        
         public string FloorNumber { get; set;} = "1";
        
@@ -50,7 +50,7 @@ namespace DimensionForge._3D.Models
 
             for (int i = 0; i < (Geometry as MeshGeometry3D).TextureCoordinates.Count; ++i)
             {
-                (Geometry as MeshGeometry3D).TextureCoordinates[i] *= 5;
+                (Geometry as MeshGeometry3D).TextureCoordinates[i] *= 2;
             }
 
         }
