@@ -17,7 +17,7 @@
 
             <Button Command="{Binding NavigateCommand}" 
                     CommandParameter="transformations"
-                    Margin="5">Transformations</Button>
+                    Margin="5">Coordination helpers</Button>
 
             <Button Command="{Binding NavigateCommand}" 
                     CommandParameter="verlet"

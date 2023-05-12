@@ -10,9 +10,9 @@ namespace DimensionForge._2D.Tools
 {
     public class DataContextProxy : FrameworkElement
     {
-        public static readonly DependencyProperty DataContextProperty = FrameworkElement.DataContextProperty.AddOwner(typeof(DataContextProxy));
+        public static new readonly DependencyProperty DataContextProperty = FrameworkElement.DataContextProperty.AddOwner(typeof(DataContextProxy));
 
-        public object DataContext
+        public new object DataContext
         {
             get => GetValue(DataContextProperty);
             set => SetValue(DataContextProperty, value);

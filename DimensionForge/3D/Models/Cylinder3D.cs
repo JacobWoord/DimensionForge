@@ -20,7 +20,7 @@ namespace DimensionForge._3D.Models
         Node3D end = new Node3D(Vector3.Zero);
 
         [ObservableProperty]
-        float radius = 0.01f;
+        float radius = 0.02f;
 
         [ObservableProperty]
         float lentgh;
@@ -43,7 +43,7 @@ namespace DimensionForge._3D.Models
             Geometry = meshbuilder.ToMeshGeometry3D();
         }
 
-        public override List<verletElement3D> GetElements()
+        public override List<VerletElement3D> GetElements()
         {
             return base.GetElements();
         }

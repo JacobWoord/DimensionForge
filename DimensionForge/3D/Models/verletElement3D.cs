@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DimensionForge._3D.Models
 {
-    public partial class verletElement3D : ObservableObject, IElement3D
+    public partial class VerletElement3D : ObservableObject, IElement3D
     {
        
         
@@ -23,7 +23,7 @@ namespace DimensionForge._3D.Models
                 GetElementLength();
             }
         }
-        public Color Color { get; set; }
+        public Color Color { get; set; } = Color.Black;
 
         private Node3D end;
         public Node3D End
@@ -39,10 +39,7 @@ namespace DimensionForge._3D.Models
         public float Length { get; set; } = 0;
         public float radius = 0.8f;
 
-
-
-
-        public verletElement3D()
+        public VerletElement3D()
         {
 
 

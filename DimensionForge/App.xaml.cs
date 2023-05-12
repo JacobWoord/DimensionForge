@@ -43,7 +43,7 @@ namespace DimensionForge
             serviceCollection.AddSingleton<Canvas3DViewModel>();
  
 
-            serviceCollection.AddTransient<TransformationsViewModel>();
+            serviceCollection.AddTransient<CoordinationViewModel>();
             serviceCollection.AddTransient<verletIntigrationViewModel>();
             serviceCollection.AddTransient<Edit3DObjectsViewModel>();
             serviceCollection.AddTransient<FloorTexturesViewModel>();

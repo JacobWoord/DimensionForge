@@ -21,7 +21,7 @@
             <tb:ToolbarControl />
         </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewmodels3D:TransformationsViewModel}">
+        <DataTemplate DataType="{x:Type viewmodels3D:CoordinationViewModel}">
             <tb:TransformationsView />
         </DataTemplate>
 
@@ -88,8 +88,9 @@
                             EnableViewFrustumCheck="False"
                             Geometry="{Binding Geometry}"
                             Material="{Binding Material}"
-                            RenderWireframe="False"
-                            Transform="{Binding Transform}" />
+                            RenderWireframe="false"
+                            Transform="{Binding Transform}"
+                           />
 
                     </DataTemplate>
 
@@ -140,29 +141,8 @@
                 redraw view
             </Button>
 
-            <Button
-                Margin="10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Command="{Binding MoveCenterCommand}">
-                move to center
-            </Button>
+        
 
-            <Button
-                Margin="10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Command="{Binding UpdateDoorPositionCommand}">
-               centreer
-            </Button>
-
-            <Button
-                Margin="10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Command="{Binding DrawCentersCommand}">
-                draw centers
-            </Button>
             <Button
                 Margin="10"
                 HorizontalAlignment="Right"
@@ -177,24 +157,23 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                 Command="{Binding RotateCommand}">
-                Rostate
+                Rotate
             </Button>
 
             <Button
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding CentreerCommand}">
-                centreer model
+                Command="{Binding AxisTestCommand}">
+                AXIS TEST
             </Button>
 
-            <Button
-                Margin="10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Command="{Binding UpdateDoorPositionCommand}">
-                Bring To Shape 
-            </Button>
+
+
+
+
+
+
 
 
 

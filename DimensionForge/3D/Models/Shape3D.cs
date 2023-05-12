@@ -4,7 +4,7 @@ using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
 using SharpDX;
 using System;
-using HelixToolkit.SharpDX.Core;
+
 using DimensionForge._3D.Data;
 using Newtonsoft.Json;
 using Transform3DGroup = System.Windows.Media.Media3D.Transform3DGroup;
@@ -179,10 +179,10 @@ namespace DimensionForge._3D.Models
            
         }
 
-        public virtual List<verletElement3D> GetElements()
+        public virtual List<VerletElement3D> GetElements()
         {
 
-            var elements = new List<verletElement3D>();
+            var elements = new List<VerletElement3D>();
             return elements;
         }
     }

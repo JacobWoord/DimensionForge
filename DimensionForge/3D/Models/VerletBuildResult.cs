@@ -3,6 +3,8 @@ using DimensionForge._3D.interfaces;
 using DimensionForge._3D.Models;
 using DimensionForge._3D.ViewModels;
 using DimensionForge.Common;
+using HelixToolkit.SharpDX.Core;
+using HelixToolkit.Wpf;
 using HelixToolkit.Wpf.SharpDX;
 using Net_Designer_MVVM;
 using SharpDX;
@@ -23,16 +25,13 @@ namespace DimensionForge
         private Canvas3DViewModel viewModel;
 
         public List<Node3D> Nodes { get; set; } = new();
-        public List<verletElement3D> Elements { get; set; } = new();
-
-      
-        
+        public List<VerletElement3D> Elements { get; set; } = new();
 
         public VerletBuildResult()
         {
             viewModel = Ioc.Default.GetService<Canvas3DViewModel>();
 
-            GetAllElements();
+            GetAllObjElements();
             AddNodesToList();
         }
 
@@ -96,7 +95,7 @@ namespace DimensionForge
         public void AddNodesToList()
         {
             // adding the unique node of each element to the verlet buildresult list
-            foreach (verletElement3D element in Elements)
+            foreach (VerletElement3D element in Elements)
             {
                 Node3D startNode = element.Start;
                 Node3D endNode = element.End;
@@ -114,7 +113,7 @@ namespace DimensionForge
 
             }
         }
-        public void GetAllElements()
+        public void GetAllObjElements()
         {
 
             var shapesList = viewModel.Shapes;
@@ -140,15 +139,92 @@ namespace DimensionForge
                 }
             }
         }
+        public void GetExperimentElements()
+        {
+
+            var shapesList = viewModel.Shapes;
+
+            for (int i = 0; i < shapesList.Count(); i++)
+            {
+
+                if (shapesList[i] is CornerPoint3D)
+                {
+
+                    var model = shapesList[i] as CornerPoint3D;
+                    var elements = model.GetVerletElements(model.Geometry as MeshGeometry3D);
+                    // var elements = model.GetElements();
+                    foreach (var el in elements)
+                    {
+                        Elements.Add(el);
+                    }
+
+                }
+                else
+                {
+                    continue;
+                }
+            }
+        }    
+        public Vector3 GetCenter(CornerName centerName)
+        {
+            // Define the center you want to retrieve from the functions as a parameter
+
+            List<CornerName> planeCorners;
+
+            switch (centerName)
+            {
+                case CornerName.FrontPlaneCenter:
+                    planeCorners = new List<CornerName> { CornerName.TopFrontLeft, CornerName.TopFrontRight, CornerName.BottomFrontLeft, CornerName.BottomFrontRight };
+                    break;
+                case CornerName.BackPlaneCenter:
+                    planeCorners = new List<CornerName> { CornerName.TopBackLeft, CornerName.TopBackRight, CornerName.BottomBackLeft, CornerName.BottomBackRight };
+                    break;
+                case CornerName.LeftPlaneCenter:
+                    planeCorners = new List<CornerName> { CornerName.TopFrontLeft, CornerName.TopBackLeft, CornerName.BottomFrontLeft, CornerName.BottomBackLeft };
+                    break;
+                case CornerName.RightPlaneCenter:
+                    planeCorners = new List<CornerName> { CornerName.TopFrontRight, CornerName.TopBackRight, CornerName.BottomFrontRight, CornerName.BottomBackRight };
+                    break;
+                case CornerName.TopPlaneCenter:
+                    planeCorners = new List<CornerName> { CornerName.TopFrontLeft, CornerName.TopFrontRight, CornerName.TopBackLeft, CornerName.TopBackRight };
+                    break;
+                case CornerName.BottomPlaneCenter:
+                    planeCorners = new List<CornerName> { CornerName.BottomFrontLeft, CornerName.BottomFrontRight, CornerName.BottomBackLeft, CornerName.BottomBackRight };
+                    break;
+                default:
+                    
+                    return Vector3.Zero;
+            }
+
+            var corners = Nodes.Where(x => planeCorners.Contains(x.CornerName)).ToList();
+            return GetCentroid(corners);
+        }
 
 
+
+
+        public Vector3 GetCentroid(List<Node3D> nodes)
+        {
+            Vector3 centerOfMass = Vector3.Zero;
+            int nodeCount = nodes.Count;
+
+            if (nodeCount == 0)
+                return centerOfMass;
+
+            foreach (Node3D node in nodes)
+            {
+                centerOfMass += node.Position;
+            }
+
+            centerOfMass /= nodeCount;
+            return centerOfMass;
+        }
         public float GetLength()
         {
             var p = Nodes.Where(x => x.CornerName == CornerName.TopBackLeft || x.CornerName == CornerName.BottomBackLeft).ToArray();
             var length = Vector3.Distance(p[1].Position, p[0].Position);
             return length;
         }
-
         public Node3D GetNode(NodePosition nodeposition)
         {
             return Nodes.FirstOrDefault(x => x.NodePos == nodeposition);

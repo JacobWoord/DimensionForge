@@ -29,8 +29,8 @@ namespace DimensionForge._3D.Models
 
         private void InitModel()
         {
-            Color = SharpDX.Color.Blue;
-            Material = SetMaterial();
+            Color = SharpDX.Color.Transparent;
+            Material = null;//SetMaterial();
             var size = ObjHelperClass.GetSize(this);
 
             Height = size.X;
@@ -111,9 +111,9 @@ namespace DimensionForge._3D.Models
 
 
 
-        public List<verletElement3D> GetVerletElements()
+        public List<VerletElement3D> GetVerletElements()
         {
-            var elements = new List<verletElement3D>();
+            var elements = new List<VerletElement3D>();
 
             var bottomFrontLeft = new Node3D(BoundingPositions[(int)CornerName.BottomFrontLeft].Position) { CornerName = CornerName.BottomFrontLeft, Color = SharpDX.Color.Green };
             var bottomFrontRight = new Node3D(BoundingPositions[(int)CornerName.BottomFrontRight].Position) {  CornerName = CornerName.BottomFrontRight, Color = SharpDX.Color.Green };
@@ -126,52 +126,52 @@ namespace DimensionForge._3D.Models
 
             // Sides
             // Sides
-            elements.Add(new verletElement3D() { Start = bottomFrontLeft, End =bottomFrontRight, Color = SharpDX.Color.Green });
-            elements.Add(new verletElement3D() { Start = bottomFrontLeft, End = bottomBackLeft, Color = SharpDX.Color.Green });
-            elements.Add(new verletElement3D() { Start = topFrontLeft, End = topFrontRight, Color = SharpDX.Color.Green });
-            elements.Add(new verletElement3D() { Start = topFrontLeft, End = topBackLeft, Color = SharpDX.Color.Green });
-            elements.Add(new verletElement3D() { Start = bottomFrontRight, End = bottomBackRight , Color = SharpDX.Color.Green });
+            elements.Add(new VerletElement3D() { Start = bottomFrontLeft, End =bottomFrontRight, Color = SharpDX.Color.Green });
+            elements.Add(new VerletElement3D() { Start = bottomFrontLeft, End = bottomBackLeft, Color = SharpDX.Color.Green });
+            elements.Add(new VerletElement3D() { Start = topFrontLeft, End = topFrontRight, Color = SharpDX.Color.Green });
+            elements.Add(new VerletElement3D() { Start = topFrontLeft, End = topBackLeft, Color = SharpDX.Color.Green });
+            elements.Add(new VerletElement3D() { Start = bottomFrontRight, End = bottomBackRight , Color = SharpDX.Color.Green });
 
-            elements.Add(new verletElement3D() { Start = topFrontRight, End = topBackRight, Color = SharpDX.Color.Green });
-            elements.Add(new verletElement3D() { Start = bottomBackLeft, End =bottomBackRight, Color = SharpDX.Color.Green });
-            elements.Add(new verletElement3D() { Start = topBackLeft, End = topBackRight , Color = SharpDX.Color.Green });
+            elements.Add(new VerletElement3D() { Start = topFrontRight, End = topBackRight, Color = SharpDX.Color.Green });
+            elements.Add(new VerletElement3D() { Start = bottomBackLeft, End =bottomBackRight, Color = SharpDX.Color.Green });
+            elements.Add(new VerletElement3D() { Start = topBackLeft, End = topBackRight , Color = SharpDX.Color.Green });
 
-            elements.Add(new verletElement3D() { Start = bottomFrontLeft, End =topFrontLeft, Color = SharpDX.Color.Green });
-            elements.Add(new verletElement3D() { Start = bottomFrontRight, End = topFrontRight, Color = SharpDX.Color.Green });
-            elements.Add(new verletElement3D() { Start = bottomBackLeft, End =topBackLeft , Color = SharpDX.Color.Green });
-            elements.Add(new verletElement3D() { Start = bottomBackRight, End = topBackRight, Color = SharpDX.Color.Green });
+            elements.Add(new VerletElement3D() { Start = bottomFrontLeft, End =topFrontLeft, Color = SharpDX.Color.Green });
+            elements.Add(new VerletElement3D() { Start = bottomFrontRight, End = topFrontRight, Color = SharpDX.Color.Green });
+            elements.Add(new VerletElement3D() { Start = bottomBackLeft, End =topBackLeft , Color = SharpDX.Color.Green });
+            elements.Add(new VerletElement3D() { Start = bottomBackRight, End = topBackRight, Color = SharpDX.Color.Green });
 
             // Diagonals on each plane side
             // Front Plane
-            elements.Add(new verletElement3D() { Start =bottomFrontLeft, End = topFrontRight, Color =  SharpDX.Color.Transparent  });
-            elements.Add(new verletElement3D() { Start = topFrontLeft, End = bottomFrontRight, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start =bottomFrontLeft, End = topFrontRight, Color =  SharpDX.Color.Transparent  });
+            elements.Add(new VerletElement3D() { Start = topFrontLeft, End = bottomFrontRight, Color = SharpDX.Color.Transparent });
 
             // Back Plane
-            elements.Add(new verletElement3D() { Start =bottomBackLeft, End =topBackRight, Color = SharpDX.Color.Transparent });
-            elements.Add(new verletElement3D() { Start =topBackLeft, End = bottomBackRight, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start =bottomBackLeft, End =topBackRight, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start =topBackLeft, End = bottomBackRight, Color = SharpDX.Color.Transparent });
 
             // Left Plane
-            elements.Add(new verletElement3D() { Start =bottomFrontLeft, End =topBackLeft, Color = SharpDX.Color.Transparent });
-            elements.Add(new verletElement3D() { Start =topFrontLeft, End =bottomBackLeft, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start =bottomFrontLeft, End =topBackLeft, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start =topFrontLeft, End =bottomBackLeft, Color = SharpDX.Color.Transparent });
 
             // Right Plane
-            elements.Add(new verletElement3D() { Start =bottomFrontRight, End = topBackRight, Color = SharpDX.Color.Transparent });
-            elements.Add(new verletElement3D() { Start =topFrontRight, End = bottomBackRight, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start =bottomFrontRight, End = topBackRight, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start =topFrontRight, End = bottomBackRight, Color = SharpDX.Color.Transparent });
 
             // Top Plane
-            elements.Add(new verletElement3D() { Start =topFrontLeft, End =topBackRight, Color = SharpDX.Color.Transparent });
-            elements.Add(new verletElement3D() { Start =topFrontRight, End =topBackLeft, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start =topFrontLeft, End =topBackRight, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start =topFrontRight, End =topBackLeft, Color = SharpDX.Color.Transparent });
 
             // Bottom Plane
-            elements.Add(new verletElement3D() { Start =bottomFrontLeft, End =bottomBackRight, Color = SharpDX.Color.Transparent });
-            elements.Add(new verletElement3D() { Start =bottomFrontRight, End =bottomBackLeft, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start =bottomFrontLeft, End =bottomBackRight, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start =bottomFrontRight, End =bottomBackLeft, Color = SharpDX.Color.Transparent });
 
 
            //Cross Diagonals inside the rectangular box
-            elements.Add(new verletElement3D() { Start = bottomFrontLeft, End = topBackRight, Color = SharpDX.Color.Transparent });
-            elements.Add(new verletElement3D() { Start = topFrontLeft, End = bottomBackRight, Color = SharpDX.Color.Transparent });
-            elements.Add(new verletElement3D() { Start = bottomFrontRight, End = topBackLeft , Color = SharpDX.Color.Transparent });
-            elements.Add(new verletElement3D() { Start = topFrontRight, End = bottomBackLeft , Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start = bottomFrontLeft, End = topBackRight, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start = topFrontLeft, End = bottomBackRight, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start = bottomFrontRight, End = topBackLeft , Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start = topFrontRight, End = bottomBackLeft , Color = SharpDX.Color.Transparent });
 
             return elements;
         }

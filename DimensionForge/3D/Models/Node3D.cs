@@ -13,7 +13,7 @@ namespace DimensionForge._3D.Models
          
         public CornerName CornerName { get; set; }
         public bool Pinned { get; set; } = false;
-
+        public UseCase UseCase { get; set; } = UseCase.None;
         public Vector3 Position { get; set; } = Vector3.Zero;
 
         public Vector3 OldPosition { get; set; }

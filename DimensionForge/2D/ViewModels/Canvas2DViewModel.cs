@@ -45,7 +45,7 @@ namespace DimensionForge._2D.ViewModels
         }
 
 
-        [property:JsonIgnore]
+        [property: JsonIgnore]
         async Task UpdateVerlet()
         {
             await Task.Run(async () =>
@@ -107,7 +107,7 @@ namespace DimensionForge._2D.ViewModels
             // to implement the bounce we multiply the OldVelocity by Bounce
             var bounce = 0.7f;
             // to implement gravity we add it to the position.Y after we add velocity
-            var gravity = new Vector2(0, 10.0f);
+      
             //multiply the velocity by friction to slow it down
             var friction = 0.900f;
             var radius = circle.Diameter / 2f;
@@ -115,10 +115,7 @@ namespace DimensionForge._2D.ViewModels
             var oldPosition = circle.OldPosition.ToVector2();
             var velocity = (position - oldPosition) * friction;
 
-            // oldPosition = position;
-            // position += velocity;
-            // position += gravity;
-
+   
             var height1 = Height - (radius + 10);
             var width1 = Width - (radius + 10);
 

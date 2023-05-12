@@ -41,7 +41,12 @@ namespace DimensionForge.Common
 
 
 
-   
+    public enum AxisDirection
+    {
+        LeftRight,
+        TopBottom,
+        FrontBack
+    }
 
 
 
@@ -51,7 +56,8 @@ namespace DimensionForge.Common
         verlet,
         direction,
         boundings,
-        anchorPoints
+        anchorPoints,
+        None
     }
 
 }

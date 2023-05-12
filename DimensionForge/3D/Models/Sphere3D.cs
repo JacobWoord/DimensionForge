@@ -10,7 +10,7 @@ namespace DimensionForge._3D.Models
 
     public class Sphere3D : Shape3D
     {
-        public float Radius { get; set; } = 0.01f;
+        public float Radius { get; set; } = 0.03f;
        
         public Sphere3D()
         {       
@@ -27,7 +27,7 @@ namespace DimensionForge._3D.Models
         }
         
         
-        public override List<verletElement3D> GetElements()
+        public override List<VerletElement3D> GetElements()
         {
             return base.GetElements();
         }

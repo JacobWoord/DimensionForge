@@ -12,16 +12,22 @@ using HelixToolkit.SharpDX.Core.Model.Scene;
 
 namespace DimensionForge._3D.ViewModels
 {
-    public partial class TransformationsViewModel : ObservableObject
+    public partial class CoordinationViewModel : ObservableObject
     {
 
         private Canvas3DViewModel canvasViewModel;
 
+        [ObservableProperty]
+        ObservableCollection<string> itemsControl = new ObservableCollection<string>();
 
-        public TransformationsViewModel()
+        public CoordinationViewModel()
         {
             canvasViewModel = Ioc.Default.GetService<Canvas3DViewModel>();
+
+            itemsControl.Add("VerletBox");
+            itemsControl.Add("Boundingbox");
         }
+
 
      
         [RelayCommand]
@@ -38,17 +44,7 @@ namespace DimensionForge._3D.ViewModels
 
 
            
-           
-
-
-
-        [RelayCommand]
-        [property: JsonIgnore]
-        void Rotate()
-        {
-            foreach (var shape in canvasViewModel.Shapes)
-                shape.Rotate(new Vector3D(1, 0, 0), 90);
-        }
+         
 
 
         [RelayCommand]

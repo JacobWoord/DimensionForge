@@ -25,7 +25,7 @@ namespace DimensionForge._3D.Models
         }
 
 
-        public override List<verletElement3D> GetElements()
+        public override List<VerletElement3D> GetElements()
         {
             return base.GetElements();
         }

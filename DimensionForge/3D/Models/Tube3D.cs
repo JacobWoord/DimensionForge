@@ -43,7 +43,7 @@ namespace DimensionForge._3D.Models
             Name = "Tube";
             Draw();
         }
-        public override List<verletElement3D> GetElements()
+        public override List<VerletElement3D> GetElements()
         {
             return base.GetElements();
         }

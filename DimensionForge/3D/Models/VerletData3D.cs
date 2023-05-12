@@ -17,7 +17,7 @@ namespace DimensionForge._3D.Models
         List<Node3D> cornerList = new List<Node3D>();
 
         [ObservableProperty]
-        List<verletElement3D> elementList = new();
+        List<VerletElement3D> elementList = new();
 
         [ObservableProperty]
         Plane verletPlane = new Plane();

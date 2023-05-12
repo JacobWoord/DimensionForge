@@ -210,8 +210,6 @@ namespace DimensionForge.HelperTools
 
 
 
-
-
         public static Quaternion ComputeTopBottomRotationQuaternion(List<Node3D> modelNodes, List<Node3D> verletNodes)
         {
 

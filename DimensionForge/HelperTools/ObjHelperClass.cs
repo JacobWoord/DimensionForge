@@ -178,7 +178,9 @@ namespace DimensionForge.HelperTools
             }
 
             model.Geometry.UpdateVertices();
-        }
+        }  
+
+
 
         public static void UpdatePosition(ObjModel3D model, Vector3 newPosition)
         {
