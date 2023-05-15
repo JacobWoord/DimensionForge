@@ -26,7 +26,7 @@ namespace DimensionForge
 
         public List<Node3D> Nodes { get; set; } = new();
 
-        public List<Node3D> CenterPosition { get; set; } = new();
+        public List<Node3D> CenterPositions { get; set; } = new();
         public List<VerletElement3D> Elements { get; set; } = new();
 
         public VerletBuildResult()
@@ -35,7 +35,9 @@ namespace DimensionForge
 
             GetAllObjElements();
             AddNodesToList();
-
+           
+            
+            CenterPositions = SetCenter();
 
 
         }
@@ -131,7 +133,7 @@ namespace DimensionForge
 
                     var model = shapesList[i] as ObjModel3D;
                     var elements = model.GetVerletElements();
-                    // var elements = model.GetElements();
+                 
                     foreach (var el in elements)
                     {
                         Elements.Add(el);
@@ -144,9 +146,52 @@ namespace DimensionForge
                 }
             }
         }
-        private void SetCenter()
+        public List<Node3D> SetCenter()
         {
-           
+
+
+            var newCenterPositions  = new List<Node3D>();
+
+            // Calculate center points for each face of the bounding box
+            Vector3 frontCenter = (Nodes[(int)CornerName.BottomFrontLeft].Position + Nodes[(int)CornerName.BottomFrontRight].Position +
+                                   Nodes[(int)CornerName.TopFrontLeft].Position + Nodes[(int)CornerName.TopFrontRight].Position) / 4;
+            Vector3 backCenter = (Nodes[(int)CornerName.BottomBackLeft].Position + Nodes[(int)CornerName.BottomBackRight].Position +
+                                  Nodes[(int)CornerName.TopBackLeft].Position + Nodes[(int)CornerName.TopBackRight].Position) / 4;
+
+
+            Vector3 leftCenter = (Nodes[(int)CornerName.BottomFrontLeft].Position + Nodes[(int)CornerName.BottomBackRight].Position +
+                                  Nodes[(int)CornerName.TopFrontLeft].Position + Nodes[(int)CornerName.TopBackRight].Position) / 4;
+
+
+            Vector3 rightCenter = (Nodes[(int)CornerName.BottomFrontRight].Position + Nodes[(int)CornerName.BottomBackLeft].Position +
+                                   Nodes[(int)CornerName.TopFrontRight].Position + Nodes[(int)CornerName.TopBackLeft].Position) / 4;
+
+
+            Vector3 topCenter = (Nodes[(int)CornerName.TopFrontLeft].Position + Nodes[(int)CornerName.TopFrontRight].Position +
+                                 Nodes[(int)CornerName.TopBackLeft].Position + Nodes[(int)CornerName.TopBackRight].Position) / 4;
+            Vector3 bottomCenter = (Nodes[(int)CornerName.BottomFrontLeft].Position + Nodes[(int)CornerName.BottomFrontRight].Position +
+                                    Nodes[(int)CornerName.BottomBackLeft].Position + Nodes[(int)CornerName.BottomBackRight].Position) / 4;
+                
+            Vector3 modelCenter = (Nodes[(int)CornerName.BottomFrontLeft].Position +
+                                   Nodes[(int)CornerName.BottomFrontRight].Position +
+                                    Nodes[(int)CornerName.BottomBackLeft].Position +
+                                    Nodes[(int)CornerName.BottomBackRight].Position) +
+                                    (Nodes[(int)CornerName.TopFrontLeft].Position +
+                                    Nodes[(int)CornerName.TopFrontRight].Position +
+                                    Nodes[(int)CornerName.TopBackLeft].Position +
+                                    Nodes[(int)CornerName.TopBackRight].Position) / 8;
+
+
+            // Add center points to the list
+            newCenterPositions.Add(new Node3D(frontCenter) { CornerName = CornerName.FrontPlaneCenter  });
+            newCenterPositions.Add(new Node3D(backCenter) { CornerName = CornerName.BackPlaneCenter });
+            newCenterPositions.Add(new Node3D(leftCenter) { CornerName = CornerName.LeftPlaneCenter });
+            newCenterPositions.Add(new Node3D(rightCenter) { CornerName = CornerName.RightPlaneCenter });
+            newCenterPositions.Add(new Node3D(topCenter) { CornerName = CornerName.TopPlaneCenter });
+            newCenterPositions.Add(new Node3D(bottomCenter) { CornerName = CornerName.BottomPlaneCenter});
+            newCenterPositions.Add(new Node3D(modelCenter) { CornerName = CornerName.ModelCenter });
+
+            return newCenterPositions;
         }
 
         public void GetExperimentElements()

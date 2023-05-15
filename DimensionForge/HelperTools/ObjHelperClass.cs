@@ -123,8 +123,8 @@ namespace DimensionForge.HelperTools
                                   corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopBackRight].Position) / 4;
 
 
-            Vector3 rightCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.BottomBackLeft].Position +
-                                   corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopBackLeft].Position) / 4;
+            Vector3 rightCenter = (corners[(int)CornerName.BottomFrontRight].Position + corners[(int)CornerName.BottomBackLeft].Position +
+                                   corners[(int)CornerName.TopFrontRight].Position + corners[(int)CornerName.TopBackLeft].Position) / 4;
 
 
             Vector3 topCenter = (corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopFrontRight].Position +

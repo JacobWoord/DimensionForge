@@ -67,9 +67,9 @@ namespace DimensionForge._3D.ViewModels
 
             ImportDoorModel();
 
-            buildResult = new VerletBuildResult();
             var doorModel = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
             var boundingelements = doorModel.GetBoundingElements();
+            buildResult = new VerletBuildResult();
             boundingelements.ForEach(x => shapes.Add(x));
 
 
@@ -84,18 +84,6 @@ namespace DimensionForge._3D.ViewModels
             modelCenterPoints.ForEach(x => Shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = Color.Transparent }));
 
 
-            // Verlet Box Centers 
-            buildResult.Nodes.Add(new Node3D(buildResult.GetCenter(CornerName.TopPlaneCenter)) { UseCase = UseCase.verletCenter, CornerName = CornerName.TopPlaneCenter });
-            buildResult.Nodes.Add(new Node3D(buildResult.GetCenter(CornerName.RightPlaneCenter)) { UseCase = UseCase.verletCenter, CornerName = CornerName.RightPlaneCenter });
-            buildResult.Nodes.Add(new Node3D(buildResult.GetCenter(CornerName.FrontPlaneCenter)) { UseCase = UseCase.verletCenter, CornerName = CornerName.FrontPlaneCenter });
-
-            var verletCenterPoints = buildResult.Nodes.Where(x => x.CornerName == CornerName.TopPlaneCenter
-            || x.CornerName == CornerName.FrontPlaneCenter
-            || x.CornerName == CornerName.LeftPlaneCenter).ToList();
-
-
-            verletCenterPoints.ForEach(x => Shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = Color.Transparent }));
-
 
 
             //Draws the the elements from the buildresult class
@@ -108,12 +96,17 @@ namespace DimensionForge._3D.ViewModels
                 Shapes.Add(new CornerPoint3D() { LinkedNode = buildResult.Nodes[i], Color = Color.Purple });
 
             }
-            Shapes.Add(new CornerPoint3D() { LinkedNode = new Node3D(Vector3.Zero), Color = Color.Red });
+            foreach (var node in buildResult.CenterPositions) 
+            { 
+              Shapes.Add(new CornerPoint3D() { LinkedNode = node, Color = Color.Red });
+            
+            }
+
             Draw();
         }
         void UpdateCentersFromBox()
-        { 
-           
+        {
+            buildResult.CenterPositions.ForEach(x => x.Position = buildResult.GetCenter(x.CornerName));
         }
         private async void ImportDoorModel()
         {
@@ -199,7 +192,7 @@ namespace DimensionForge._3D.ViewModels
                     var stopWatch = Stopwatch.StartNew();
 
                     UpdatePhysics();
-                   // UpdateCentersFromBox();
+                    UpdateCentersFromBox();
                     //UpdateModelPosition();
 
 
