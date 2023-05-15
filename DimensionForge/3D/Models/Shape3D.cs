@@ -158,8 +158,15 @@ namespace DimensionForge._3D.Models
         }
         public Material SetMaterial()
         {
+
+            if (Color == SharpDX.Color.Transparent)
+            {
+                return null;
+            }
+
             var material = PhongMaterials.Red;
             material.DiffuseColor = Color;
+          
             return material;
         }
 

@@ -12,8 +12,9 @@ namespace DimensionForge._3D.Models
 
         public Node3D Position { get; set; }
         public Node3D CenterPosition { get; set; }
-        public AxisDirection Direction { get; set; }
-        private Vector3 LineEndPoint { get; set; }
+        private Vector3 EndPoint { get; set; }
+        private Vector3 startPoint { get; set; }
+    
        
 
 
@@ -34,14 +35,17 @@ namespace DimensionForge._3D.Models
         public void CreateEndPoint()
         {
 
-            float length = 1f;
+            float length = 1.5f;
 
-            Vector3 direction = CenterPosition.Position - Position.Position;
+            Vector3 direction = Position.Position - CenterPosition.Position;
             direction.Normalize();
-
-             LineEndPoint = CenterPosition.Position + direction * length;
-
+            EndPoint = CenterPosition.Position + direction * length;
+            startPoint = CenterPosition.Position - direction * length;
+           
         }
+         
+
+
 
 
 
@@ -51,7 +55,7 @@ namespace DimensionForge._3D.Models
             CreateEndPoint();
             MeshBuilder meshBuilder = new MeshBuilder();
             Color = SharpDX.Color.Red;
-            meshBuilder.AddArrow(CenterPosition.Position, LineEndPoint, 0.06);
+            meshBuilder.AddArrow(startPoint, EndPoint, 0.06);
             Geometry =  meshBuilder.ToMesh();
         }
             

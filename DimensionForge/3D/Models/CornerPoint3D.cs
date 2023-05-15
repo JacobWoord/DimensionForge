@@ -88,6 +88,9 @@ namespace DimensionForge._3D.Models
             return edgeLengths;
         }
 
+
+        // This function below is fo create the verlet elements of the mesh triangle of an object
+
         public List<VerletElement3D> GetVerletElements(HelixToolkit.SharpDX.Core.MeshGeometry3D mesh)
         {
             var verletElements = new List<VerletElement3D>();

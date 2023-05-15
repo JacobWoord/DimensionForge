@@ -39,6 +39,7 @@ namespace DimensionForge._3D.Models
 
             MeshBuilder meshbuilder = new MeshBuilder();
             meshbuilder.AddCylinder(Start.Position, End.Position, Radius, 32);
+            
             Material = SetMaterial();
             Geometry = meshbuilder.ToMeshGeometry3D();
         }

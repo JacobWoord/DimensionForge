@@ -98,24 +98,34 @@ namespace DimensionForge.HelperTools
                 minBounds = Vector3.Min(minBounds, vertex);
                 maxBounds = Vector3.Max(maxBounds, vertex);
             }
+           
+            
+            List<Node3D> corners = new List<Node3D>();
+            corners.Add(new Node3D(new Vector3(maxBounds.X,minBounds.Y,minBounds.Z)) { CornerName = CornerName.BottomFrontLeft });
+            corners.Add(new Node3D(new Vector3(maxBounds.X, maxBounds.Y, minBounds.Z)) { CornerName = CornerName.BottomFrontRight, Color = Color.Green });
+            corners.Add(new Node3D(new Vector3(minBounds.X, maxBounds.Y, minBounds.Z)) { CornerName = CornerName.BottomBackLeft, Color = Color.Green });
+            corners.Add(new Node3D(new Vector3(minBounds.X, minBounds.Y, minBounds.Z)) { CornerName = CornerName.BottomBackRight, Color = Color.Green });
+            corners.Add(new Node3D(new Vector3(maxBounds.X, minBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopFrontLeft, Color = Color.Blue });
+            corners.Add(new Node3D(new Vector3(maxBounds.X, maxBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopFrontRight, Color = Color.Blue });
+            corners.Add(new Node3D(new Vector3(minBounds.X, maxBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopBackLeft, Color = Color.Blue });
+            corners.Add(new Node3D(new Vector3(minBounds.X,minBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopBackRight, Color = Color.Blue });
 
-            List<Node3D> corners = new();
-            corners.Add(new Node3D(minBounds) { CornerName = CornerName.BottomFrontLeft });
-            corners.Add(new Node3D(new Vector3(minBounds.X, minBounds.Y, maxBounds.Z)) {CornerName = CornerName.BottomFrontRight,Color = Color.Green });
-            corners.Add(new Node3D(new Vector3(minBounds.X, maxBounds.Y, minBounds.Z)) {CornerName = CornerName.BottomBackLeft, Color = Color.Green });
-            corners.Add(new Node3D(new Vector3(minBounds.X, maxBounds.Y, maxBounds.Z)) { CornerName = CornerName.BottomBackRight, Color = Color.Green });
-            corners.Add(new Node3D(new Vector3(maxBounds.X, minBounds.Y, minBounds.Z)) { CornerName = CornerName.TopFrontLeft, Color = Color.Blue });
-            corners.Add(new Node3D(new Vector3(maxBounds.X, minBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopFrontRight, Color = Color.Blue });
-            corners.Add(new Node3D(new Vector3(maxBounds.X, maxBounds.Y, minBounds.Z)) { CornerName = CornerName.TopBackLeft , Color = Color.Blue });
-            corners.Add(new Node3D(maxBounds) { CornerName = CornerName.TopBackRight, Color = Color.Blue });
+
 
             // Calculate center points for each face of the bounding box
-            Vector3 frontCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.TopFrontRight].Position) / 2;
-            Vector3 backCenter = (corners[(int)CornerName.BottomBackLeft].Position + corners[(int)CornerName.TopBackRight].Position) / 2;
-            Vector3 leftCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.TopBackLeft].Position) / 2;
-            Vector3 rightCenter = (corners[(int)CornerName.BottomFrontRight].Position + corners[(int)CornerName.TopBackRight].Position) / 2;
-            Vector3 topCenter = (corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopBackRight].Position) / 2;
-            Vector3 bottomCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.BottomBackRight].Position) / 2;
+            Vector3 frontCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.BottomFrontRight].Position +
+                                   corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopFrontRight].Position) / 4;
+            Vector3 backCenter = (corners[(int)CornerName.BottomBackLeft].Position + corners[(int)CornerName.BottomBackRight].Position +
+                                  corners[(int)CornerName.TopBackLeft].Position + corners[(int)CornerName.TopBackRight].Position) / 4;
+            Vector3 leftCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.BottomBackLeft].Position +
+                                  corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopBackLeft].Position) / 4;
+            Vector3 rightCenter = (corners[(int)CornerName.BottomFrontRight].Position + corners[(int)CornerName.BottomBackRight].Position +
+                                   corners[(int)CornerName.TopFrontRight].Position + corners[(int)CornerName.TopBackRight].Position) / 4;
+            Vector3 topCenter = (corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopFrontRight].Position +
+                                 corners[(int)CornerName.TopBackLeft].Position + corners[(int)CornerName.TopBackRight].Position) / 4;
+            Vector3 bottomCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.BottomFrontRight].Position +
+                                    corners[(int)CornerName.BottomBackLeft].Position + corners[(int)CornerName.BottomBackRight].Position) / 4;
+
 
             // Add center points to the list
             corners.Add(new Node3D(frontCenter) { CornerName = CornerName.FrontPlaneCenter });

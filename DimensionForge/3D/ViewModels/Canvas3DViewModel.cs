@@ -16,19 +16,9 @@ using DimensionForge.Common;
 using Quaternion = SharpDX.Quaternion;
 using MeshGeometry3D = HelixToolkit.SharpDX.Core.MeshGeometry3D;
 using DimensionForge.HelperTools;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using HelixToolkit.SharpDX.Core.Assimp;
-using MaterialDesignThemes.Wpf;
 using System.Collections.Generic;
-using Assimp;
-using System.Xml.Linq;
 using System.Diagnostics;
-using DimensionForge._2D.ViewModels;
-using System.Threading;
-using HelixToolkit.SharpDX.Core.Animations;
-using System.Reflection.Metadata.Ecma335;
 using HelixToolkit.Wpf;
-using System.Linq.Expressions;
 
 namespace DimensionForge._3D.ViewModels
 {
@@ -90,26 +80,27 @@ namespace DimensionForge._3D.ViewModels
             || x.CornerName == CornerName.LeftPlaneCenter
             || x.CornerName == CornerName.RightPlaneCenter
             || x.CornerName == CornerName.BackPlaneCenter).ToList();
+
             modelCenterPoints.ForEach(x => Shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = Color.Yellow }));
+           
 
 
-            var centerPositions = new List<Node3D>();
-            var centerNames = new[]
-            {
-                CornerName.TopPlaneCenter,
-                CornerName.BottomPlaneCenter,
-                CornerName.LeftPlaneCenter,
-                CornerName.RightPlaneCenter,
-            };
-            foreach (var centerName in centerNames)
-            {
-                var center = buildResult.GetCenter(centerName);
-                centerPositions.Add(new Node3D(center) { CornerName = centerName, UseCase = UseCase.verlet });
-            }
 
-            centerPositions.ForEach(x => Shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = Color.Red }));
+            //var centerPositions = new List<Node3D>();
+            //var centerNames = new[]
+            //{
+            //    CornerName.TopPlaneCenter,
+            //    CornerName.BottomPlaneCenter,
+            //    CornerName.LeftPlaneCenter,
+            //    CornerName.RightPlaneCenter,
+            //};
+            //foreach (var centerName in centerNames)
+            //{
+            //    var center = buildResult.GetCenter(centerName);
+            //    centerPositions.Add(new Node3D(center) { CornerName = centerName, UseCase = UseCase.verlet });
+            //}
 
-
+            //centerPositions.ForEach(x => Shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = Color.Red }));
 
 
             //Draws the the elements from the buildresult class
@@ -127,6 +118,8 @@ namespace DimensionForge._3D.ViewModels
         }
         void UpdateCentersFromBox()
         {
+            // Recalculates the positions of the centers each frame
+
             foreach (var shape in shapes)
             {
                 if (shape is CornerPoint3D s && s.LinkedNode.UseCase == UseCase.verlet)
@@ -155,15 +148,19 @@ namespace DimensionForge._3D.ViewModels
         {
             var doorModel = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
 
-            var topFrontCenter = doorModel.BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.FrontPlaneCenter);
+            var FrontPlaneCenter = doorModel.BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.FrontPlaneCenter);
             var topCenter = doorModel.BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.TopPlaneCenter);
+            var leftRight = doorModel.BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.RightPlaneCenter);
             var center = new Node3D(ComputeBoxRotationHelper.GetCenter(doorModel.BoundingPositions)){ UseCase = UseCase.verlet};
 
-            var arrowFront = new AxisArrows3D(center, topFrontCenter,Color.Green);
-            var arrowTop = new AxisArrows3D(center, topCenter,Color.White);
+            var arrowFront = new AxisArrows3D(center, FrontPlaneCenter,Color.Green);
+            var arrowTop = new AxisArrows3D(center, topCenter,Color.Red);
+            var leftRightcenter = new AxisArrows3D(center, leftRight,Color.Blue);
            
             shapes.Add(arrowFront);
             shapes.Add(arrowTop);
+            shapes.Add(leftRightcenter);
+            
 
             Draw();
 
@@ -231,22 +228,12 @@ namespace DimensionForge._3D.ViewModels
 
         private void UpdateModelPosition()
         {
+            //this function brings the model to the center of the verlet box
+
             var model = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
             var center = ComputeBoxRotationHelper.GetCenter(buildResult.Nodes);
             ObjHelperClass.UpdatePosition(model, center);
         }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -268,11 +255,6 @@ namespace DimensionForge._3D.ViewModels
             Draw();
 
         }
-
-
-
-
-
 
         private void InitializeMeshSphere()
         {

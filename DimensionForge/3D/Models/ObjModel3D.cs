@@ -37,7 +37,7 @@ namespace DimensionForge._3D.Models
             Width = size.Y; 
             Depth = size.Z;
 
-       
+            //This method creates dynamic bounding positions. including the centers
             BoundingPositions = ObjHelperClass.GetBoundingPositions(this);
 
         }
@@ -55,22 +55,22 @@ namespace DimensionForge._3D.Models
             var bottomBackRight = BoundingPositions[(int)CornerName.BottomBackRight];
             var topBackRight = BoundingPositions[(int)CornerName.TopBackRight];
 
+            
             // Sides
-            // Sides
-            elements.Add(new Cylinder3D() { Start = bottomFrontLeft, End = bottomFrontRight, Color = SharpDX.Color.Red });
-            elements.Add(new Cylinder3D() { Start = bottomFrontLeft, End = bottomBackLeft, Color = SharpDX.Color.Red });
-            elements.Add(new Cylinder3D() { Start = topFrontLeft, End = topFrontRight, Color = SharpDX.Color.Red });
-            elements.Add(new Cylinder3D() { Start = topFrontLeft, End = topBackLeft, Color = SharpDX.Color.Red });
-            elements.Add(new Cylinder3D() { Start = bottomFrontRight, End = bottomBackRight, Color = SharpDX.Color.Red });
+            elements.Add(new Cylinder3D() { Start = bottomFrontLeft, End = bottomFrontRight, Color = SharpDX.Color.Blue });
+            elements.Add(new Cylinder3D() { Start = topFrontLeft, End = topFrontRight, Color = SharpDX.Color.Blue });
 
-            elements.Add(new Cylinder3D() { Start = topFrontRight, End = topBackRight, Color = SharpDX.Color.Red });
-            elements.Add(new Cylinder3D() { Start = bottomBackLeft, End = bottomBackRight, Color = SharpDX.Color.Red });
-            elements.Add(new Cylinder3D() { Start = topBackLeft, End = topBackRight, Color = SharpDX.Color.Red });
+            elements.Add(new Cylinder3D() { Start = bottomBackLeft, End = bottomBackRight, Color = SharpDX.Color.Blue });
+            elements.Add(new Cylinder3D() { Start = topBackLeft, End = topBackRight, Color = SharpDX.Color.Blue });
+            elements.Add(new Cylinder3D() { Start = bottomFrontLeft, End = topFrontLeft, Color = SharpDX.Color.Blue });
 
-            elements.Add(new Cylinder3D() { Start = bottomFrontLeft, End = topFrontLeft, Color = SharpDX.Color.Red });
-            elements.Add(new Cylinder3D() { Start = bottomFrontRight, End = topFrontRight, Color = SharpDX.Color.Red });
-            elements.Add(new Cylinder3D() { Start = bottomBackLeft, End = topBackLeft, Color = SharpDX.Color.Red });
-            elements.Add(new Cylinder3D() { Start = bottomBackRight, End = topBackRight, Color = SharpDX.Color.Red });
+            elements.Add(new Cylinder3D() { Start = bottomFrontRight, End = topFrontRight, Color = SharpDX.Color.Blue });
+            elements.Add(new Cylinder3D() { Start = bottomBackLeft, End = topBackLeft, Color = SharpDX.Color.Blue });
+            elements.Add(new Cylinder3D() { Start = bottomBackRight, End = topBackRight, Color = SharpDX.Color.Blue });
+            elements.Add(new Cylinder3D() { Start = topFrontRight, End = topBackLeft, Color = SharpDX.Color.Blue });
+            elements.Add(new Cylinder3D() { Start = topFrontLeft, End = topBackRight, Color = SharpDX.Color.Blue });
+            elements.Add(new Cylinder3D() { Start = bottomFrontLeft, End = bottomBackRight, Color = SharpDX.Color.Blue });
+            elements.Add(new Cylinder3D() { Start = bottomFrontRight, End = bottomBackLeft, Color = SharpDX.Color.Blue });
 
             // Diagonals on each plane side
             // Front Plane
@@ -90,12 +90,12 @@ namespace DimensionForge._3D.Models
             elements.Add(new Cylinder3D() { Start = topFrontRight, End = bottomBackRight, Color = SharpDX.Color.Transparent });
 
             // Top Plane
-            elements.Add(new Cylinder3D() { Start = topFrontLeft, End = topBackRight, Color = SharpDX.Color.Transparent });
-            elements.Add(new Cylinder3D() { Start = topFrontRight, End = topBackLeft, Color = SharpDX.Color.Transparent });
+            elements.Add(new Cylinder3D() { Start = topFrontRight, End = topBackRight, Color = SharpDX.Color.Transparent });
+            elements.Add(new Cylinder3D() { Start = topFrontLeft, End = topBackLeft, Color = SharpDX.Color.Transparent });
+            elements.Add(new Cylinder3D() { Start = bottomFrontRight, End = bottomBackRight, Color = SharpDX.Color.Transparent });
+            elements.Add(new Cylinder3D() { Start = bottomFrontLeft, End = bottomBackLeft, Color = SharpDX.Color.Transparent });
 
             // Bottom Plane
-            elements.Add(new Cylinder3D() { Start = bottomFrontLeft, End = bottomBackRight, Color = SharpDX.Color.Transparent });
-            elements.Add(new Cylinder3D() { Start = bottomFrontRight, End = bottomBackLeft, Color = SharpDX.Color.Transparent });
 
 
             //Cross Diagonals inside the rectangular box
@@ -126,20 +126,20 @@ namespace DimensionForge._3D.Models
 
             // Sides
             // Sides
-            elements.Add(new VerletElement3D() { Start = bottomFrontLeft, End =bottomFrontRight, Color = SharpDX.Color.Green });
-            elements.Add(new VerletElement3D() { Start = bottomFrontLeft, End = bottomBackLeft, Color = SharpDX.Color.Green });
-            elements.Add(new VerletElement3D() { Start = topFrontLeft, End = topFrontRight, Color = SharpDX.Color.Green });
-            elements.Add(new VerletElement3D() { Start = topFrontLeft, End = topBackLeft, Color = SharpDX.Color.Green });
-            elements.Add(new VerletElement3D() { Start = bottomFrontRight, End = bottomBackRight , Color = SharpDX.Color.Green });
+            elements.Add(new VerletElement3D() { Start = bottomFrontLeft, End =bottomFrontRight, Color = SharpDX.Color.Red });
+            elements.Add(new VerletElement3D() { Start = topFrontLeft, End = topFrontRight, Color = SharpDX.Color.Red });
 
-            elements.Add(new VerletElement3D() { Start = topFrontRight, End = topBackRight, Color = SharpDX.Color.Green });
-            elements.Add(new VerletElement3D() { Start = bottomBackLeft, End =bottomBackRight, Color = SharpDX.Color.Green });
-            elements.Add(new VerletElement3D() { Start = topBackLeft, End = topBackRight , Color = SharpDX.Color.Green });
+            elements.Add(new VerletElement3D() { Start = bottomBackLeft, End =bottomBackRight, Color = SharpDX.Color.Red });
+            elements.Add(new VerletElement3D() { Start = topBackLeft, End = topBackRight , Color = SharpDX.Color.Red });
+            elements.Add(new VerletElement3D() { Start = bottomBackLeft, End =topBackLeft , Color = SharpDX.Color.Red });
+            elements.Add(new VerletElement3D() { Start = bottomBackRight, End = topBackRight, Color = SharpDX.Color.Red });
 
-            elements.Add(new VerletElement3D() { Start = bottomFrontLeft, End =topFrontLeft, Color = SharpDX.Color.Green });
-            elements.Add(new VerletElement3D() { Start = bottomFrontRight, End = topFrontRight, Color = SharpDX.Color.Green });
-            elements.Add(new VerletElement3D() { Start = bottomBackLeft, End =topBackLeft , Color = SharpDX.Color.Green });
-            elements.Add(new VerletElement3D() { Start = bottomBackRight, End = topBackRight, Color = SharpDX.Color.Green });
+            elements.Add(new VerletElement3D() { Start = bottomFrontLeft, End =topFrontLeft, Color = SharpDX.Color.Red });
+            elements.Add(new VerletElement3D() { Start = bottomFrontRight, End = topFrontRight, Color = SharpDX.Color.Red });
+            elements.Add(new VerletElement3D() { Start =topFrontLeft, End =topBackRight, Color = SharpDX.Color.Red });
+            elements.Add(new VerletElement3D() { Start =topFrontRight, End =topBackLeft, Color = SharpDX.Color.Red });
+            elements.Add(new VerletElement3D() { Start =bottomFrontLeft, End =bottomBackRight, Color = SharpDX.Color.Red });
+            elements.Add(new VerletElement3D() { Start =bottomFrontRight, End =bottomBackLeft, Color = SharpDX.Color.Red });
 
             // Diagonals on each plane side
             // Front Plane
@@ -158,14 +158,10 @@ namespace DimensionForge._3D.Models
             elements.Add(new VerletElement3D() { Start =bottomFrontRight, End = topBackRight, Color = SharpDX.Color.Transparent });
             elements.Add(new VerletElement3D() { Start =topFrontRight, End = bottomBackRight, Color = SharpDX.Color.Transparent });
 
-            // Top Plane
-            elements.Add(new VerletElement3D() { Start =topFrontLeft, End =topBackRight, Color = SharpDX.Color.Transparent });
-            elements.Add(new VerletElement3D() { Start =topFrontRight, End =topBackLeft, Color = SharpDX.Color.Transparent });
-
-            // Bottom Plane
-            elements.Add(new VerletElement3D() { Start =bottomFrontLeft, End =bottomBackRight, Color = SharpDX.Color.Transparent });
-            elements.Add(new VerletElement3D() { Start =bottomFrontRight, End =bottomBackLeft, Color = SharpDX.Color.Transparent });
-
+            elements.Add(new VerletElement3D() { Start = topFrontRight, End = topBackRight, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start = topFrontLeft, End = topBackLeft, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start = bottomFrontLeft, End = bottomBackLeft, Color = SharpDX.Color.Transparent });
+            elements.Add(new VerletElement3D() { Start = bottomFrontRight, End = bottomBackRight , Color = SharpDX.Color.Transparent });
 
            //Cross Diagonals inside the rectangular box
             elements.Add(new VerletElement3D() { Start = bottomFrontLeft, End = topBackRight, Color = SharpDX.Color.Transparent });
