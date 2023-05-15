@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Dynamic;
 using MeshGeometry3D = HelixToolkit.SharpDX.Core.MeshGeometry3D;
 using Color = SharpDX.Color;
+using SharpDX;
+using System.Linq;
 
 namespace DimensionForge._3D.Models
 {
@@ -22,6 +24,7 @@ namespace DimensionForge._3D.Models
         public ObjModel3D(MeshGeometry3D meshGeomtry3D)
         {
             Geometry = meshGeomtry3D;
+            Color = SharpDX.Color.Blue;
             InitModel();
         }
 
@@ -29,8 +32,8 @@ namespace DimensionForge._3D.Models
 
         private void InitModel()
         {
-            Color = SharpDX.Color.Transparent;
-            Material = null;//SetMaterial();
+            
+            Material = SetMaterial();
             var size = ObjHelperClass.GetSize(this);
 
             Height = size.X;
@@ -41,6 +44,65 @@ namespace DimensionForge._3D.Models
             BoundingPositions = ObjHelperClass.GetBoundingPositions(this);
 
         }
+
+
+        public Vector3 GetCenter(CornerName centerName)
+        {
+            // Define the center you want to retrieve from the functions as a parameter
+
+            List<CornerName> planeCorners;
+
+            switch (centerName)
+            {
+                case CornerName.FrontPlaneCenter:
+                    planeCorners = new List<CornerName> { CornerName.TopFrontLeft, CornerName.TopFrontRight, CornerName.BottomFrontLeft, CornerName.BottomFrontRight };
+                    break;
+                case CornerName.BackPlaneCenter:
+                    planeCorners = new List<CornerName> { CornerName.TopBackLeft, CornerName.TopBackRight, CornerName.BottomBackLeft, CornerName.BottomBackRight };
+                    break;
+                case CornerName.LeftPlaneCenter:
+                    planeCorners = new List<CornerName> { CornerName.TopFrontLeft, CornerName.TopBackRight, CornerName.BottomFrontLeft, CornerName.BottomBackRight };
+                    break;
+                case CornerName.RightPlaneCenter:
+                    planeCorners = new List<CornerName> { CornerName.TopFrontRight, CornerName.TopBackLeft, CornerName.BottomFrontRight, CornerName.BottomBackLeft };
+                    break;
+                case CornerName.TopPlaneCenter:
+                    planeCorners = new List<CornerName> { CornerName.TopFrontLeft, CornerName.TopFrontRight, CornerName.TopBackLeft, CornerName.TopBackRight };
+                    break;
+                case CornerName.BottomPlaneCenter:
+                    planeCorners = new List<CornerName> { CornerName.BottomFrontLeft, CornerName.BottomFrontRight, CornerName.BottomBackLeft, CornerName.BottomBackRight };
+                    break;
+                    case CornerName.ModelCenter:
+                    planeCorners = new List<CornerName> { CornerName.BottomFrontLeft, CornerName.BottomFrontRight, CornerName.BottomBackLeft, CornerName.BottomBackRight,CornerName.TopBackLeft,CornerName.TopBackRight, CornerName.TopFrontLeft,CornerName.TopFrontRight };
+                    break;
+                default:
+
+                    return Vector3.Zero;
+            }
+
+            var corners = BoundingPositions.Where(x => planeCorners.Contains(x.CornerName)).ToList();
+            return GetCentroid(corners);
+        }
+
+
+
+        public Vector3 GetCentroid(List<Node3D> nodes)
+        {
+            Vector3 centerOfMass = Vector3.Zero;
+            int nodeCount = nodes.Count;
+
+            if (nodeCount == 0)
+                return centerOfMass;
+
+            foreach (Node3D node in nodes)
+            {
+                centerOfMass += node.Position;
+            }
+
+            centerOfMass /= nodeCount;
+            return centerOfMass;
+        }
+
 
         public List<Cylinder3D> GetBoundingElements()
         {

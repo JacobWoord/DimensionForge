@@ -14,6 +14,7 @@ namespace DimensionForge._3D.Models
         public Node3D CenterPosition { get; set; }
         private Vector3 EndPoint { get; set; }
         private Vector3 startPoint { get; set; }
+        public UseCase UseCase { get; set; }    
     
        
 
@@ -35,7 +36,7 @@ namespace DimensionForge._3D.Models
         public void CreateEndPoint()
         {
 
-            float length = 1.5f;
+            float length = Vector3.Distance(Position.Position, CenterPosition.Position);
 
             Vector3 direction = Position.Position - CenterPosition.Position;
             direction.Normalize();

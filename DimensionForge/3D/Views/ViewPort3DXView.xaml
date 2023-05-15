@@ -156,6 +156,15 @@
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
+                Command="{Binding CenterModelCommand}">
+                Center Model 
+            </Button>
+
+
+            <Button
+                Margin="10"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
                 Command="{Binding RotateCommand}">
                 Rotate
             </Button>

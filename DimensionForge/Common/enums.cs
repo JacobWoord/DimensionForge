@@ -35,7 +35,8 @@ namespace DimensionForge.Common
         LeftPlaneCenter,
         RightPlaneCenter,
         TopPlaneCenter,
-        BottomPlaneCenter
+        BottomPlaneCenter,
+        ModelCenter
     }
 
 
@@ -54,9 +55,12 @@ namespace DimensionForge.Common
     public enum UseCase
     {
         verlet,
+        model,
         direction,
         boundings,
         anchorPoints,
+        verletCenter,
+        modelCenter,
         None
     }
 

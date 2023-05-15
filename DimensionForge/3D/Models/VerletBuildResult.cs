@@ -25,6 +25,8 @@ namespace DimensionForge
         private Canvas3DViewModel viewModel;
 
         public List<Node3D> Nodes { get; set; } = new();
+
+        public List<Node3D> PositionNodes { get; set; } = new();
         public List<VerletElement3D> Elements { get; set; } = new();
 
         public VerletBuildResult()
@@ -165,6 +167,8 @@ namespace DimensionForge
                 }
             }
         }    
+     
+        
         public Vector3 GetCenter(CornerName centerName)
         {
             // Define the center you want to retrieve from the functions as a parameter
@@ -180,16 +184,19 @@ namespace DimensionForge
                     planeCorners = new List<CornerName> { CornerName.TopBackLeft, CornerName.TopBackRight, CornerName.BottomBackLeft, CornerName.BottomBackRight };
                     break;
                 case CornerName.LeftPlaneCenter:
-                    planeCorners = new List<CornerName> { CornerName.TopFrontLeft, CornerName.TopBackLeft, CornerName.BottomFrontLeft, CornerName.BottomBackLeft };
+                    planeCorners = new List<CornerName> { CornerName.TopFrontLeft, CornerName.TopBackRight, CornerName.BottomFrontLeft, CornerName.BottomBackRight };
                     break;
                 case CornerName.RightPlaneCenter:
-                    planeCorners = new List<CornerName> { CornerName.TopFrontRight, CornerName.TopBackRight, CornerName.BottomFrontRight, CornerName.BottomBackRight };
+                    planeCorners = new List<CornerName> { CornerName.TopFrontRight, CornerName.TopBackLeft, CornerName.BottomFrontRight, CornerName.BottomBackLeft};
                     break;
                 case CornerName.TopPlaneCenter:
                     planeCorners = new List<CornerName> { CornerName.TopFrontLeft, CornerName.TopFrontRight, CornerName.TopBackLeft, CornerName.TopBackRight };
                     break;
                 case CornerName.BottomPlaneCenter:
                     planeCorners = new List<CornerName> { CornerName.BottomFrontLeft, CornerName.BottomFrontRight, CornerName.BottomBackLeft, CornerName.BottomBackRight };
+                    break;
+                case CornerName.ModelCenter:
+                    planeCorners = new List<CornerName> { CornerName.BottomFrontLeft, CornerName.BottomFrontRight, CornerName.BottomBackLeft, CornerName.BottomBackRight, CornerName.TopBackLeft, CornerName.TopBackRight, CornerName.TopFrontLeft, CornerName.TopFrontRight };
                     break;
                 default:
                     

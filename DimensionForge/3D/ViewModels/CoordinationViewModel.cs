@@ -24,8 +24,8 @@ namespace DimensionForge._3D.ViewModels
         {
             canvasViewModel = Ioc.Default.GetService<Canvas3DViewModel>();
 
-            itemsControl.Add("VerletBox");
-            itemsControl.Add("Boundingbox");
+            itemsControl.Add("Axis view propperties");
+            itemsControl.Add("Angle calc");
         }
 
 

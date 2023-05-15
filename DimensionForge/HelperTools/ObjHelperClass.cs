@@ -117,10 +117,16 @@ namespace DimensionForge.HelperTools
                                    corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopFrontRight].Position) / 4;
             Vector3 backCenter = (corners[(int)CornerName.BottomBackLeft].Position + corners[(int)CornerName.BottomBackRight].Position +
                                   corners[(int)CornerName.TopBackLeft].Position + corners[(int)CornerName.TopBackRight].Position) / 4;
-            Vector3 leftCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.BottomBackLeft].Position +
-                                  corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopBackLeft].Position) / 4;
-            Vector3 rightCenter = (corners[(int)CornerName.BottomFrontRight].Position + corners[(int)CornerName.BottomBackRight].Position +
-                                   corners[(int)CornerName.TopFrontRight].Position + corners[(int)CornerName.TopBackRight].Position) / 4;
+           
+            
+            Vector3 leftCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.BottomBackRight].Position +
+                                  corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopBackRight].Position) / 4;
+           
+            
+            Vector3 rightCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.BottomBackLeft].Position +
+                                   corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopBackLeft].Position) / 4;
+         
+            
             Vector3 topCenter = (corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopFrontRight].Position +
                                  corners[(int)CornerName.TopBackLeft].Position + corners[(int)CornerName.TopBackRight].Position) / 4;
             Vector3 bottomCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.BottomFrontRight].Position +
@@ -128,12 +134,12 @@ namespace DimensionForge.HelperTools
 
 
             // Add center points to the list
-            corners.Add(new Node3D(frontCenter) { CornerName = CornerName.FrontPlaneCenter });
-            corners.Add(new Node3D(backCenter) { CornerName = CornerName.BackPlaneCenter });
-            corners.Add(new Node3D(leftCenter) { CornerName = CornerName.LeftPlaneCenter });
-            corners.Add(new Node3D(rightCenter) { CornerName = CornerName.RightPlaneCenter });
-            corners.Add(new Node3D(topCenter) { CornerName = CornerName.TopPlaneCenter });
-            corners.Add(new Node3D(bottomCenter) { CornerName = CornerName.BottomPlaneCenter });
+            corners.Add(new Node3D(frontCenter) { CornerName = CornerName.FrontPlaneCenter, UseCase = UseCase.modelCenter });
+            corners.Add(new Node3D(backCenter) { CornerName = CornerName.BackPlaneCenter , UseCase = UseCase.modelCenter});
+            corners.Add(new Node3D(leftCenter) { CornerName = CornerName.LeftPlaneCenter, UseCase = UseCase.modelCenter });
+            corners.Add(new Node3D(rightCenter) { CornerName = CornerName.RightPlaneCenter , UseCase = UseCase.modelCenter });
+            corners.Add(new Node3D(topCenter) { CornerName = CornerName.TopPlaneCenter , UseCase = UseCase.modelCenter });
+            corners.Add(new Node3D(bottomCenter) { CornerName = CornerName.BottomPlaneCenter , UseCase = UseCase.modelCenter });
 
             return corners;
         }
@@ -213,7 +219,7 @@ namespace DimensionForge.HelperTools
             model.Position = newPosition;
             // Notify the geometry that the positions have changed
             model.Geometry.UpdateVertices();
-      //      model.Geometry.UpdateBounds();
+           model.Geometry.UpdateBounds();
             model.Geometry.UpdateOctree();
             model.Geometry.UpdateTriangles();
         }
@@ -243,7 +249,6 @@ namespace DimensionForge.HelperTools
         }
 
 
-
         public static void RotateGeometry(ObjModel3D model, Vector3 rotationAxis, float angleInDegrees)
         {
             // Convert the angle from degrees to radians
@@ -253,7 +258,7 @@ namespace DimensionForge.HelperTools
             Matrix rotationMatrix = Matrix.RotationAxis(rotationAxis, angleInRadians);
 
 
-            var centerPoint = CalculateModelCenter(model);
+            var centerPoint = model.GetCenter(CornerName.ModelCenter);
             // Apply the rotation to each vertex position in the geometry
             for (int i = 0; i < model.Geometry.Positions.Count; i++)
             {
@@ -278,13 +283,16 @@ namespace DimensionForge.HelperTools
 
             // Update the geometry
             model.Geometry.UpdateVertices();
-           
-            
-        
+            model.Geometry.UpdateVertices();
+            model.Geometry.UpdateBounds();
+            model.Geometry.UpdateOctree();
+            model.Geometry.UpdateTriangles();
+
+
 
         }
 
-
+        
 
 
 
