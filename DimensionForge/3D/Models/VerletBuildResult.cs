@@ -26,7 +26,7 @@ namespace DimensionForge
 
         public List<Node3D> Nodes { get; set; } = new();
 
-        public List<Node3D> PositionNodes { get; set; } = new();
+        public List<Node3D> CenterPosition { get; set; } = new();
         public List<VerletElement3D> Elements { get; set; } = new();
 
         public VerletBuildResult()
@@ -35,6 +35,9 @@ namespace DimensionForge
 
             GetAllObjElements();
             AddNodesToList();
+
+
+
         }
 
         public (float angle, Vector3 p1, Vector3 p2, Vector3 normal) SetRotationVertical(Vector3 tp)
@@ -141,6 +144,11 @@ namespace DimensionForge
                 }
             }
         }
+        private void SetCenter()
+        {
+           
+        }
+
         public void GetExperimentElements()
         {
 

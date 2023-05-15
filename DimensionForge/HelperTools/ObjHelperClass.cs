@@ -33,7 +33,7 @@ namespace DimensionForge.HelperTools
             .OfType<MeshNode>()
             .FirstOrDefault();
 
-           
+
             if (meshNode == null)
             {
                 throw new InvalidOperationException("No mesh found in the file");
@@ -85,7 +85,7 @@ namespace DimensionForge.HelperTools
         }
 
 
-       
+
         public static List<Node3D> GetBoundingPositions(ObjModel3D model)
         {
             var geometry = model.Geometry;
@@ -98,17 +98,17 @@ namespace DimensionForge.HelperTools
                 minBounds = Vector3.Min(minBounds, vertex);
                 maxBounds = Vector3.Max(maxBounds, vertex);
             }
-           
-            
+
+
             List<Node3D> corners = new List<Node3D>();
-            corners.Add(new Node3D(new Vector3(maxBounds.X,minBounds.Y,minBounds.Z)) { CornerName = CornerName.BottomFrontLeft });
+            corners.Add(new Node3D(new Vector3(maxBounds.X, minBounds.Y, minBounds.Z)) { CornerName = CornerName.BottomFrontLeft });
             corners.Add(new Node3D(new Vector3(maxBounds.X, maxBounds.Y, minBounds.Z)) { CornerName = CornerName.BottomFrontRight, Color = Color.Green });
             corners.Add(new Node3D(new Vector3(minBounds.X, maxBounds.Y, minBounds.Z)) { CornerName = CornerName.BottomBackLeft, Color = Color.Green });
             corners.Add(new Node3D(new Vector3(minBounds.X, minBounds.Y, minBounds.Z)) { CornerName = CornerName.BottomBackRight, Color = Color.Green });
             corners.Add(new Node3D(new Vector3(maxBounds.X, minBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopFrontLeft, Color = Color.Blue });
             corners.Add(new Node3D(new Vector3(maxBounds.X, maxBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopFrontRight, Color = Color.Blue });
             corners.Add(new Node3D(new Vector3(minBounds.X, maxBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopBackLeft, Color = Color.Blue });
-            corners.Add(new Node3D(new Vector3(minBounds.X,minBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopBackRight, Color = Color.Blue });
+            corners.Add(new Node3D(new Vector3(minBounds.X, minBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopBackRight, Color = Color.Blue });
 
 
 
@@ -117,29 +117,41 @@ namespace DimensionForge.HelperTools
                                    corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopFrontRight].Position) / 4;
             Vector3 backCenter = (corners[(int)CornerName.BottomBackLeft].Position + corners[(int)CornerName.BottomBackRight].Position +
                                   corners[(int)CornerName.TopBackLeft].Position + corners[(int)CornerName.TopBackRight].Position) / 4;
-           
-            
+
+
             Vector3 leftCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.BottomBackRight].Position +
                                   corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopBackRight].Position) / 4;
-           
-            
+
+
             Vector3 rightCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.BottomBackLeft].Position +
                                    corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopBackLeft].Position) / 4;
-         
-            
+
+
             Vector3 topCenter = (corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopFrontRight].Position +
                                  corners[(int)CornerName.TopBackLeft].Position + corners[(int)CornerName.TopBackRight].Position) / 4;
             Vector3 bottomCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.BottomFrontRight].Position +
                                     corners[(int)CornerName.BottomBackLeft].Position + corners[(int)CornerName.BottomBackRight].Position) / 4;
 
+            Vector3 modelCenter = (corners[(int)CornerName.BottomFrontLeft].Position +
+                                   corners[(int)CornerName.BottomFrontRight].Position +
+                                    corners[(int)CornerName.BottomBackLeft].Position +
+                                    corners[(int)CornerName.BottomBackRight].Position) +
+                                    (corners[(int)CornerName.TopFrontLeft].Position +
+                                    corners[(int)CornerName.TopFrontRight].Position +
+                                    corners[(int)CornerName.TopBackLeft].Position +
+                                    corners[(int)CornerName.TopBackRight].Position) / 8;
+
+
+
 
             // Add center points to the list
             corners.Add(new Node3D(frontCenter) { CornerName = CornerName.FrontPlaneCenter, UseCase = UseCase.modelCenter });
-            corners.Add(new Node3D(backCenter) { CornerName = CornerName.BackPlaneCenter , UseCase = UseCase.modelCenter});
+            corners.Add(new Node3D(backCenter) { CornerName = CornerName.BackPlaneCenter, UseCase = UseCase.modelCenter });
             corners.Add(new Node3D(leftCenter) { CornerName = CornerName.LeftPlaneCenter, UseCase = UseCase.modelCenter });
-            corners.Add(new Node3D(rightCenter) { CornerName = CornerName.RightPlaneCenter , UseCase = UseCase.modelCenter });
-            corners.Add(new Node3D(topCenter) { CornerName = CornerName.TopPlaneCenter , UseCase = UseCase.modelCenter });
-            corners.Add(new Node3D(bottomCenter) { CornerName = CornerName.BottomPlaneCenter , UseCase = UseCase.modelCenter });
+            corners.Add(new Node3D(rightCenter) { CornerName = CornerName.RightPlaneCenter, UseCase = UseCase.modelCenter });
+            corners.Add(new Node3D(topCenter) { CornerName = CornerName.TopPlaneCenter, UseCase = UseCase.modelCenter });
+            corners.Add(new Node3D(bottomCenter) { CornerName = CornerName.BottomPlaneCenter, UseCase = UseCase.modelCenter });
+            corners.Add(new Node3D(modelCenter) { CornerName = CornerName.ModelCenter, UseCase = UseCase.modelCenter });
 
             return corners;
         }
@@ -167,7 +179,7 @@ namespace DimensionForge.HelperTools
                 minBounds = Vector3.Min(minBounds, vertex);
                 maxBounds = Vector3.Max(maxBounds, vertex);
             }
-      
+
             Vector3 size = maxBounds - minBounds;
             float width = size.X;
             float height = size.Y;
@@ -177,14 +189,14 @@ namespace DimensionForge.HelperTools
 
         }
 
-   
-        public static void UpdateScaling(ObjModel3D model,float scaleFactor)
+
+        public static void UpdateScaling(ObjModel3D model, float scaleFactor)
         {
 
             // Apply the scale transform
             for (int i = 0; i < model.Geometry.Positions.Count; i++)
             {
-              model.Geometry.Positions[i] *= scaleFactor;
+                model.Geometry.Positions[i] *= scaleFactor;
             }
 
             //Apply the scale transform to the bounding positions of the model as well
@@ -194,7 +206,7 @@ namespace DimensionForge.HelperTools
             }
 
             model.Geometry.UpdateVertices();
-        }  
+        }
 
 
 
@@ -219,7 +231,7 @@ namespace DimensionForge.HelperTools
             model.Position = newPosition;
             // Notify the geometry that the positions have changed
             model.Geometry.UpdateVertices();
-           model.Geometry.UpdateBounds();
+            model.Geometry.UpdateBounds();
             model.Geometry.UpdateOctree();
             model.Geometry.UpdateTriangles();
         }
@@ -243,7 +255,7 @@ namespace DimensionForge.HelperTools
             }
 
             model.Geometry.UpdateVertices();
-      //      model.Geometry.UpdateBounds();
+            //      model.Geometry.UpdateBounds();
             model.Geometry.UpdateOctree();
             model.Geometry.UpdateTriangles();
         }
@@ -262,23 +274,23 @@ namespace DimensionForge.HelperTools
             // Apply the rotation to each vertex position in the geometry
             for (int i = 0; i < model.Geometry.Positions.Count; i++)
             {
-                model.Geometry.Positions[i] -= centerPoint;
+                model.Geometry.Positions[i] -= centerPoint.Position;
 
                 // Apply the rotation
                 model.Geometry.Positions[i] = Vector3.TransformCoordinate(model.Geometry.Positions[i], rotationMatrix);
 
                 // Translate the geometry back
-                model.Geometry.Positions[i] += centerPoint;
+                model.Geometry.Positions[i] += centerPoint.Position;
             }
 
             // Apply the rotation to each bounding position in the model
             for (int i = 0; i < model.BoundingPositions.Count; i++)
             {
-                model.BoundingPositions[i].Position -= centerPoint;
+                model.BoundingPositions[i].Position -= centerPoint.Position;
                 // Apply the rotation
                 model.BoundingPositions[i].Position = Vector3.TransformCoordinate(model.BoundingPositions[i].Position, rotationMatrix);
                 // Translate the geometry back
-                model.BoundingPositions[i].Position += centerPoint;
+                model.BoundingPositions[i].Position += centerPoint.Position;
             }
 
             // Update the geometry
@@ -292,7 +304,7 @@ namespace DimensionForge.HelperTools
 
         }
 
-        
+
 
 
 

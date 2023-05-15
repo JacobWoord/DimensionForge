@@ -46,42 +46,45 @@ namespace DimensionForge._3D.Models
         }
 
 
-        public Vector3 GetCenter(CornerName centerName)
+        public Node3D GetCenter(CornerName centerName)
         {
             // Define the center you want to retrieve from the functions as a parameter
 
-            List<CornerName> planeCorners;
+            Node3D center;
 
             switch (centerName)
             {
                 case CornerName.FrontPlaneCenter:
-                    planeCorners = new List<CornerName> { CornerName.TopFrontLeft, CornerName.TopFrontRight, CornerName.BottomFrontLeft, CornerName.BottomFrontRight };
+                    center =  BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.FrontPlaneCenter);
                     break;
                 case CornerName.BackPlaneCenter:
-                    planeCorners = new List<CornerName> { CornerName.TopBackLeft, CornerName.TopBackRight, CornerName.BottomBackLeft, CornerName.BottomBackRight };
+                    center = BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.BackPlaneCenter);
+
                     break;
                 case CornerName.LeftPlaneCenter:
-                    planeCorners = new List<CornerName> { CornerName.TopFrontLeft, CornerName.TopBackRight, CornerName.BottomFrontLeft, CornerName.BottomBackRight };
+                    center = BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.LeftPlaneCenter);
+
                     break;
                 case CornerName.RightPlaneCenter:
-                    planeCorners = new List<CornerName> { CornerName.TopFrontRight, CornerName.TopBackLeft, CornerName.BottomFrontRight, CornerName.BottomBackLeft };
+                    center = BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.RightPlaneCenter);
+
                     break;
                 case CornerName.TopPlaneCenter:
-                    planeCorners = new List<CornerName> { CornerName.TopFrontLeft, CornerName.TopFrontRight, CornerName.TopBackLeft, CornerName.TopBackRight };
+                    center = BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.TopPlaneCenter);
+
                     break;
                 case CornerName.BottomPlaneCenter:
-                    planeCorners = new List<CornerName> { CornerName.BottomFrontLeft, CornerName.BottomFrontRight, CornerName.BottomBackLeft, CornerName.BottomBackRight };
+                    center = BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.BottomPlaneCenter);
                     break;
                     case CornerName.ModelCenter:
-                    planeCorners = new List<CornerName> { CornerName.BottomFrontLeft, CornerName.BottomFrontRight, CornerName.BottomBackLeft, CornerName.BottomBackRight,CornerName.TopBackLeft,CornerName.TopBackRight, CornerName.TopFrontLeft,CornerName.TopFrontRight };
-                    break;
-                default:
+                    center = BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.ModelCenter);
 
-                    return Vector3.Zero;
+                    break;
+                default: return null;
+
             }
 
-            var corners = BoundingPositions.Where(x => planeCorners.Contains(x.CornerName)).ToList();
-            return GetCentroid(corners);
+            return center;
         }
 
 
