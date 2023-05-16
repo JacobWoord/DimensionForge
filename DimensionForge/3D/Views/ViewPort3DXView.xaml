@@ -165,8 +165,8 @@
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding RotateCommand}">
-                Rotate
+                Command="{Binding RotationTest1Command}">
+                Rotate Tha model
             </Button>
 
             <Button
@@ -175,6 +175,14 @@
                 VerticalAlignment="Bottom"
                 Command="{Binding AxisTestCommand}">
                 AXIS TEST
+            </Button>
+
+            <Button
+                Margin="10"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Command="{Binding RotateCommand}">
+                Rotate
             </Button>
 
 

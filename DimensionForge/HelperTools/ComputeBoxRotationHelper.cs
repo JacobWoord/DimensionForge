@@ -23,6 +23,8 @@ namespace DimensionForge.HelperTools
             Quaternion verticalRotationQuaternion = ComputeBoxRotationHelper.ComputeTopBottomRotationQuaternion(modelNodes, verletNodes);
             Quaternion frontBackRotationQuaternion = ComputeBoxRotationHelper.ComputeFrontBackRotationQuaternion(modelNodes, verletNodes);
 
+            var test = horizontalRotationQuaternion + verticalRotationQuaternion;
+
             Quaternion combinedRotationQuaternion = Quaternion.Multiply(horizontalRotationQuaternion, verticalRotationQuaternion);
             combinedRotationQuaternion = Quaternion.Multiply(combinedRotationQuaternion, frontBackRotationQuaternion);
 

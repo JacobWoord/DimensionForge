@@ -19,6 +19,8 @@ using DimensionForge.HelperTools;
 using System.Collections.Generic;
 using System.Diagnostics;
 using HelixToolkit.Wpf;
+using SharpDX.Direct3D9;
+using Assimp;
 
 namespace DimensionForge._3D.ViewModels
 {
@@ -67,23 +69,28 @@ namespace DimensionForge._3D.ViewModels
 
             ImportDoorModel();
 
-            var doorModel = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
-            var boundingelements = doorModel.GetBoundingElements();
+            var model = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
+            var boundingelements = model.GetBoundingElements();
             buildResult = new VerletBuildResult();
             boundingelements.ForEach(x => shapes.Add(x));
 
 
             //Draw the center points of the bounding elements
-            var modelCenterPoints = doorModel.BoundingPositions.Where(x => x.CornerName == CornerName.TopPlaneCenter
+            var modelCenterPoints = model.BoundingPositions.Where(x => x.CornerName == CornerName.TopPlaneCenter
             || x.CornerName == CornerName.FrontPlaneCenter
             || x.CornerName == CornerName.BottomPlaneCenter
             || x.CornerName == CornerName.LeftPlaneCenter
             || x.CornerName == CornerName.RightPlaneCenter
             || x.CornerName == CornerName.BackPlaneCenter).ToList();
 
-            modelCenterPoints.ForEach(x => Shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = Color.Transparent }));
 
+            modelCenterPoints.ForEach(x => Shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = Color.Red }));
 
+            var topBottomArrow1 = new AxisArrows3D(model.GetCenter(CornerName.ModelCenter), model.GetCenter(CornerName.TopPlaneCenter), Color.Purple);
+            var topBottomArrow2 = new AxisArrows3D(buildResult.GetCenter(CornerName.ModelCenter), buildResult.GetCenter(CornerName.TopPlaneCenter), Color.Yellow);
+
+            Shapes.Add(topBottomArrow2);
+            Shapes.Add(topBottomArrow1);
 
 
             //Draws the the elements from the buildresult class
@@ -96,18 +103,15 @@ namespace DimensionForge._3D.ViewModels
                 Shapes.Add(new CornerPoint3D() { LinkedNode = buildResult.Nodes[i], Color = Color.Purple });
 
             }
-            foreach (var node in buildResult.CenterPositions) 
-            { 
-              Shapes.Add(new CornerPoint3D() { LinkedNode = node, Color = Color.Red });
-            
+            foreach (var node in buildResult.CenterPositions)
+            {
+                Shapes.Add(new CornerPoint3D() { LinkedNode = node, Color = Color.YellowGreen });
+
             }
 
             Draw();
         }
-        void UpdateCentersFromBox()
-        {
-            buildResult.CenterPositions.ForEach(x => x.Position = buildResult.GetCenter(x.CornerName));
-        }
+
         private async void ImportDoorModel()
         {
             var model = new ObjModel3D(await ObjHelperClass.ImportAsMeshGeometry3D("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj"));
@@ -117,11 +121,7 @@ namespace DimensionForge._3D.ViewModels
 
 
 
-        [RelayCommand]
-        void CenterModelCommand()
-        {
 
-        }
 
         [RelayCommand]
         public void AxisTest()
@@ -150,7 +150,7 @@ namespace DimensionForge._3D.ViewModels
             var topCenter2 = verletNodes.FirstOrDefault(x => x.CornerName == CornerName.TopPlaneCenter);
             var rightCenter2 = verletNodes.FirstOrDefault(x => x.CornerName == CornerName.RightPlaneCenter);
             //var center2 = new Node3D(ComputeBoxRotationHelper.GetCenter(verletNodes.Where(x => x.UseCase != UseCase.verletCenter).ToList())) { UseCase = UseCase.modelCenter};
-            var center2 = new Node3D(buildResult.GetCenter(CornerName.ModelCenter));
+            var center2 = buildResult.GetCenter(CornerName.ModelCenter);
 
             var arrowFront2 = new AxisArrows3D(center2, frontCenter2, Color.Green) { UseCase = UseCase.verlet };
             var arrowTop2 = new AxisArrows3D(center2, topCenter2, Color.Green) { UseCase = UseCase.verlet };
@@ -192,24 +192,24 @@ namespace DimensionForge._3D.ViewModels
                     var stopWatch = Stopwatch.StartNew();
 
                     UpdatePhysics();
-                    UpdateCentersFromBox();
-                    //UpdateModelPosition();
-
+                    buildResult.UpdateCenterPositions();
+                    // UpdateModelPosition();
+                    RotateModel();
 
 
                     // the function below is to use the EMA filter to smooth the door position
                     // UpdateDoorPositionEMA();
                     await uiDispatcher.InvokeAsync(() =>
-                    {
-                        Draw();
-                        return Task.CompletedTask;
+                   {
+                       Draw();
+                       return Task.CompletedTask;
 
 
-                    });
+                   });
                     var elapsed = (int)stopWatch.ElapsedMilliseconds;
-                    Debug.WriteLine(elapsed);
+                    //  Debug.WriteLine(elapsed);
                     int delay = Math.Max(0, duration - elapsed);
-                    await Task.Delay(300);
+                    await Task.Delay(1000);
                 }
             });
         }
@@ -220,8 +220,8 @@ namespace DimensionForge._3D.ViewModels
         {
             // generates a loop that stays on the same thread as the UI thread
             foreach (var n in buildResult.Nodes)
-            {         
-                    UpdatePositions(n);             
+            {
+                UpdatePositions(n);
             }
             for (int i = 0; i < 100; i++)
             {
@@ -230,54 +230,115 @@ namespace DimensionForge._3D.ViewModels
 
                 foreach (var n in buildResult.Nodes)
                 {
-                
-                       ConstrainGround(n);
+
+                    ConstrainGround(n);
                 }
             }
         }
 
 
-        private void UpdateModelPosition()
+        private void RotateModel()
         {
-            //this function brings the model to the center of the verlet box
 
-
-            var model = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
-
-            var redCenter = buildResult.GetCenter(CornerName.ModelCenter);
-
-            ObjHelperClass.UpdatePosition(model, redCenter);
-
-            var translation = new Vector3(redCenter.X, redCenter.Y, redCenter.Z);
-
-            buildResult.Nodes.ForEach(x => x.Position -= translation);
-            redCenter = buildResult.GetCenter(CornerName.ModelCenter);
-
-            ObjHelperClass.UpdatePosition(model, redCenter);
-
-
-            var axis1 = Vector3.Normalize(model.GetCenter(CornerName.TopPlaneCenter).Position);
-            var axis2 = Vector3.Normalize(buildResult.GetCenter(CornerName.TopPlaneCenter));
-            var rotationAxis = Vector3.Cross(axis2, axis1);
-            float angle = MathF.Acos(Vector3.Dot(axis1, axis2));
-            var angledegree = angle * 180 / MathF.PI;
-            Debug.WriteLine($"CenterPosition: {axis1}");
-            ObjHelperClass.RotateGeometry(model, rotationAxis, angledegree);
-
-            //buildResult.Nodes.ForEach(x => x.Position += translation);
-            redCenter = buildResult.GetCenter(CornerName.ModelCenter);
-
-          //  ObjHelperClass.UpdatePosition(model, redCenter);
+            RotateModelOnCenters(CornerName.TopPlaneCenter);
+            RotateModelOnCenters(CornerName.LeftPlaneCenter);
+            RotateModelOnCenters(CornerName.FrontPlaneCenter);
         }
 
         [RelayCommand]
-        void Rotate()
+        public void RotateModelOnCenters(CornerName CenterNameForBoth)
         {
-            var model = Shapes.FirstOrDefault(x => x is ObjModel3D ) as ObjModel3D; 
+            var model = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
+            var verletCenter = buildResult.GetCenter(CornerName.ModelCenter);
 
-            ObjHelperClass.RotateGeometry(model,Vector3.UnitX,60);
+            //// // Get the topCenters from each box to take get the third axis by taking the cross product 
+            //var axis3 = model.GetCenter(CenterNameForBoth).Position;
+            //axis3.Normalize();
+
+            //var axis4 = buildResult.GetCenter(CenterNameForBoth).Position;
+            //axis4.Normalize();
+            //float angle2 = MathF.Acos(Vector3.Dot(axis3, axis4)) * -1;
+            //Debug.WriteLine(angle2);
+            //if (MathF.Abs(angle2) < 0.01)
+            //    return;
+
+
+
+
+            //Save the positions of the verletbox
+            var translation = new Vector3(verletCenter.Position.X, verletCenter.Position.Y, verletCenter.Position.Z);
+            //translate  the red verletbox to the origin
+            buildResult.Nodes.ForEach(node => node.Position -= translation);
+            //Update the center Positions of the centers
+            buildResult.UpdateCenterPositions();
+            ObjHelperClass.UpdatePosition(model, buildResult.GetCenter(CornerName.ModelCenter).Position);
+
+
+            // Get the topCenters from each box to take get the third axis by taking the cross product 
+            var axis1 = model.GetCenter(CenterNameForBoth).Position;
+            axis1.Normalize();
+
+            var axis2 = buildResult.GetCenter(CenterNameForBoth).Position;
+            axis2.Normalize();
+           
+
+            // calc the crossproduct of the two vectors to get the rotation axis
+            var rotationAxis = Vector3.Cross(axis2, axis1);
+
+            // normalize the rotation axis
+            rotationAxis.Normalize();
+
+            // calc the angle between the two vectors (remember to catch a negative angle )
+            float angle = MathF.Acos(Vector3.Dot(axis1, axis2)) * -1;
+           // Debug.WriteLine(angle);
+            if(!float.IsNaN(angle)&&angle!=0)
+            {
+                // Create a rotationAxis
+                Quaternion q = Quaternion.RotationAxis(rotationAxis, angle);
+
+                var centerPoint = model.GetCenter(CornerName.ModelCenter);
+                // Apply the rotation to each vertex position in the geometry
+                for (int i = 0; i < model.Geometry.Positions.Count; i++)
+                {
+                    model.Geometry.Positions[i] = Vector3.Transform(model.Geometry.Positions[i], q);
+                }
+                // Apply the rotation to each bounding position in the model
+                for (int i = 0; i < model.BoundingPositions.Count; i++)
+                {
+                    model.BoundingPositions[i].Position = Vector3.Transform(model.BoundingPositions[i].Position, q);
+                }
+            }
+         
+
+  
+            // Update the geometry
+            //model.Geometry.UpdateVertices();
+
+            buildResult.Nodes.ForEach(node => node.Position += translation);
+            buildResult.UpdateCenterPositions();
+            ObjHelperClass.UpdatePosition(model, buildResult.GetCenter(CornerName.ModelCenter).Position);
+
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // Function to check if a position is a valid number
+        private bool IsValidPosition(Vector3 position)
+        {
+            return !float.IsInfinity(position.X) && !float.IsInfinity(position.Y) && !float.IsInfinity(position.Z)
+                && !float.IsNaN(position.X) && !float.IsNaN(position.Y) && !float.IsNaN(position.Z);
+        }
 
 
 
@@ -407,93 +468,77 @@ namespace DimensionForge._3D.ViewModels
         }
         void UpdateSticks(VerletElement3D stick)
         {
-            try
-            {
-                var delta = stick.End.Position - stick.Start.Position;
-                float deltaLength = delta.Length();
-                float diff = (deltaLength - stick.Length);
 
-                float damping = 0.1f;
-                var offset = delta * (diff / deltaLength) / 2 * (1 - damping);
+            var delta = stick.End.Position - stick.Start.Position;
+            float deltaLength = delta.Length();
+            float diff = (deltaLength - stick.Length);
 
-                stick.Start.Position += offset;
-                stick.End.Position -= offset;
+            float damping = 0.1f;
+            var offset = delta * (diff / deltaLength) / 2 * (1 - damping);
 
-                // Clamp positions to representable range
-                stick.Start.Position = Vector3.Clamp(stick.Start.Position, new Vector3(float.MinValue, float.MinValue, float.MinValue), new Vector3(float.MaxValue, float.MaxValue, float.MaxValue));
-                stick.End.Position = Vector3.Clamp(stick.End.Position, new Vector3(float.MinValue, float.MinValue, float.MinValue), new Vector3(float.MaxValue, float.MaxValue, float.MaxValue));
+            stick.Start.Position += offset;
+            stick.Start.Position = Vector3.Clamp(stick.Start.Position, new Vector3(float.MinValue, float.MinValue, float.MinValue), new Vector3(float.MaxValue, float.MaxValue, float.MaxValue));
 
-
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error in UpdateSticks: {ex.Message}");
-            }
-
+            stick.End.Position -= offset;
+            stick.End.Position = Vector3.Clamp(stick.End.Position, new Vector3(float.MinValue, float.MinValue, float.MinValue), new Vector3(float.MaxValue, float.MaxValue, float.MaxValue));
         }
         public void ConstrainGround(Node3D node)
         {
-            try
+
+            var xv = node.Position.X - node.OldPosition.X;  // x velocity
+            var yv = node.Position.Y - node.OldPosition.Y;  // y velocity
+            var zv = node.Position.Z - node.OldPosition.Z;  // z velocity
+
+            var bounce = 0.99f;
+
+            // Apply ground constraint
+            if (node.Position.Z < 0)
             {
-                var xv = node.Position.X - node.OldPosition.X;  // x velocity
-                var yv = node.Position.Y - node.OldPosition.Y;  // y velocity
-                var zv = node.Position.Z - node.OldPosition.Z;  // z velocity
-
-                var bounce = 0.99f;
-
-                // Apply ground constraint
-                if (node.Position.Z < 0)
-                {
-                    node.Position = new Vector3(node.Position.X, node.Position.Y, Math.Max(node.Position.Z, 0));
-                    node.OldPosition = new Vector3(node.Position.X, node.Position.Y, Math.Max(node.Position.Z + zv * bounce, 0));
-                }
-
-                // Clamp positions to representable range
+                var newPos = new Vector3(node.Position.X, node.Position.Y, Math.Max(node.Position.Z, 0));
+                node.Position = newPos;
                 node.Position = Vector3.Clamp(node.Position, new Vector3(float.MinValue, float.MinValue, 0), new Vector3(float.MaxValue, float.MaxValue, float.MaxValue));
+
+                var oldPos = new Vector3(node.Position.X, node.Position.Y, Math.Max(node.Position.Z + zv * bounce, 0));
+                node.OldPosition = oldPos;
                 node.OldPosition = Vector3.Clamp(node.OldPosition, new Vector3(float.MinValue, float.MinValue, 0), new Vector3(float.MaxValue, float.MaxValue, float.MaxValue));
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error in ConstrainGround: {ex.Message}");
+
+
             }
         }
+
+
+
+
 
         void UpdatePositions(Node3D node)
         {
-
-            try
-            {
-                //update the position of the models by setting the current and the old position
-                var position = node.Position;
-                // to implement gravity we add it to the position.Z after we add velocity
-                var gravity = new Vector3(0, 0, -0.3f);
-                //multiply the velocity by friction to slow it down
-                var friction = 0.8f;
+            //update the position of the models by setting the current and the old position
+            var position = node.Position;
+            // to implement gravity we add it to the position.Z after we add velocity
+            var gravity = new Vector3(0, 0, -0.3f);
+            //multiply the velocity by friction to slow it down
+            var friction = 0.8f;
 
 
-                var radius = node.RadiusInMeters;
+            var radius = node.RadiusInMeters;
 
-                var oldPosition = node.OldPosition;
-                var velocity = (position - oldPosition) * friction;
-                oldPosition = position;
-                position += velocity;
-                position += gravity;
+            var oldPosition = node.OldPosition;
+            var velocity = (position - oldPosition) * friction;
+            oldPosition = position;
+            position += velocity;
+            position += gravity;
 
-                // Clamp positions to representable range
-                position = Vector3.Clamp(position, new Vector3(float.MinValue, float.MinValue, float.MinValue), new Vector3(float.MaxValue, float.MaxValue, float.MaxValue));
-
-
-                node.Position = position;
-                node.OldPosition = oldPosition;
+            // Clamp positions to representable range
+            position = Vector3.Clamp(position, new Vector3(float.MinValue, float.MinValue, float.MinValue), new Vector3(float.MaxValue, float.MaxValue, float.MaxValue));
 
 
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error in UpdatePositions: {ex.Message}");
-            }
-
+            node.Position = position;
+            node.OldPosition = oldPosition;
         }
+
+
+
+
 
         [RelayCommand]
         void Navigate(string destination)
@@ -586,7 +631,12 @@ namespace DimensionForge._3D.ViewModels
         }
 
 
-
+        [RelayCommand]
+        void Rotate()
+        {
+          var model =   shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
+            ObjHelperClass.RotateGeometry(model, Vector3.UnitX, 90);
+        }
 
 
 

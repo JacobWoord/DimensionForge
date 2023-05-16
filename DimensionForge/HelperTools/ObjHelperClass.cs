@@ -112,34 +112,48 @@ namespace DimensionForge.HelperTools
 
 
 
-            // Calculate center points for each face of the bounding box
-            Vector3 frontCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.BottomFrontRight].Position +
-                                   corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopFrontRight].Position) / 4;
-            Vector3 backCenter = (corners[(int)CornerName.BottomBackLeft].Position + corners[(int)CornerName.BottomBackRight].Position +
-                                  corners[(int)CornerName.TopBackLeft].Position + corners[(int)CornerName.TopBackRight].Position) / 4;
+            Vector3 frontCenter = GetCentroid(corners.Where(x => x.CornerName == CornerName.TopFrontRight
+            || x.CornerName == CornerName.TopFrontLeft
+            || x.CornerName == CornerName.BottomFrontRight
+            || x.CornerName == CornerName.BottomFrontLeft).ToList());
+
+            Vector3 backCenter = GetCentroid(corners.Where(x => x.CornerName == CornerName.TopBackRight
+           || x.CornerName == CornerName.TopBackLeft
+           || x.CornerName == CornerName.BottomBackRight
+           || x.CornerName == CornerName.BottomBackLeft).ToList());
 
 
-            Vector3 leftCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.BottomBackRight].Position +
-                                  corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopBackRight].Position) / 4;
+            Vector3 rightCenter = GetCentroid(corners.Where(x => x.CornerName == CornerName.TopBackRight
+             || x.CornerName == CornerName.TopFrontLeft
+             || x.CornerName == CornerName.BottomBackRight
+             || x.CornerName == CornerName.BottomFrontLeft).ToList());
 
 
-            Vector3 rightCenter = (corners[(int)CornerName.BottomFrontRight].Position + corners[(int)CornerName.BottomBackLeft].Position +
-                                   corners[(int)CornerName.TopFrontRight].Position + corners[(int)CornerName.TopBackLeft].Position) / 4;
+            Vector3 leftCenter = GetCentroid(corners.Where(x => x.CornerName == CornerName.TopBackLeft
+              || x.CornerName == CornerName.TopFrontRight
+              || x.CornerName == CornerName.BottomBackLeft
+              || x.CornerName == CornerName.BottomFrontRight).ToList());
 
 
-            Vector3 topCenter = (corners[(int)CornerName.TopFrontLeft].Position + corners[(int)CornerName.TopFrontRight].Position +
-                                 corners[(int)CornerName.TopBackLeft].Position + corners[(int)CornerName.TopBackRight].Position) / 4;
-            Vector3 bottomCenter = (corners[(int)CornerName.BottomFrontLeft].Position + corners[(int)CornerName.BottomFrontRight].Position +
-                                    corners[(int)CornerName.BottomBackLeft].Position + corners[(int)CornerName.BottomBackRight].Position) / 4;
 
-            Vector3 modelCenter = (corners[(int)CornerName.BottomFrontLeft].Position +
-                                   corners[(int)CornerName.BottomFrontRight].Position +
-                                    corners[(int)CornerName.BottomBackLeft].Position +
-                                    corners[(int)CornerName.BottomBackRight].Position) +
-                                    (corners[(int)CornerName.TopFrontLeft].Position +
-                                    corners[(int)CornerName.TopFrontRight].Position +
-                                    corners[(int)CornerName.TopBackLeft].Position +
-                                    corners[(int)CornerName.TopBackRight].Position) / 8;
+            Vector3 topCenter = GetCentroid(corners.Where(x => x.CornerName == CornerName.TopBackLeft
+                || x.CornerName == CornerName.TopBackRight
+                || x.CornerName == CornerName.TopFrontLeft
+                || x.CornerName == CornerName.TopFrontRight).ToList());
+
+            Vector3 bottomCenter = GetCentroid(corners.Where(x => x.CornerName == CornerName.BottomBackLeft
+                || x.CornerName == CornerName.BottomBackRight
+                || x.CornerName == CornerName.BottomFrontLeft
+                || x.CornerName == CornerName.BottomFrontRight).ToList());
+
+            Vector3 modelCenter = GetCentroid(corners.Where(x => x.CornerName == CornerName.TopBackRight
+         || x.CornerName == CornerName.TopBackLeft
+         || x.CornerName == CornerName.BottomBackRight
+         || x.CornerName == CornerName.BottomBackLeft
+         || x.CornerName == CornerName.TopFrontRight
+         || x.CornerName == CornerName.TopFrontLeft
+         || x.CornerName == CornerName.BottomFrontLeft
+         || x.CornerName == CornerName.BottomFrontRight).ToList());
 
 
 
@@ -155,16 +169,16 @@ namespace DimensionForge.HelperTools
 
             return corners;
         }
-        public static Vector3 GetCentroidPosition(Vector3[] positions)
+        public static Vector3 GetCentroid(List<Node3D> positions)
         {
             Vector3 centroid = new Vector3(0, 0, 0);
 
-            foreach (Vector3 position in positions)
+            foreach (Node3D position in positions)
             {
-                centroid += position;
+                centroid += position.Position;
             }
 
-            centroid /= positions.Length;
+            centroid /= positions.Count;
             return centroid;
         }
         public static Vector3 GetSize(ObjModel3D model)
@@ -188,8 +202,6 @@ namespace DimensionForge.HelperTools
             return size;
 
         }
-
-
         public static void UpdateScaling(ObjModel3D model, float scaleFactor)
         {
 
@@ -231,9 +243,9 @@ namespace DimensionForge.HelperTools
             model.Position = newPosition;
             // Notify the geometry that the positions have changed
             model.Geometry.UpdateVertices();
-            model.Geometry.UpdateBounds();
-            model.Geometry.UpdateOctree();
-            model.Geometry.UpdateTriangles();
+            //model.Geometry.UpdateBounds();
+            //model.Geometry.UpdateOctree();
+            //model.Geometry.UpdateTriangles();
         }
 
 
@@ -293,12 +305,12 @@ namespace DimensionForge.HelperTools
                 model.BoundingPositions[i].Position += centerPoint.Position;
             }
 
-            // Update the geometry
-            model.Geometry.UpdateVertices();
-            model.Geometry.UpdateVertices();
-            model.Geometry.UpdateBounds();
-            model.Geometry.UpdateOctree();
-            model.Geometry.UpdateTriangles();
+            //// Update the geometry
+            //model.Geometry.UpdateVertices();
+            //model.Geometry.UpdateVertices();
+            //model.Geometry.UpdateBounds();
+            //model.Geometry.UpdateOctree();
+            //model.Geometry.UpdateTriangles();
 
 
 

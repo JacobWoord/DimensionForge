@@ -165,30 +165,7 @@ namespace DimensionForge._3D.Models
 
 
 
-        private Color SetColor(Node3D node)
-        {
-            SharpDX.Color color = SharpDX.Color.Purple;
-
-            if (node.NodePos == NodePosition.LeftTop)
-            {
-                color = SharpDX.Color.Red;
-            }
-            else if (node.NodePos == NodePosition.RightTop)
-            {
-                color = SharpDX.Color.Green;
-            }
-            else if (node.NodePos == NodePosition.BottomLeft)
-            {
-                color = SharpDX.Color.Blue;
-            }
-            else if (node.NodePos == NodePosition.BottomRight)
-            {
-                color= SharpDX.Color.Yellow;
-            }
-
-
-            return color;
-        }
+        
 
         public override List<VerletElement3D> GetElements()
         {

@@ -36,7 +36,7 @@ namespace DimensionForge._3D.Models
         public void CreateEndPoint()
         {
 
-            float length = Vector3.Distance(Position.Position, CenterPosition.Position);
+            float length = 4f;
 
             Vector3 direction = Position.Position - CenterPosition.Position;
             direction.Normalize();

@@ -38,6 +38,15 @@ namespace DimensionForge._3D.Models
             
 
             MeshBuilder meshbuilder = new MeshBuilder();
+
+            if(float.IsNaN(start.Position.X)||float.IsNaN(start.Position.Y)|| float.IsNaN(start.Position.Z))
+            {
+                start.Position = Vector3.Zero;
+            }
+            if (float.IsNaN(End.Position.X) || float.IsNaN(End.Position.Y) || float.IsNaN(End.Position.Z))
+            {
+                End.Position = Vector3.Zero;
+            }
             meshbuilder.AddCylinder(Start.Position, End.Position, Radius, 32);
             
             Material = SetMaterial();
