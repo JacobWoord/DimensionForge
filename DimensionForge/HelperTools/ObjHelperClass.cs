@@ -70,20 +70,7 @@ namespace DimensionForge.HelperTools
             return meshGeometry;
         }
 
-        public static Vector3 CalculateModelCenter(ObjModel3D model)
-        {
-            Vector3 center = new Vector3(0, 0, 0);
-
-            for (int i = 0; i < model.BoundingPositions.Count; i++)
-            {
-                center += model.BoundingPositions[i].Position;
-            }
-
-            center /= model.BoundingPositions.Count;
-
-            return center;
-        }
-
+        
 
 
         public static List<Node3D> GetBoundingPositions(ObjModel3D model)
@@ -156,16 +143,16 @@ namespace DimensionForge.HelperTools
          || x.CornerName == CornerName.BottomFrontRight).ToList());
 
 
-
-
             // Add center points to the list
-            corners.Add(new Node3D(frontCenter) { CornerName = CornerName.FrontPlaneCenter, UseCase = UseCase.modelCenter });
-            corners.Add(new Node3D(backCenter) { CornerName = CornerName.BackPlaneCenter, UseCase = UseCase.modelCenter });
-            corners.Add(new Node3D(leftCenter) { CornerName = CornerName.LeftPlaneCenter, UseCase = UseCase.modelCenter });
-            corners.Add(new Node3D(rightCenter) { CornerName = CornerName.RightPlaneCenter, UseCase = UseCase.modelCenter });
-            corners.Add(new Node3D(topCenter) { CornerName = CornerName.TopPlaneCenter, UseCase = UseCase.modelCenter });
-            corners.Add(new Node3D(bottomCenter) { CornerName = CornerName.BottomPlaneCenter, UseCase = UseCase.modelCenter });
-            corners.Add(new Node3D(modelCenter) { CornerName = CornerName.ModelCenter, UseCase = UseCase.modelCenter });
+            corners.Add(new Node3D(frontCenter) { CornerName = CornerName.FrontPlaneCenter });
+            corners.Add(new Node3D(backCenter) { CornerName = CornerName.BackPlaneCenter });
+            corners.Add(new Node3D(leftCenter) { CornerName = CornerName.LeftPlaneCenter });
+            corners.Add(new Node3D(rightCenter) { CornerName = CornerName.RightPlaneCenter });
+            corners.Add(new Node3D(topCenter) { CornerName = CornerName.TopPlaneCenter });
+            corners.Add(new Node3D(bottomCenter) { CornerName = CornerName.BottomPlaneCenter });
+            corners.Add(new Node3D(modelCenter) { CornerName = CornerName.ModelCenter });
+
+
 
             return corners;
         }
@@ -224,7 +211,10 @@ namespace DimensionForge.HelperTools
 
         public static void UpdatePosition(ObjModel3D model, Vector3 newPosition)
         {
-            // Calculate the translation vector
+            //TRANSLATES THE MODEL BY ITS CENTER
+
+
+            // Calculate the translation vector the recent center of the model.
             Vector3 translation = newPosition - model.GetCenter(CornerName.ModelCenter).Position;
 
             // Apply the translation transform
@@ -243,17 +233,15 @@ namespace DimensionForge.HelperTools
             model.Position = newPosition;
             // Notify the geometry that the positions have changed
             model.Geometry.UpdateVertices();
-            //model.Geometry.UpdateBounds();
-            //model.Geometry.UpdateOctree();
-            //model.Geometry.UpdateTriangles();
+
         }
 
 
         public static void UpdateTemporaryNodes(ObjModel3D model, Vector3 newPosition, List<Node3D> temporaryNodes)
         {
-            // Calculate the translation vector
+            // Calculate the translation vector (the order of substracting the centers is important)
             Vector3 translation = newPosition - model.GetCenter(CornerName.ModelCenter).Position;
-                    
+
             // Apply the translation the bounding positions of the model as well
             for (int i = 0; i < temporaryNodes.Count; i++)
             {
@@ -261,9 +249,9 @@ namespace DimensionForge.HelperTools
             }
 
         }
-           
 
-           
+
+
 
 
 
@@ -324,7 +312,7 @@ namespace DimensionForge.HelperTools
 
             // Update the geometry
             model.Geometry.UpdateVertices();
-            
+
             model.Geometry.UpdateBounds();
             model.Geometry.UpdateOctree();
             model.Geometry.UpdateTriangles();

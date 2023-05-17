@@ -192,7 +192,7 @@ namespace DimensionForge._3D.ViewModels
                     var stopWatch = Stopwatch.StartNew();
 
                     UpdatePhysics();
-                    buildResult.UpdateCenterPositions();
+                   
                     RotateModelOnCenters();
 
 
@@ -319,17 +319,6 @@ namespace DimensionForge._3D.ViewModels
 
 
 
-
-
-
-
-
-
-
-
-
-
-
         // Function to check if a position is a valid number
         private bool IsValidPosition(Vector3 position)
         {
@@ -404,48 +393,9 @@ namespace DimensionForge._3D.ViewModels
 
         }
 
-        [RelayCommand]
-        public void UpdateDoorPositionEMA()
-        {
-            var door = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
-
-            // Calculate the translation vector based on the center positions of the models
-            Vector3 verletCenter = ComputeBoxRotationHelper.GetCenter(buildResult.Nodes);
-            Vector3 modelCenter = ObjHelperClass.CalculateModelCenter(door);
-            Vector3 translation = verletCenter - modelCenter;
-
-            // Define the alpha value for the EMA smoothing technique
-            float alpha = 0.1f; // You can experiment with this value
-
-            // Calculate the combined rotation quaternion using the EMA smoothing technique
-            Quaternion combinedRotationQuaternion = ComputeBoxRotationHelper.ComputeCombinedRotationQuaternionEMA(door.BoundingPositions, buildResult.Nodes, ref _previousRotation, alpha);
-
-            var dSize = DebugHelper.GetBoxDimensions(door.BoundingPositions);
-            var vSize = DebugHelper.GetBoxDimensions(buildResult.Nodes);
-
-            DebugHelper.DebugDimensionDifference(dSize, vSize);
-
-            // Debug.WriteLine($"MODEL DIMENSIONS: Height: {dSize.Z} Width:{dSize.Y} Depth:{dSize.X}" );
-            // Debug.WriteLine($"BOX DIMENSIONS: Height: {vSize.Z} Width:{vSize.Y} Depth:{vSize.X}");
-
-            if (!IsValidQuaternion(combinedRotationQuaternion))
-            {
-                Debug.WriteLine(":Invalid rotation quaternion detected  ");
-                return;
-            }
+   
 
 
-            // Apply the rotation and update the position
-            ObjHelperClass.ApplyRotation(door, combinedRotationQuaternion, modelCenter);
-            ObjHelperClass.UpdatePosition(door, verletCenter);
-        }
-
-        private bool IsValidQuaternion(Quaternion q)
-        {
-            float epsilon = 1e-6f;
-            float length = q.Length();
-            return (Math.Abs(length - 1) < epsilon);
-        }
 
 
         [RelayCommand]
@@ -621,7 +571,7 @@ namespace DimensionForge._3D.ViewModels
             var offset = 1;
             var model = shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
 
-            var rect3d = new Rect3D(ObjHelperClass.CalculateModelCenter(model).ToPoint3D(), new Size3D(model.Width + offset, model.Height + offset, model.Depth + offset));
+            var rect3d = new Rect3D(ObjHelperClass.GetCentroid(model.BoundingPositions).ToPoint3D(), new Size3D(model.Width + offset, model.Height + offset, model.Depth + offset));
 
             MyViewPort.ZoomExtents(rect3d, 500);
             MyViewPort.Reset();

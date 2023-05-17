@@ -123,6 +123,19 @@ namespace DimensionForge.HelperTools
         }
 
 
+        public static Vector3 CalculateModelCenter(ObjModel3D model)
+        {
+            Vector3 center = new Vector3(0, 0, 0);
+
+            for (int i = 0; i < model.BoundingPositions.Count; i++)
+            {
+                center += model.BoundingPositions[i].Position;
+            }
+
+            center /= model.BoundingPositions.Count;
+
+            return center;
+        }
 
         public static Vector3 RoundVector3(Vector3 vector, int decimalPlaces)
         {
