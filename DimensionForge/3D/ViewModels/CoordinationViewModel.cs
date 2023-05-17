@@ -24,8 +24,17 @@ namespace DimensionForge._3D.ViewModels
         {
             canvasViewModel = Ioc.Default.GetService<Canvas3DViewModel>();
 
-            itemsControl.Add("Axis view propperties");
-            itemsControl.Add("Angle calc");
+            itemsControl.Add("Axis Arrows");
+            itemsControl.Add("Boundongboxes");
+        }
+
+
+
+
+        [RelayCommand]
+        void CloseWindow()
+        {
+            canvasViewModel.Navigate("Close");
         }
 
 

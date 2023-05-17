@@ -32,6 +32,77 @@ namespace DimensionForge._3D.Models
         }
 
 
+        [RelayCommand]
+        public void RotateModelOnCenters(VerletBuildResult buildResult)
+        {
+            var model = this;
+
+            var verletCenter = buildResult.GetCenter(CornerName.ModelCenter, this.Id);
+
+            // Save the positions of the verletbox
+            var translation = new Vector3(verletCenter.Position.X, verletCenter.Position.Y, verletCenter.Position.Z);
+            // Translate the red verletbox to the origin
+            buildResult.Nodes.ForEach(node => node.Position -= translation);
+
+
+            //Creates Temporary nodes and bring them to the origin
+            var temporaryModelBoundings = new List<Node3D>();
+            model.BoundingPositions.ForEach(x => temporaryModelBoundings.Add(new Node3D(new Vector3(x.Position.X, x.Position.Y, x.Position.Z)) { CornerName = x.CornerName }));
+            ObjHelperClass.UpdateTemporaryNodes(model, buildResult.GetCenter(CornerName.ModelCenter, this.Id).Position, temporaryModelBoundings);
+
+            var rotationList = new List<CornerName>();
+            rotationList.Add(CornerName.LeftPlaneCenter);
+            rotationList.Add(CornerName.FrontPlaneCenter);
+            rotationList.Add(CornerName.TopPlaneCenter);
+
+
+
+            foreach (var cornerName in rotationList)
+            {
+
+                var axis1 = temporaryModelBoundings.FirstOrDefault(x => x.CornerName == cornerName).Position;
+                axis1.Normalize();
+
+                var axis2 = buildResult.GetCenter(cornerName, this.Id).Position;
+                axis2.Normalize();
+
+                var rotationAxis = Vector3.Cross(axis2, axis1);
+                rotationAxis.Normalize();
+
+                var angle = MathF.Acos(Vector3.Dot(axis1, axis2)) * -1;
+
+                if (MathF.Abs(angle) > 0.01)
+                {
+
+                    var rotationQuaternion = Quaternion.RotationAxis(rotationAxis, angle);
+                    // Apply the rotation to each vertex position in the geometry
+                    for (int i = 0; i < model.Geometry.Positions.Count; i++)
+                    {
+                        model.Geometry.Positions[i] = Vector3.Transform(model.Geometry.Positions[i], rotationQuaternion);
+                    }
+
+                    // Apply the rotation to each bounding position in the model
+                    for (int i = 0; i < model.BoundingPositions.Count; i++)
+                    {
+                        model.BoundingPositions[i].Position = Vector3.Transform(model.BoundingPositions[i].Position, rotationQuaternion);
+                    }
+                    for (int i = 0; i < temporaryModelBoundings.Count; i++)
+                    {
+                        temporaryModelBoundings[i].Position = Vector3.Transform(temporaryModelBoundings[i].Position, rotationQuaternion);
+                    }
+
+                }
+            }
+
+            // Update the positions of the model
+            buildResult.Nodes.ForEach(node => node.Position += translation);
+            ObjHelperClass.UpdatePosition(model, buildResult.GetCenter(CornerName.ModelCenter, this.Id).Position);
+
+
+        }
+
+
+
 
         private void InitModel()
         {
@@ -56,7 +127,7 @@ namespace DimensionForge._3D.Models
             Node3D center;
 
             // Computes the centers before returning it
-            UpdateCenterPositions();
+         
 
             switch (centerName)
             {
@@ -96,135 +167,6 @@ namespace DimensionForge._3D.Models
 
 
 
-
-        private void UpdateCenterPositions()
-        {
-            try
-            {
-                var frontCorners = BoundingPositions.Where(x => x.CornerName == CornerName.TopFrontRight
-                      || x.CornerName == CornerName.TopFrontLeft
-                      || x.CornerName == CornerName.BottomFrontRight
-                      || x.CornerName == CornerName.BottomFrontLeft).ToList();
-                var frontCenter = GetCentroid(frontCorners);
-
-                if (!float.IsInfinity(frontCenter.X) && !float.IsInfinity(frontCenter.Y) && !float.IsInfinity(frontCenter.Z) &&
-                    !float.IsNaN(frontCenter.X) && !float.IsNaN(frontCenter.Y) && !float.IsNaN(frontCenter.Z))
-                {
-                    BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.FrontPlaneCenter).Position = frontCenter;
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
-
-
-            try
-            {
-                var backCorners = BoundingPositions.Where(x => x.CornerName == CornerName.TopBackRight
-                    || x.CornerName == CornerName.TopBackLeft
-                    || x.CornerName == CornerName.BottomBackRight
-                    || x.CornerName == CornerName.BottomBackLeft).ToList();
-                var backCenter = GetCentroid(backCorners);
-                if (!float.IsInfinity(backCenter.X) && !float.IsInfinity(backCenter.Y) && !float.IsInfinity(backCenter.Z) &&
-                    !float.IsNaN(backCenter.X) && !float.IsNaN(backCenter.Y) && !float.IsNaN(backCenter.Z))
-                {
-                    BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.BackPlaneCenter).Position = backCenter;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
-
-
-            try
-            {
-                var rightCorners = BoundingPositions.Where(x => x.CornerName == CornerName.TopBackRight
-                    || x.CornerName == CornerName.TopFrontLeft
-                    || x.CornerName == CornerName.BottomBackRight
-                    || x.CornerName == CornerName.BottomFrontLeft).ToList();
-                var rightCenter = GetCentroid(rightCorners);
-
-                if (!float.IsInfinity(rightCenter.X) && !float.IsInfinity(rightCenter.Y) && !float.IsInfinity(rightCenter.Z) &&
-                   !float.IsNaN(rightCenter.X) && !float.IsNaN(rightCenter.Y) && !float.IsNaN(rightCenter.Z))
-                {
-                    BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.RightPlaneCenter).Position = rightCenter;
-                }
-            }
-            catch (Exception ex) { Debug.WriteLine(ex.Message); }
-
-            try
-            {
-                var leftCorners = BoundingPositions.Where(x => x.CornerName == CornerName.TopBackLeft
-                   || x.CornerName == CornerName.TopFrontRight
-                   || x.CornerName == CornerName.BottomBackLeft
-                   || x.CornerName == CornerName.BottomFrontRight).ToList();
-                var leftCenter = GetCentroid(leftCorners);
-
-                if (!float.IsInfinity(leftCenter.X) && !float.IsInfinity(leftCenter.Y) && !float.IsInfinity(leftCenter.Z) &&
-                   !float.IsNaN(leftCenter.X) && !float.IsNaN(leftCenter.Y) && !float.IsNaN(leftCenter.Z))
-                {
-                    BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.LeftPlaneCenter).Position = leftCenter;
-                }
-            }
-            catch (Exception ex) { Debug.WriteLine(ex.Message); }
-            try
-            {
-                var topCorners = BoundingPositions.Where(x => x.CornerName == CornerName.TopBackLeft
-                     || x.CornerName == CornerName.TopBackRight
-                     || x.CornerName == CornerName.TopFrontLeft
-                     || x.CornerName == CornerName.TopFrontRight).ToList();
-                var topCenter = GetCentroid(topCorners);
-
-                if (!float.IsInfinity(topCenter.X) && !float.IsInfinity(topCenter.Y) && !float.IsInfinity(topCenter.Z) &&
-                  !float.IsNaN(topCenter.X) && !float.IsNaN(topCenter.Y) && !float.IsNaN(topCenter.Z))
-                {
-                    BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.TopPlaneCenter).Position = topCenter;
-                }
-            }
-            catch (Exception ex) { Debug.WriteLine(ex.Message); }
-            try
-            {
-                var bottomCorners = BoundingPositions.Where(x => x.CornerName == CornerName.BottomBackLeft
-                    || x.CornerName == CornerName.BottomBackRight
-                    || x.CornerName == CornerName.BottomFrontLeft
-                    || x.CornerName == CornerName.BottomFrontRight).ToList();
-                var bottomCenter = GetCentroid(bottomCorners);
-
-                if (!float.IsInfinity(bottomCenter.X) && !float.IsInfinity(bottomCenter.Y) && !float.IsInfinity(bottomCenter.Z) &&
-               !float.IsNaN(bottomCenter.X) && !float.IsNaN(bottomCenter.Y) && !float.IsNaN(bottomCenter.Z))
-                {
-                    BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.BottomPlaneCenter).Position = bottomCenter;
-                }
-            }
-            catch (Exception ex) { Debug.WriteLine(ex.Message); }
-            try
-            {
-                var allCorners = BoundingPositions.Where(x => x.CornerName == CornerName.TopBackRight
-            || x.CornerName == CornerName.TopBackLeft
-            || x.CornerName == CornerName.BottomBackRight
-            || x.CornerName == CornerName.BottomBackLeft
-            || x.CornerName == CornerName.TopFrontRight
-            || x.CornerName == CornerName.TopFrontLeft
-            || x.CornerName == CornerName.BottomFrontLeft
-            || x.CornerName == CornerName.BottomFrontRight).ToList();
-                var modelCenter = GetCentroid(allCorners);
-
-                if (!float.IsInfinity(modelCenter.X) && !float.IsInfinity(modelCenter.Y) && !float.IsInfinity(modelCenter.Z) &&
-              !float.IsNaN(modelCenter.X) && !float.IsNaN(modelCenter.Y) && !float.IsNaN(modelCenter.Z))
-                {
-                    BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.BottomPlaneCenter).Position = modelCenter;
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
-
-
-        }
 
 
 
@@ -318,18 +260,18 @@ namespace DimensionForge._3D.Models
 
 
 
-        public List<VerletElement3D> GetVerletElements()
+        public List<VerletElement3D> GetVerletElements(string modelId)
         {
             var elements = new List<VerletElement3D>();
 
-            var bottomFrontLeft = new Node3D(BoundingPositions[(int)CornerName.BottomFrontLeft].Position) { CornerName = CornerName.BottomFrontLeft };
-            var bottomFrontRight = new Node3D(BoundingPositions[(int)CornerName.BottomFrontRight].Position) { CornerName = CornerName.BottomFrontRight };
-            var bottomBackLeft = new Node3D(BoundingPositions[(int)CornerName.BottomBackLeft].Position) { CornerName = CornerName.BottomBackLeft };
-            var topFrontLeft = new Node3D(BoundingPositions[(int)CornerName.TopFrontLeft].Position) { CornerName = CornerName.TopFrontLeft };
-            var topFrontRight = new Node3D(BoundingPositions[(int)CornerName.TopFrontRight].Position) { CornerName = CornerName.TopFrontRight };
-            var topBackLeft = new Node3D(BoundingPositions[(int)CornerName.TopBackLeft].Position) { CornerName = CornerName.TopBackLeft };
-            var bottomBackRight = new Node3D(BoundingPositions[(int)CornerName.BottomBackRight].Position) { CornerName = CornerName.BottomBackRight };
-            var topBackRight = new Node3D(BoundingPositions[(int)CornerName.TopBackRight].Position) { CornerName = CornerName.TopBackRight };
+            var bottomFrontLeft = new Node3D(BoundingPositions[(int)CornerName.BottomFrontLeft].Position) { CornerName = CornerName.BottomFrontLeft, ModelId = modelId };
+            var bottomFrontRight = new Node3D(BoundingPositions[(int)CornerName.BottomFrontRight].Position) { CornerName = CornerName.BottomFrontRight, ModelId = modelId };
+            var bottomBackLeft = new Node3D(BoundingPositions[(int)CornerName.BottomBackLeft].Position) { CornerName = CornerName.BottomBackLeft, ModelId = modelId };
+            var topFrontLeft = new Node3D(BoundingPositions[(int)CornerName.TopFrontLeft].Position) { CornerName = CornerName.TopFrontLeft, ModelId = modelId };
+            var topFrontRight = new Node3D(BoundingPositions[(int)CornerName.TopFrontRight].Position) { CornerName = CornerName.TopFrontRight , ModelId = modelId };
+            var topBackLeft = new Node3D(BoundingPositions[(int)CornerName.TopBackLeft].Position) { CornerName = CornerName.TopBackLeft, ModelId = modelId };
+            var bottomBackRight = new Node3D(BoundingPositions[(int)CornerName.BottomBackRight].Position) { CornerName = CornerName.BottomBackRight , ModelId = modelId };
+            var topBackRight = new Node3D(BoundingPositions[(int)CornerName.TopBackRight].Position) { CornerName = CornerName.TopBackRight, ModelId = modelId };
 
 
             // Sides

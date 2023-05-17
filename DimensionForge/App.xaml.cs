@@ -44,7 +44,7 @@ namespace DimensionForge
  
 
             serviceCollection.AddTransient<CoordinationViewModel>();
-            serviceCollection.AddTransient<verletIntigrationViewModel>();
+            serviceCollection.AddTransient<ItemsListViewModel>();
             serviceCollection.AddTransient<Edit3DObjectsViewModel>();
             serviceCollection.AddTransient<FloorTexturesViewModel>();
            

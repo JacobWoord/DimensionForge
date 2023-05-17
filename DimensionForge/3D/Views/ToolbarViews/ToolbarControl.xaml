@@ -15,13 +15,16 @@
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top">
 
-            <Button Command="{Binding NavigateCommand}" 
+            <Button 
+                    Background="Transparent"
+                    Foreground="{StaticResource PrimaryHueMidBrush}"
+                    Command="{Binding NavigateCommand}" 
                     CommandParameter="transformations"
-                    Margin="5">Coordination helpers</Button>
+                    Margin="5">Helpers</Button>
 
             <Button Command="{Binding NavigateCommand}" 
                     CommandParameter="verlet"
-                    Margin="5">verlet</Button>
+                    Margin="5">Items</Button>
             <Button Command="{Binding NavigateCommand}" 
                     CommandParameter="3D"
                     Margin="5">3D Objects</Button>

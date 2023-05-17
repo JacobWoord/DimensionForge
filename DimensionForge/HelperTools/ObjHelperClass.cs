@@ -58,7 +58,7 @@ namespace DimensionForge.HelperTools
             // apply the desired scaling to the model
             for (int i = 0; i < meshGeometry.Positions.Count; i++)
             {
-                meshGeometry.Positions[i] *= 0.001f;
+                meshGeometry.Positions[i] *= 0.1f;
             }
 
             meshGeometry.UpdateVertices();
@@ -70,7 +70,7 @@ namespace DimensionForge.HelperTools
             return meshGeometry;
         }
 
-        
+
 
 
         public static List<Node3D> GetBoundingPositions(ObjModel3D model)
@@ -88,14 +88,14 @@ namespace DimensionForge.HelperTools
 
 
             List<Node3D> corners = new List<Node3D>();
-            corners.Add(new Node3D(new Vector3(maxBounds.X, minBounds.Y, minBounds.Z)) { CornerName = CornerName.BottomFrontLeft });
-            corners.Add(new Node3D(new Vector3(maxBounds.X, maxBounds.Y, minBounds.Z)) { CornerName = CornerName.BottomFrontRight, Color = Color.Green });
-            corners.Add(new Node3D(new Vector3(minBounds.X, maxBounds.Y, minBounds.Z)) { CornerName = CornerName.BottomBackLeft, Color = Color.Green });
-            corners.Add(new Node3D(new Vector3(minBounds.X, minBounds.Y, minBounds.Z)) { CornerName = CornerName.BottomBackRight, Color = Color.Green });
-            corners.Add(new Node3D(new Vector3(maxBounds.X, minBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopFrontLeft, Color = Color.Blue });
-            corners.Add(new Node3D(new Vector3(maxBounds.X, maxBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopFrontRight, Color = Color.Blue });
-            corners.Add(new Node3D(new Vector3(minBounds.X, maxBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopBackLeft, Color = Color.Blue });
-            corners.Add(new Node3D(new Vector3(minBounds.X, minBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopBackRight, Color = Color.Blue });
+            corners.Add(new Node3D(new Vector3(maxBounds.X, minBounds.Y, minBounds.Z)) { CornerName = CornerName.BottomFrontLeft, ModelId = model.Id });
+            corners.Add(new Node3D(new Vector3(maxBounds.X, maxBounds.Y, minBounds.Z)) { CornerName = CornerName.BottomFrontRight, ModelId = model.Id });
+            corners.Add(new Node3D(new Vector3(minBounds.X, maxBounds.Y, minBounds.Z)) { CornerName = CornerName.BottomBackLeft, ModelId = model.Id });
+            corners.Add(new Node3D(new Vector3(minBounds.X, minBounds.Y, minBounds.Z)) { CornerName = CornerName.BottomBackRight, ModelId = model.Id });
+            corners.Add(new Node3D(new Vector3(maxBounds.X, minBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopFrontLeft, ModelId = model.Id });
+            corners.Add(new Node3D(new Vector3(maxBounds.X, maxBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopFrontRight, ModelId = model.Id });
+            corners.Add(new Node3D(new Vector3(minBounds.X, maxBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopBackLeft, ModelId = model.Id });
+            corners.Add(new Node3D(new Vector3(minBounds.X, minBounds.Y, maxBounds.Z)) { CornerName = CornerName.TopBackRight, ModelId = model.Id });
 
 
 
@@ -144,18 +144,18 @@ namespace DimensionForge.HelperTools
 
 
             // Add center points to the list
-            corners.Add(new Node3D(frontCenter) { CornerName = CornerName.FrontPlaneCenter });
-            corners.Add(new Node3D(backCenter) { CornerName = CornerName.BackPlaneCenter });
-            corners.Add(new Node3D(leftCenter) { CornerName = CornerName.LeftPlaneCenter });
-            corners.Add(new Node3D(rightCenter) { CornerName = CornerName.RightPlaneCenter });
-            corners.Add(new Node3D(topCenter) { CornerName = CornerName.TopPlaneCenter });
-            corners.Add(new Node3D(bottomCenter) { CornerName = CornerName.BottomPlaneCenter });
-            corners.Add(new Node3D(modelCenter) { CornerName = CornerName.ModelCenter });
-
-
+            corners.Add(new Node3D(frontCenter) { CornerName = CornerName.FrontPlaneCenter, ModelId = model.Id });
+            corners.Add(new Node3D(backCenter) { CornerName = CornerName.BackPlaneCenter, ModelId = model.Id });
+            corners.Add(new Node3D(leftCenter) { CornerName = CornerName.LeftPlaneCenter, ModelId = model.Id });
+            corners.Add(new Node3D(rightCenter) { CornerName = CornerName.RightPlaneCenter, ModelId = model.Id });
+            corners.Add(new Node3D(topCenter) { CornerName = CornerName.TopPlaneCenter, ModelId = model.Id });
+            corners.Add(new Node3D(bottomCenter) { CornerName = CornerName.BottomPlaneCenter, ModelId = model.Id });
+            corners.Add(new Node3D(modelCenter) { CornerName = CornerName.ModelCenter, ModelId = model.Id });
 
             return corners;
         }
+
+
         public static Vector3 GetCentroid(List<Node3D> positions)
         {
             Vector3 centroid = new Vector3(0, 0, 0);

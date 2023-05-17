@@ -25,7 +25,7 @@
             <tb:TransformationsView />
         </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewmodels3D:verletIntigrationViewModel}">
+        <DataTemplate DataType="{x:Type viewmodels3D:ItemsListViewModel}">
             <tb:VerletView />
         </DataTemplate>
 
@@ -90,7 +90,7 @@
                             Material="{Binding Material}"
                             RenderWireframe="false"
                             Transform="{Binding Transform}"
-                            IsRendering="{Binding IsRendering}"
+                            
                            />
 
                     </DataTemplate>
@@ -144,47 +144,10 @@
 
         
 
-            <Button
-                Margin="10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Command="{Binding DrawBoundingBoxCommand}">
-                Draw Bounds
-            </Button>
 
 
-            <Button
-                Margin="10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Command="{Binding CenterModelCommand}">
-                Center Model 
-            </Button>
 
 
-            <Button
-                Margin="10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Command="{Binding RotationTest1Command}">
-                Rotate Tha model
-            </Button>
-
-            <Button
-                Margin="10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Command="{Binding AxisTestCommand}">
-                AXIS TEST
-            </Button>
-
-            <Button
-                Margin="10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Command="{Binding RotateCommand}">
-                Rotate
-            </Button>
 
 
 
@@ -222,7 +185,14 @@
             VerticalAlignment="Bottom"
             Orientation="Horizontal">
             <ContentControl Content="{Binding SelectedToolPanel}" />
+        </StackPanel>
 
+
+
+
+        <StackPanel>
+            <Image Source="C:\Users\jacob\source\repos\DimensionForge\Png\rapid_logo_resized.png" Width="300" Height="auto"/>
+            <!-- Other controls and elements in the StackPanel -->
         </StackPanel>
 
 

@@ -18,6 +18,7 @@ using Material = HelixToolkit.Wpf.SharpDX.Material;
 using System.Windows.Media.Media3D;
 using System.Collections.Generic;
 using DimensionForge.Common;
+using DimensionForge.HelperTools;
 
 namespace DimensionForge._3D.Models
 {
@@ -57,8 +58,7 @@ namespace DimensionForge._3D.Models
         [property: JsonIgnore]
         Transform3DGroup transform;
 
-        [ObservableProperty]
-        bool isRendering = true ;
+     
 
         public virtual void Draw()
         {
@@ -169,6 +169,7 @@ namespace DimensionForge._3D.Models
 
             var material = PhongMaterials.Red;
             material.DiffuseColor = Color;
+
           
             return material;
         }
@@ -178,10 +179,16 @@ namespace DimensionForge._3D.Models
             transform.Children.Add(new TranslateTransform3D(translation.X, translation.Y, translation.Z));
         }
 
-
+        [RelayCommand]
         public void Select()
         {
           IsSelected = !IsSelected;
+            if (IsSelected)
+            {
+
+                ObjHelperClass.UpdatePosition(this as ObjModel3D, Position + new Vector3(1, 1, 1));
+            }
+
         }
 
         public void Deselect()

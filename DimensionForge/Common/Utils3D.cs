@@ -56,6 +56,18 @@ namespace Net_Designer_MVVM
 
 
 
+
+
+        // Function to check if a position is a valid number
+        private static bool IsValidPosition(Vector3 position)
+        {
+            return !float.IsInfinity(position.X) && !float.IsInfinity(position.Y) && !float.IsInfinity(position.Z)
+                && !float.IsNaN(position.X) && !float.IsNaN(position.Y) && !float.IsNaN(position.Z);
+        }
+
+
+
+
         public static List<SharpDX.Color> GetColorList()
         {
             List<SharpDX.Color> colors = new();

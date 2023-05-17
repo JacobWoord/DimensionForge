@@ -16,16 +16,46 @@ using SharpDX;
 
 namespace DimensionForge._3D.ViewModels
 {
-    public class verletIntigrationViewModel : ObservableObject
+    public partial  class ItemsListViewModel : ObservableObject
     {
         private Canvas3DViewModel canvasViewModel { get; set; }
+       
+        
+        [ObservableProperty]
+        ObservableCollection<ObjModel3D>objItems = new();
 
-
-        public verletIntigrationViewModel()
+        public ItemsListViewModel()
         {
             canvasViewModel = Ioc.Default.GetService<Canvas3DViewModel>();
-       
+            
+            
+            
+            canvasViewModel.Shapes.ToList().ForEach(obj =>
+            {
+                if (obj is ObjModel3D obj3D)
+                {
+                    objItems.Add(obj3D);
+                }
+            });
+
+
+
+
         }
+
+
+
+
+
+        [RelayCommand]
+        void CloseWindow()
+        {
+            canvasViewModel.Navigate("Close");
+        }
+
+
+
+
 
     }
 }

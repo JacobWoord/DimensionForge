@@ -21,6 +21,7 @@ using System.Diagnostics;
 using HelixToolkit.Wpf;
 using SharpDX.Direct3D9;
 using Assimp;
+using System.IO;
 
 namespace DimensionForge._3D.ViewModels
 {
@@ -67,107 +68,42 @@ namespace DimensionForge._3D.ViewModels
         private void InitBuildResult()
         {
 
-            ImportDoorModel();
+            ImportDoorModel("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj");
+            ImportDoorModel("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj");
+            ImportDoorModel("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj");
+            ImportDoorModel("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\CLUMP.obj");
+            ImportDoorModel("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\TUIG.obj");
+           
 
             var model = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
-            var boundingelements = model.GetBoundingElements();
+            // var boundingelements = model.GetBoundingElements();
+            // boundingelements.ForEach(x => shapes.Add(x));
             buildResult = new VerletBuildResult();
-            boundingelements.ForEach(x => shapes.Add(x));
 
-
-            //Draw the center points of the bounding elements
-            var modelCenterPoints = model.BoundingPositions.Where(x => x.CornerName == CornerName.TopPlaneCenter
-            || x.CornerName == CornerName.FrontPlaneCenter
-            || x.CornerName == CornerName.BottomPlaneCenter
-            || x.CornerName == CornerName.LeftPlaneCenter
-            || x.CornerName == CornerName.RightPlaneCenter
-            || x.CornerName == CornerName.BackPlaneCenter).ToList();
-
-
-            modelCenterPoints.ForEach(x => Shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = Color.Red }));
-
-            var topBottomArrow1 = new AxisArrows3D(model.GetCenter(CornerName.ModelCenter), model.GetCenter(CornerName.TopPlaneCenter), Color.Purple);
-          
-            //TODO: Create viewmodels for the axis arrows
-            // var topBottomArrow2 = new AxisArrows3D(buildResult.GetCenter(CornerName.ModelCenter), buildResult.GetCenter(CornerName.TopPlaneCenter), Color.Yellow);
-
-            Shapes.Add(topBottomArrow2);
-            Shapes.Add(topBottomArrow1);
-
-
-            //Draws the the elements from the buildresult class
-            foreach (var element in buildResult.Elements)
-            {
-                Shapes.Add(new Cylinder3D() { Start = element.Start, End = element.End, Color = element.Color });
-            }
-            for (int i = 0; i < buildResult.Nodes.Count(); i++)
-            {
-                Shapes.Add(new CornerPoint3D() { LinkedNode = buildResult.Nodes[i], Color = Color.Purple });
-
-            }
-         
-
-            Draw();
         }
 
-        private async void ImportDoorModel()
+        private async void ImportDoorModel(string filepath)
         {
-            var model = new ObjModel3D(await ObjHelperClass.ImportAsMeshGeometry3D("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj"));
+            var model = new ObjModel3D(await ObjHelperClass.ImportAsMeshGeometry3D(filepath));
+            model.Name = Path.GetFileNameWithoutExtension(filepath);
+
             shapes.Add(model);
-            ObjHelperClass.UpdatePosition(model, new Vector3(0, 0, 10));
+            ObjHelperClass.RotateGeometry(model, Vector3.UnitY, 60);
+            ObjHelperClass.UpdatePosition(model, new Vector3(0, 0, 100));
         }
 
 
 
 
-
-        [RelayCommand]
-        public void AxisTest()
+        public string GetLastWordFromPath(string path)
         {
-
-            //Draw axis for doormodel
-            var doorModel = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
-
-            var frontPlaneCenter1 = doorModel.BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.FrontPlaneCenter);
-            var topCenter1 = doorModel.BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.TopPlaneCenter);
-            var leftRight1 = doorModel.BoundingPositions.FirstOrDefault(x => x.CornerName == CornerName.RightPlaneCenter);
-            // var center1 = new Node3D(ComputeBoxRotationHelper.GetCenter(doorModel.BoundingPositions.Where(x => x.UseCase != UseCase.modelCenter).ToList())){ UseCase = UseCase.modelCenter};
-            var center1 = (doorModel.GetCenter(CornerName.ModelCenter));
-
-            var arrowFront1 = new AxisArrows3D(center1, frontPlaneCenter1, Color.Blue) { UseCase = UseCase.model };
-            var arrowTop1 = new AxisArrows3D(center1, topCenter1, Color.Blue) { UseCase = UseCase.model };
-            var leftRightcenter1 = new AxisArrows3D(center1, leftRight1, Color.Blue) { UseCase = UseCase.model };
-
-            //shapes.Add(arrowFront1);
-            shapes.Add(arrowTop1);
-            //shapes.Add(leftRightcenter1);
-
-            // Draw axis arrows for the verlet box 
-            var verletNodes = buildResult.Nodes;
-            var frontCenter2 = verletNodes.FirstOrDefault(x => x.CornerName == CornerName.FrontPlaneCenter);
-            var topCenter2 = verletNodes.FirstOrDefault(x => x.CornerName == CornerName.TopPlaneCenter);
-            var rightCenter2 = verletNodes.FirstOrDefault(x => x.CornerName == CornerName.RightPlaneCenter);
-            //var center2 = new Node3D(ComputeBoxRotationHelper.GetCenter(verletNodes.Where(x => x.UseCase != UseCase.verletCenter).ToList())) { UseCase = UseCase.modelCenter};
-            var center2 = buildResult.GetCenter(CornerName.ModelCenter);
-
-            var arrowFront2 = new AxisArrows3D(center2, frontCenter2, Color.Green) { UseCase = UseCase.verlet };
-            var arrowTop2 = new AxisArrows3D(center2, topCenter2, Color.Green) { UseCase = UseCase.verlet };
-            var leftRightcenter2 = new AxisArrows3D(center2, rightCenter2, Color.Green) { UseCase = UseCase.verlet };
-
-            // shapes.Add(arrowFront2);
-            shapes.Add(arrowTop2);
-            // shapes.Add(leftRightcenter2);
-
-
-
-
-
-
-
-
-            Draw();
-
+            string fileName = Path.GetFileNameWithoutExtension(path);
+            string[] words = fileName.Split(' ');
+            string lastWord = words[words.Length - 1];
+            return lastWord;
         }
+
+
 
 
 
@@ -190,8 +126,19 @@ namespace DimensionForge._3D.ViewModels
                     var stopWatch = Stopwatch.StartNew();
 
                     UpdatePhysics();
-                   
-                    RotateModelOnCenters();
+
+                    foreach (var item in shapes)
+                    {
+                        if (item is ObjModel3D s)
+                        {
+                            var model = s as ObjModel3D;
+                            s.RotateModelOnCenters(buildResult);
+                        }
+
+
+
+                    }
+
 
 
 
@@ -203,12 +150,17 @@ namespace DimensionForge._3D.ViewModels
 
                    });
                     var elapsed = (int)stopWatch.ElapsedMilliseconds;
-                    //  Debug.WriteLine(elapsed);
+                    Debug.WriteLine(elapsed);
                     int delay = Math.Max(0, duration - elapsed);
                     await Task.Delay(delay);
                 }
             });
         }
+
+
+
+
+
 
 
         [property: JsonIgnore]
@@ -238,173 +190,6 @@ namespace DimensionForge._3D.ViewModels
 
 
 
-
-
-
-        [RelayCommand]
-        public void RotateModelOnCenters()
-        {
-            var model = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
-            
-            var verletCenter = buildResult.GetCenter(CornerName.ModelCenter);
-
-            // Save the positions of the verletbox
-            var translation = new Vector3(verletCenter.Position.X, verletCenter.Position.Y, verletCenter.Position.Z);
-            // Translate the red verletbox to the origin
-            buildResult.Nodes.ForEach(node => node.Position -= translation);
-            
-          
-            //Creates Temporary nodes and bring them to the origin
-            var temporaryModelBoundings = new List<Node3D>();
-            model.BoundingPositions.ForEach(x => temporaryModelBoundings.Add(new Node3D(new Vector3(x.Position.X, x.Position.Y, x.Position.Z)) { CornerName = x.CornerName }));
-            ObjHelperClass.UpdateTemporaryNodes(model, buildResult.GetCenter(CornerName.ModelCenter).Position, temporaryModelBoundings);
-           
-            var rotationList = new List<CornerName>();
-            rotationList.Add(CornerName.LeftPlaneCenter);
-            rotationList.Add(CornerName.FrontPlaneCenter);
-            rotationList.Add(CornerName.TopPlaneCenter);
-
-            
-
-            foreach (var cornerName in rotationList)
-            {
-
-                var axis1 = temporaryModelBoundings.FirstOrDefault( x => x.CornerName == cornerName).Position;
-                axis1.Normalize();
-
-                var axis2 = buildResult.GetCenter(cornerName).Position;
-                axis2.Normalize();
-
-                var rotationAxis = Vector3.Cross(axis2, axis1);
-                rotationAxis.Normalize();
-
-                var angle = MathF.Acos(Vector3.Dot(axis1, axis2)) * -1;
-
-                if (MathF.Abs(angle) > 0.01)
-                {
-                    var rotationQuaternion = Quaternion.RotationAxis(rotationAxis, angle);
-
-                    // Apply the rotation to each vertex position in the geometry
-                    for (int i = 0; i < model.Geometry.Positions.Count; i++)
-                    {
-                        model.Geometry.Positions[i] = Vector3.Transform(model.Geometry.Positions[i], rotationQuaternion);
-                    }
-
-                    // Apply the rotation to each bounding position in the model
-                    for (int i = 0; i < model.BoundingPositions.Count; i++)
-                    {
-                        model.BoundingPositions[i].Position = Vector3.Transform(model.BoundingPositions[i].Position, rotationQuaternion);
-                    }
-                    for (int i = 0; i < temporaryModelBoundings.Count; i++)
-                    {
-                        temporaryModelBoundings[i].Position = Vector3.Transform(temporaryModelBoundings[i].Position, rotationQuaternion);
-                    }
-
-                }
-            }
-            
-            // Update the positions of the model
-            buildResult.Nodes.ForEach(node => node.Position += translation);
-            ObjHelperClass.UpdatePosition(model, buildResult.GetCenter(CornerName.ModelCenter).Position);
-           
-          
-        }
-
-
-
-
-
-
-
-
-        // Function to check if a position is a valid number
-        private bool IsValidPosition(Vector3 position)
-        {
-            return !float.IsInfinity(position.X) && !float.IsInfinity(position.Y) && !float.IsInfinity(position.Z)
-                && !float.IsNaN(position.X) && !float.IsNaN(position.Y) && !float.IsNaN(position.Z);
-        }
-
-
-
-
-        private void InitializeMeshSphere()
-        {
-            var s = new CornerPoint3D()
-            {
-                Color = Color.Transparent,
-                LinkedNode = new Node3D(new Vector3(20, 20, 20)),
-                Radius = 10,
-            };
-
-            //Shapes.Add(s);
-
-
-            s.Draw();
-
-
-            // Geometry logic
-            s.Geometry.IsDynamic = true;
-            var g = s.Geometry as MeshGeometry3D;
-            var indices = g.Indices;
-            var vertices = g.Positions;
-
-            // Initialize new buildresult  and give the node elements to the buildresult
-            buildResult = new VerletBuildResult();
-
-            // Draw a new sphere for each node in the buildresult
-            // buildResult.Nodes.ForEach(x => Shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = Color.Purple }));
-            //vertices.ForEach(x => buildResult.Nodes.Add(new Node3D(x)));
-            //vertices.ForEach(x => Debug.WriteLine($"vertex pos: {x}"));
-
-            var sphereElements = s.GetVerletElements(s.Geometry as MeshGeometry3D);
-            buildResult.Elements = sphereElements;
-
-            HashSet<string> addedNodeIds = new HashSet<string>();
-
-            foreach (var e in sphereElements)
-            {
-                if (addedNodeIds.Add(e.Start.Id))
-                {
-                    buildResult.Nodes.Add(e.Start);
-                }
-
-                if (addedNodeIds.Add(e.End.Id))
-                {
-                    buildResult.Nodes.Add(e.End);
-                }
-            }
-
-            foreach (var element in buildResult.Elements)
-            {
-                Shapes.Add(new Cylinder3D() { Start = element.Start, End = element.End, Color = element.Color });
-            }
-            for (int i = 0; i < buildResult.Nodes.Count(); i++)
-            {
-                Shapes.Add(new CornerPoint3D() { LinkedNode = buildResult.Nodes[i], Color = Color.Purple });
-
-            }
-
-
-            Draw();
-
-
-
-        }
-
-   
-
-
-
-
-        [RelayCommand]
-        void DrawBoundingBox()
-        {
-
-            var door = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
-
-            door.BoundingPositions.ForEach(x => shapes.Add(new CornerPoint3D() { Color = Color.Yellow, LinkedNode = x }));
-            Draw();
-        }
 
         [RelayCommand]
         void MoveToNextIteration()
@@ -482,11 +267,8 @@ namespace DimensionForge._3D.ViewModels
         }
 
 
-
-
-
         [RelayCommand]
-        void Navigate(string destination)
+        public void Navigate(string destination)
         {
             switch (destination)
             {
@@ -494,13 +276,16 @@ namespace DimensionForge._3D.ViewModels
                     SelectedToolPanel = Ioc.Default.GetService<CoordinationViewModel>();
                     break;
                 case "verlet":
-                    SelectedToolPanel = Ioc.Default.GetService<verletIntigrationViewModel>();
+                    SelectedToolPanel = Ioc.Default.GetService<ItemsListViewModel>();
                     break;
                 case "3D":
                     SelectedToolPanel = Ioc.Default.GetService<Edit3DObjectsViewModel>();
                     break;
                 case "FloorTextures":
                     SelectedToolPanel = Ioc.Default.GetService<FloorTexturesViewModel>();
+                    break;
+                case "Close":
+                    SelectedToolPanel = null;
                     break;
 
 
@@ -528,7 +313,7 @@ namespace DimensionForge._3D.ViewModels
         }
 
         [RelayCommand]
-        public void Reload(string floorNumber = "1")
+        public async Task Reload(string floorNumber = "1")
         {
             continueVerlet = false;
             shapes.Clear();

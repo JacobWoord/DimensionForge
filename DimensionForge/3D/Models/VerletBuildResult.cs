@@ -24,7 +24,7 @@ namespace DimensionForge
 
         private Canvas3DViewModel viewModel;
         public List<Node3D> Nodes { get; set; } = new();
-        public List<Node3D> CenterPositions { get; set; } = new();
+
         public List<VerletElement3D> Elements { get; set; } = new();
 
         public VerletBuildResult()
@@ -60,6 +60,9 @@ namespace DimensionForge
             }
         }
 
+      
+        
+        
         public void GetAllObjElements()
         {
 
@@ -72,7 +75,7 @@ namespace DimensionForge
                 {
 
                     var model = shapesList[i] as ObjModel3D;
-                    var elements = model.GetVerletElements();
+                    var elements = model.GetVerletElements(model.Id);
 
                     foreach (var el in elements)
                     {
@@ -87,232 +90,67 @@ namespace DimensionForge
             }
         }
 
-        //public Node3D GetCenter(CornerName centerName)
-        //{
-        //    // Define the center you want to retrieve from the functions as a parameter
-        //    UpdateCenterPositions();
-
-
-        //    Node3D center;
-
-        //    switch (centerName)
-        //    {
-        //        case CornerName.FrontPlaneCenter:
-        //            center = CenterPositions.FirstOrDefault(x => x.CornerName == CornerName.FrontPlaneCenter);
-        //            break;
-        //        case CornerName.BackPlaneCenter:
-        //            center = CenterPositions.FirstOrDefault(x => x.CornerName == CornerName.BackPlaneCenter);
-
-        //            break;
-        //        case CornerName.LeftPlaneCenter:
-        //            center = CenterPositions.FirstOrDefault(x => x.CornerName == CornerName.LeftPlaneCenter);
-
-        //            break;
-        //        case CornerName.RightPlaneCenter:
-        //            center = CenterPositions.FirstOrDefault(x => x.CornerName == CornerName.RightPlaneCenter);
-
-        //            break;
-        //        case CornerName.TopPlaneCenter:
-        //            center = CenterPositions.FirstOrDefault(x => x.CornerName == CornerName.TopPlaneCenter);
-
-        //            break;
-        //        case CornerName.BottomPlaneCenter:
-        //            center = CenterPositions.FirstOrDefault(x => x.CornerName == CornerName.BottomPlaneCenter);
-        //            break;
-        //        case CornerName.ModelCenter:
-        //            center = CenterPositions.FirstOrDefault(x => x.CornerName == CornerName.ModelCenter);
-
-        //            break;
-        //        default: return null;
-
-        //    }
-
-        //    return center;
-        //}
-
-        public List<Node3D> SetCenter()
-        {
-
-
-            var newCenterPositions = new List<Node3D>();
-
-            // Calculate center points for each face of the bounding box
-
-            Vector3 frontCenter = GetCentroid(Nodes.Where(x => x.CornerName == CornerName.TopFrontRight
-            || x.CornerName == CornerName.TopFrontLeft
-            || x.CornerName == CornerName.BottomFrontRight
-            || x.CornerName == CornerName.BottomFrontLeft).ToList());
-
-            Vector3 backCenter = GetCentroid(Nodes.Where(x => x.CornerName == CornerName.TopBackRight
-           || x.CornerName == CornerName.TopBackLeft
-           || x.CornerName == CornerName.BottomBackRight
-           || x.CornerName == CornerName.BottomBackLeft).ToList());
-
-
-            Vector3 rightCenter = GetCentroid(Nodes.Where(x => x.CornerName == CornerName.TopBackRight
-             || x.CornerName == CornerName.TopFrontLeft
-             || x.CornerName == CornerName.BottomBackRight
-             || x.CornerName == CornerName.BottomFrontLeft).ToList());
-
-
-            Vector3 leftCenter = GetCentroid(Nodes.Where(x => x.CornerName == CornerName.TopBackLeft
-              || x.CornerName == CornerName.TopFrontRight
-              || x.CornerName == CornerName.BottomBackLeft
-              || x.CornerName == CornerName.BottomFrontRight).ToList());
 
 
 
-            Vector3 topCenter = GetCentroid(Nodes.Where(x => x.CornerName == CornerName.TopBackLeft
-                || x.CornerName == CornerName.TopBackRight
-                || x.CornerName == CornerName.TopFrontLeft
-                || x.CornerName == CornerName.TopFrontRight).ToList());
-
-            Vector3 bottomCenter = GetCentroid(Nodes.Where(x => x.CornerName == CornerName.BottomBackLeft
-                || x.CornerName == CornerName.BottomBackRight
-                || x.CornerName == CornerName.BottomFrontLeft
-                || x.CornerName == CornerName.BottomFrontRight).ToList());
 
 
-            Vector3 modelCenter = GetCentroid(Nodes.Where(x => x.CornerName == CornerName.TopBackRight
-           || x.CornerName == CornerName.TopBackLeft
-           || x.CornerName == CornerName.BottomBackRight
-           || x.CornerName == CornerName.BottomBackLeft
-           || x.CornerName == CornerName.TopFrontRight
-           || x.CornerName == CornerName.TopFrontLeft
-           || x.CornerName == CornerName.BottomFrontLeft
-           || x.CornerName == CornerName.BottomFrontRight).ToList());
-
-
-
-            // Add center points to the list
-            newCenterPositions.Add(new Node3D(frontCenter) { CornerName = CornerName.FrontPlaneCenter });
-            newCenterPositions.Add(new Node3D(backCenter) { CornerName = CornerName.BackPlaneCenter });
-            newCenterPositions.Add(new Node3D(leftCenter) { CornerName = CornerName.LeftPlaneCenter });
-            newCenterPositions.Add(new Node3D(rightCenter) { CornerName = CornerName.RightPlaneCenter });
-            newCenterPositions.Add(new Node3D(topCenter) { CornerName = CornerName.TopPlaneCenter });
-            newCenterPositions.Add(new Node3D(bottomCenter) { CornerName = CornerName.BottomPlaneCenter });
-            newCenterPositions.Add(new Node3D(modelCenter) { CornerName = CornerName.ModelCenter });
-
-            return newCenterPositions;
-        }
-
-        public void UpdateCenterPositions()
-        {
-
-            var frontCorners = Nodes.Where(x => x.CornerName == CornerName.TopFrontRight
-           || x.CornerName == CornerName.TopFrontLeft
-           || x.CornerName == CornerName.BottomFrontRight
-           || x.CornerName == CornerName.BottomFrontLeft).ToList();
-            var frontCenter = GetCentroid(frontCorners);
-
-
-            var backCorners = Nodes.Where(x => x.CornerName == CornerName.TopBackRight
-             || x.CornerName == CornerName.TopBackLeft
-             || x.CornerName == CornerName.BottomBackRight
-             || x.CornerName == CornerName.BottomBackLeft).ToList();
-            var backCenter = GetCentroid(backCorners);
-
-
-            var rightCorners = Nodes.Where(x => x.CornerName == CornerName.TopBackRight
-                           || x.CornerName == CornerName.TopFrontLeft
-                           || x.CornerName == CornerName.BottomBackRight
-                           || x.CornerName == CornerName.BottomFrontLeft).ToList();
-            var rightCenter = GetCentroid(rightCorners);
-
-
-            var leftCorners = Nodes.Where(x => x.CornerName == CornerName.TopBackLeft
-              || x.CornerName == CornerName.TopFrontRight
-              || x.CornerName == CornerName.BottomBackLeft
-              || x.CornerName == CornerName.BottomFrontRight).ToList();
-            var leftCenter = GetCentroid(leftCorners);
-
-
-            var topCorners = Nodes.Where(x => x.CornerName == CornerName.TopBackLeft
-                 || x.CornerName == CornerName.TopBackRight
-                 || x.CornerName == CornerName.TopFrontLeft
-                 || x.CornerName == CornerName.TopFrontRight).ToList();
-            var topCenter = GetCentroid(topCorners);
-
-
-
-            var bottomCorners = Nodes.Where(x => x.CornerName == CornerName.BottomBackLeft
-                || x.CornerName == CornerName.BottomBackRight
-                || x.CornerName == CornerName.BottomFrontLeft
-                || x.CornerName == CornerName.BottomFrontRight).ToList();
-            var bottomCenter = GetCentroid(bottomCorners);
-
-
-            var allCorners = Nodes.Where(x => x.CornerName == CornerName.TopBackRight
-           || x.CornerName == CornerName.TopBackLeft
-           || x.CornerName == CornerName.BottomBackRight
-           || x.CornerName == CornerName.BottomBackLeft
-           || x.CornerName == CornerName.TopFrontRight
-           || x.CornerName == CornerName.TopFrontLeft
-           || x.CornerName == CornerName.BottomFrontLeft
-           || x.CornerName == CornerName.BottomFrontRight).ToList();
-            var modelCenter = GetCentroid(allCorners);
-
-
-
-        }
-
-
-        public Node3D GetCenter(CornerName centerName)
+        public Node3D GetCenter(CornerName centerName, string modelId)
         {
             List<Node3D> corners;
             switch (centerName)
             {
                 case CornerName.FrontPlaneCenter:
                     corners = Nodes.Where(x =>
-                        x.CornerName == CornerName.TopFrontRight ||
-                        x.CornerName == CornerName.TopFrontLeft ||
-                        x.CornerName == CornerName.BottomFrontRight ||
-                        x.CornerName == CornerName.BottomFrontLeft).ToList();
+                        x.CornerName == CornerName.TopFrontRight && x.ModelId == modelId ||
+                        x.CornerName == CornerName.TopFrontLeft && x.ModelId == modelId ||
+                        x.CornerName == CornerName.BottomFrontRight && x.ModelId == modelId ||
+                        x.CornerName == CornerName.BottomFrontLeft && x.ModelId == modelId).ToList();
                     break;
                 case CornerName.BackPlaneCenter:
                     corners = Nodes.Where(x =>
-                        x.CornerName == CornerName.TopBackRight ||
-                        x.CornerName == CornerName.TopBackLeft ||
-                        x.CornerName == CornerName.BottomBackRight ||
-                        x.CornerName == CornerName.BottomBackLeft).ToList();
+                        x.CornerName == CornerName.TopBackRight && x.ModelId == modelId ||
+                        x.CornerName == CornerName.TopBackLeft && x.ModelId == modelId ||
+                        x.CornerName == CornerName.BottomBackRight && x.ModelId == modelId ||
+                        x.CornerName == CornerName.BottomBackLeft && x.ModelId == modelId).ToList();
                     break;
                 case CornerName.RightPlaneCenter:
                     corners = Nodes.Where(x =>
-                        x.CornerName == CornerName.TopBackRight ||
-                        x.CornerName == CornerName.TopFrontLeft ||
-                        x.CornerName == CornerName.BottomBackRight ||
-                        x.CornerName == CornerName.BottomFrontLeft).ToList();
+                        x.CornerName == CornerName.TopBackRight && x.ModelId == modelId ||
+                        x.CornerName == CornerName.TopFrontLeft && x.ModelId == modelId ||
+                        x.CornerName == CornerName.BottomBackRight && x.ModelId == modelId  ||
+                        x.CornerName == CornerName.BottomFrontLeft && x.ModelId == modelId).ToList();
                     break;
                 case CornerName.LeftPlaneCenter:
                     corners = Nodes.Where(x =>
-                        x.CornerName == CornerName.TopBackLeft ||
-                        x.CornerName == CornerName.TopFrontRight ||
-                        x.CornerName == CornerName.BottomBackLeft ||
-                        x.CornerName == CornerName.BottomFrontRight).ToList();
+                        x.CornerName == CornerName.TopBackLeft && x.ModelId == modelId ||
+                        x.CornerName == CornerName.TopFrontRight && x.ModelId == modelId ||
+                        x.CornerName == CornerName.BottomBackLeft && x.ModelId == modelId ||
+                        x.CornerName == CornerName.BottomFrontRight && x.ModelId == modelId).ToList();
                     break;
                 case CornerName.TopPlaneCenter:
                     corners = Nodes.Where(x =>
-                        x.CornerName == CornerName.TopBackLeft ||
-                        x.CornerName == CornerName.TopBackRight ||
-                        x.CornerName == CornerName.TopFrontLeft ||
-                        x.CornerName == CornerName.TopFrontRight).ToList();
+                        x.CornerName == CornerName.TopBackLeft && x.ModelId == modelId ||
+                        x.CornerName == CornerName.TopBackRight && x.ModelId == modelId ||
+                        x.CornerName == CornerName.TopFrontLeft && x.ModelId == modelId ||
+                        x.CornerName == CornerName.TopFrontRight && x.ModelId == modelId).ToList();
                     break;
                 case CornerName.BottomPlaneCenter:
                     corners = Nodes.Where(x =>
-                        x.CornerName == CornerName.BottomBackLeft ||
-                        x.CornerName == CornerName.BottomBackRight ||
-                        x.CornerName == CornerName.BottomFrontLeft ||
-                        x.CornerName == CornerName.BottomFrontRight).ToList();
+                        x.CornerName == CornerName.BottomBackLeft && x.ModelId == modelId ||
+                        x.CornerName == CornerName.BottomBackRight && x.ModelId == modelId ||
+                        x.CornerName == CornerName.BottomFrontLeft && x.ModelId == modelId ||
+                        x.CornerName == CornerName.BottomFrontRight && x.ModelId == modelId).ToList();
                     break;
                 case CornerName.ModelCenter:
-                    corners = Nodes.Where(x => x.CornerName == CornerName.TopBackRight
-                      || x.CornerName == CornerName.TopBackLeft
-                      || x.CornerName == CornerName.BottomBackRight
-                      || x.CornerName == CornerName.BottomBackLeft
-                      || x.CornerName == CornerName.TopFrontRight
-                      || x.CornerName == CornerName.TopFrontLeft
-                      || x.CornerName == CornerName.BottomFrontLeft
-                      || x.CornerName == CornerName.BottomFrontRight).ToList();
+                    corners = Nodes.Where(x => x.CornerName == CornerName.TopBackRight && x.ModelId == modelId
+                      || x.CornerName == CornerName.TopBackLeft && x.ModelId == modelId
+                      || x.CornerName == CornerName.BottomBackRight && x.ModelId == modelId
+                      || x.CornerName == CornerName.BottomBackLeft && x.ModelId == modelId
+                      || x.CornerName == CornerName.TopFrontRight && x.ModelId == modelId
+                      || x.CornerName == CornerName.TopFrontLeft && x.ModelId == modelId
+                      || x.CornerName == CornerName.BottomFrontLeft && x.ModelId == modelId
+                      || x.CornerName == CornerName.BottomFrontRight && x.ModelId == modelId).ToList();
                     break;
                 default:
                     throw new ArgumentException("Invalid centerName.");

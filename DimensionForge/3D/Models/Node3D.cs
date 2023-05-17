@@ -8,13 +8,13 @@ namespace DimensionForge._3D.Models
 {
     public partial class Node3D : ObservableObject
     {
-        public bool IsDoorNode { get; set; } = false;
+       
         public float Bounce { get; set; } = 1f;
         public string Id { get; set; }
+        public string ModelId { get; set; }
         public CornerName CornerName { get; set; }
         public bool Pinned { get; set; } = false;
         public UseCase UseCase { get; set; } = UseCase.None;
-
         public Vector3 Position = Vector3.Zero;
         public Vector3 OldPosition { get; set; }
         public float RadiusInMeters { get; set; } = 0.1f;
