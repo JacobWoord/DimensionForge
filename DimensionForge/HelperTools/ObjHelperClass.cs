@@ -225,7 +225,7 @@ namespace DimensionForge.HelperTools
         public static void UpdatePosition(ObjModel3D model, Vector3 newPosition)
         {
             // Calculate the translation vector
-            Vector3 translation = newPosition - model.Position;
+            Vector3 translation = newPosition - model.GetCenter(CornerName.ModelCenter).Position;
 
             // Apply the translation transform
             for (int i = 0; i < model.Geometry.Positions.Count; i++)
@@ -247,6 +247,23 @@ namespace DimensionForge.HelperTools
             //model.Geometry.UpdateOctree();
             //model.Geometry.UpdateTriangles();
         }
+
+
+        public static void UpdateTemporaryNodes(ObjModel3D model, Vector3 newPosition, List<Node3D> temporaryNodes)
+        {
+            // Calculate the translation vector
+            Vector3 translation = newPosition - model.GetCenter(CornerName.ModelCenter).Position;
+                    
+            // Apply the translation the bounding positions of the model as well
+            for (int i = 0; i < temporaryNodes.Count; i++)
+            {
+                temporaryNodes[i].Position += translation;
+            }
+
+        }
+           
+
+           
 
 
 
@@ -305,12 +322,12 @@ namespace DimensionForge.HelperTools
                 model.BoundingPositions[i].Position += centerPoint.Position;
             }
 
-            //// Update the geometry
-            //model.Geometry.UpdateVertices();
-            //model.Geometry.UpdateVertices();
-            //model.Geometry.UpdateBounds();
-            //model.Geometry.UpdateOctree();
-            //model.Geometry.UpdateTriangles();
+            // Update the geometry
+            model.Geometry.UpdateVertices();
+            
+            model.Geometry.UpdateBounds();
+            model.Geometry.UpdateOctree();
+            model.Geometry.UpdateTriangles();
 
 
 

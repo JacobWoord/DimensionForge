@@ -19,6 +19,7 @@ namespace DimensionForge._3D.Models
         public float Height { get; set; }
         public float Width { get; set; }
         public float Depth { get; set; }
+      
 
         public List<Node3D> BoundingPositions { get; set; }
 

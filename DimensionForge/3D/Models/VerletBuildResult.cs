@@ -91,6 +91,8 @@ namespace DimensionForge
         public Node3D GetCenter(CornerName centerName)
         {
             // Define the center you want to retrieve from the functions as a parameter
+            UpdateCenterPositions();
+
 
             Node3D center;
 

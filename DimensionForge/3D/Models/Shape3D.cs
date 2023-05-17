@@ -57,6 +57,9 @@ namespace DimensionForge._3D.Models
         [property: JsonIgnore]
         Transform3DGroup transform;
 
+        [ObservableProperty]
+        bool isRendering = true ;
+
         public virtual void Draw()
         {
 

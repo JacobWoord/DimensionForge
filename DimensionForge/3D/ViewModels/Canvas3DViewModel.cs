@@ -193,12 +193,10 @@ namespace DimensionForge._3D.ViewModels
 
                     UpdatePhysics();
                     buildResult.UpdateCenterPositions();
-                    // UpdateModelPosition();
-                    RotateModel();
+                    RotateModelOnCenters();
 
 
-                    // the function below is to use the EMA filter to smooth the door position
-                    // UpdateDoorPositionEMA();
+
                     await uiDispatcher.InvokeAsync(() =>
                    {
                        Draw();
@@ -209,7 +207,7 @@ namespace DimensionForge._3D.ViewModels
                     var elapsed = (int)stopWatch.ElapsedMilliseconds;
                     //  Debug.WriteLine(elapsed);
                     int delay = Math.Max(0, duration - elapsed);
-                    await Task.Delay(1000);
+                    await Task.Delay(delay);
                 }
             });
         }
@@ -237,88 +235,87 @@ namespace DimensionForge._3D.ViewModels
         }
 
 
-        private void RotateModel()
-        {
 
-            RotateModelOnCenters(CornerName.TopPlaneCenter);
-            RotateModelOnCenters(CornerName.LeftPlaneCenter);
-            RotateModelOnCenters(CornerName.FrontPlaneCenter);
-        }
+
+
+
+
+
+
 
         [RelayCommand]
-        public void RotateModelOnCenters(CornerName CenterNameForBoth)
+        public void RotateModelOnCenters()
         {
             var model = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
+            
             var verletCenter = buildResult.GetCenter(CornerName.ModelCenter);
 
-            //// // Get the topCenters from each box to take get the third axis by taking the cross product 
-            //var axis3 = model.GetCenter(CenterNameForBoth).Position;
-            //axis3.Normalize();
-
-            //var axis4 = buildResult.GetCenter(CenterNameForBoth).Position;
-            //axis4.Normalize();
-            //float angle2 = MathF.Acos(Vector3.Dot(axis3, axis4)) * -1;
-            //Debug.WriteLine(angle2);
-            //if (MathF.Abs(angle2) < 0.01)
-            //    return;
-
-
-
-
-            //Save the positions of the verletbox
+            // Save the positions of the verletbox
             var translation = new Vector3(verletCenter.Position.X, verletCenter.Position.Y, verletCenter.Position.Z);
-            //translate  the red verletbox to the origin
+            // Translate the red verletbox to the origin
             buildResult.Nodes.ForEach(node => node.Position -= translation);
-            //Update the center Positions of the centers
-            buildResult.UpdateCenterPositions();
-            ObjHelperClass.UpdatePosition(model, buildResult.GetCenter(CornerName.ModelCenter).Position);
-
-
-            // Get the topCenters from each box to take get the third axis by taking the cross product 
-            var axis1 = model.GetCenter(CenterNameForBoth).Position;
-            axis1.Normalize();
-
-            var axis2 = buildResult.GetCenter(CenterNameForBoth).Position;
-            axis2.Normalize();
+            
+          
+            //Creates Temporary nodes and bring them to the origin
+            var temporaryModelBoundings = new List<Node3D>();
+            model.BoundingPositions.ForEach(x => temporaryModelBoundings.Add(new Node3D(new Vector3(x.Position.X, x.Position.Y, x.Position.Z)) { CornerName = x.CornerName }));
+            ObjHelperClass.UpdateTemporaryNodes(model, buildResult.GetCenter(CornerName.ModelCenter).Position, temporaryModelBoundings);
            
+            var rotationList = new List<CornerName>();
+            rotationList.Add(CornerName.LeftPlaneCenter);
+            rotationList.Add(CornerName.FrontPlaneCenter);
+            rotationList.Add(CornerName.TopPlaneCenter);
 
-            // calc the crossproduct of the two vectors to get the rotation axis
-            var rotationAxis = Vector3.Cross(axis2, axis1);
+            
 
-            // normalize the rotation axis
-            rotationAxis.Normalize();
-
-            // calc the angle between the two vectors (remember to catch a negative angle )
-            float angle = MathF.Acos(Vector3.Dot(axis1, axis2)) * -1;
-           // Debug.WriteLine(angle);
-            if(!float.IsNaN(angle)&&angle!=0)
+            foreach (var cornerName in rotationList)
             {
-                // Create a rotationAxis
-                Quaternion q = Quaternion.RotationAxis(rotationAxis, angle);
 
-                var centerPoint = model.GetCenter(CornerName.ModelCenter);
-                // Apply the rotation to each vertex position in the geometry
-                for (int i = 0; i < model.Geometry.Positions.Count; i++)
+                var axis1 = temporaryModelBoundings.FirstOrDefault( x => x.CornerName == cornerName).Position;
+                axis1.Normalize();
+
+                var axis2 = buildResult.GetCenter(cornerName).Position;
+                axis2.Normalize();
+
+                var rotationAxis = Vector3.Cross(axis2, axis1);
+                rotationAxis.Normalize();
+
+                var angle = MathF.Acos(Vector3.Dot(axis1, axis2)) * -1;
+
+                if (MathF.Abs(angle) > 0.01)
                 {
-                    model.Geometry.Positions[i] = Vector3.Transform(model.Geometry.Positions[i], q);
-                }
-                // Apply the rotation to each bounding position in the model
-                for (int i = 0; i < model.BoundingPositions.Count; i++)
-                {
-                    model.BoundingPositions[i].Position = Vector3.Transform(model.BoundingPositions[i].Position, q);
+                    var rotationQuaternion = Quaternion.RotationAxis(rotationAxis, angle);
+
+                    // Apply the rotation to each vertex position in the geometry
+                    for (int i = 0; i < model.Geometry.Positions.Count; i++)
+                    {
+                        model.Geometry.Positions[i] = Vector3.Transform(model.Geometry.Positions[i], rotationQuaternion);
+                    }
+
+                    // Apply the rotation to each bounding position in the model
+                    for (int i = 0; i < model.BoundingPositions.Count; i++)
+                    {
+                        model.BoundingPositions[i].Position = Vector3.Transform(model.BoundingPositions[i].Position, rotationQuaternion);
+                    }
+                    for (int i = 0; i < temporaryModelBoundings.Count; i++)
+                    {
+                        temporaryModelBoundings[i].Position = Vector3.Transform(temporaryModelBoundings[i].Position, rotationQuaternion);
+                    }
+
                 }
             }
-         
-
-  
-            // Update the geometry
-            //model.Geometry.UpdateVertices();
-
+            
+            // Update the positions of the model
             buildResult.Nodes.ForEach(node => node.Position += translation);
-            buildResult.UpdateCenterPositions();
             ObjHelperClass.UpdatePosition(model, buildResult.GetCenter(CornerName.ModelCenter).Position);
-
+           
+          
         }
+
+
+
+
+
 
 
 
@@ -634,7 +631,7 @@ namespace DimensionForge._3D.ViewModels
         [RelayCommand]
         void Rotate()
         {
-          var model =   shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
+            var model = shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
             ObjHelperClass.RotateGeometry(model, Vector3.UnitX, 90);
         }
 

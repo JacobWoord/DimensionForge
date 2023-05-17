@@ -90,6 +90,7 @@
                             Material="{Binding Material}"
                             RenderWireframe="false"
                             Transform="{Binding Transform}"
+                            IsRendering="{Binding IsRendering}"
                            />
 
                     </DataTemplate>
