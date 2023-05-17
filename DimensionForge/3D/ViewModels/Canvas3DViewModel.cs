@@ -87,7 +87,9 @@ namespace DimensionForge._3D.ViewModels
             modelCenterPoints.ForEach(x => Shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = Color.Red }));
 
             var topBottomArrow1 = new AxisArrows3D(model.GetCenter(CornerName.ModelCenter), model.GetCenter(CornerName.TopPlaneCenter), Color.Purple);
-            var topBottomArrow2 = new AxisArrows3D(buildResult.GetCenter(CornerName.ModelCenter), buildResult.GetCenter(CornerName.TopPlaneCenter), Color.Yellow);
+          
+            //TODO: Create viewmodels for the axis arrows
+            // var topBottomArrow2 = new AxisArrows3D(buildResult.GetCenter(CornerName.ModelCenter), buildResult.GetCenter(CornerName.TopPlaneCenter), Color.Yellow);
 
             Shapes.Add(topBottomArrow2);
             Shapes.Add(topBottomArrow1);
@@ -103,11 +105,7 @@ namespace DimensionForge._3D.ViewModels
                 Shapes.Add(new CornerPoint3D() { LinkedNode = buildResult.Nodes[i], Color = Color.Purple });
 
             }
-            foreach (var node in buildResult.CenterPositions)
-            {
-                Shapes.Add(new CornerPoint3D() { LinkedNode = node, Color = Color.YellowGreen });
-
-            }
+         
 
             Draw();
         }
