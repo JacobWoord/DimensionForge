@@ -19,6 +19,7 @@ using log4net;
 using log4net.Config;
 using System.IO;
 using System.Diagnostics;
+using DimensionForge._3D.Views.ToolbarViews;
 
 namespace DimensionForge
 {
@@ -45,8 +46,8 @@ namespace DimensionForge
 
             serviceCollection.AddTransient<CoordinationViewModel>();
             serviceCollection.AddTransient<ItemsListViewModel>();
-            serviceCollection.AddTransient<Edit3DObjectsViewModel>();
             serviceCollection.AddTransient<FloorTexturesViewModel>();
+            serviceCollection.AddTransient<MoveControlsViewModel>();
            
             serviceProvider = serviceCollection.BuildServiceProvider();
             Ioc.Default.ConfigureServices(serviceProvider);

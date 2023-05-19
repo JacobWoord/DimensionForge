@@ -12,7 +12,7 @@ namespace DimensionForge._3D.Models
         public float Bounce { get; set; } = 1f;
         public string Id { get; set; }
         public string ModelId { get; set; }
-        public CornerName CornerName { get; set; }
+        public CornerName CornerName { get; set; } = CornerName.None;
         public bool Pinned { get; set; } = false;
         public UseCase UseCase { get; set; } = UseCase.None;
         public Vector3 Position = Vector3.Zero;

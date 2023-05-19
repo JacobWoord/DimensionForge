@@ -22,6 +22,7 @@ namespace DimensionForge._3D.Models
       
 
         public List<Node3D> BoundingPositions { get; set; }
+        public List<Node3D> ConnectionNodes { get; set; } = new();
 
 
         public ObjModel3D(MeshGeometry3D meshGeomtry3D)
@@ -29,6 +30,18 @@ namespace DimensionForge._3D.Models
             Geometry = meshGeomtry3D;
             Color = SharpDX.Color.Blue;
             InitModel();
+            InitNodes();
+        }
+  
+        private void InitNodes()
+        {
+            ConnectionNodes.Add(new Node3D(new Vector3(-0.40499976f, -0.049999993f, 0.024999999f)));
+            ConnectionNodes.Add(new Node3D(new Vector3(-0.41499975f, 0.09f, 0.035000004f)));
+            ConnectionNodes.Add(new Node3D(new Vector3(-0.43999973f, 0.39499977f,0.040000003f)));
+            ConnectionNodes.Add(new Node3D(new Vector3(-0.43499973f, 0.53499967f, 0.040000003f)));
+            ConnectionNodes.Add(new Node3D(new Vector3(-0.39999977f, -0.18499997f, 0.029999997f)));
+            ConnectionNodes.Add(new Node3D(new Vector3(0.17500003f, -0.70000005f, 1.8899999f)));
+            ConnectionNodes.Add(new Node3D(new Vector3(-0.38000003f, -0.7500001f, -1.9000003f)));
         }
 
 
@@ -85,6 +98,11 @@ namespace DimensionForge._3D.Models
                     for (int i = 0; i < model.BoundingPositions.Count; i++)
                     {
                         model.BoundingPositions[i].Position = Vector3.Transform(model.BoundingPositions[i].Position, rotationQuaternion);
+                    }
+                    // Apply the rotation to each Connection position in the model
+                    for (int i = 0; i < model.ConnectionNodes.Count; i++)
+                    {
+                        model.ConnectionNodes[i].Position = Vector3.Transform(model.ConnectionNodes[i].Position, rotationQuaternion);
                     }
                     for (int i = 0; i < temporaryModelBoundings.Count; i++)
                     {

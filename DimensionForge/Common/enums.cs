@@ -36,8 +36,10 @@ namespace DimensionForge.Common
         RightPlaneCenter,
         TopPlaneCenter,
         BottomPlaneCenter,
-        ModelCenter
+        ModelCenter,
+        None
     }
+        
 
 
 

@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace DimensionForge._3D.Views.ToolbarViews
 {
     /// <summary>
-    /// Interaction logic for _3DObjectsView.xaml
+    /// Interaction logic for MoveControlsView.xaml
     /// </summary>
-    public partial class Edit3DObjectsView : UserControl
+    public partial class MoveControlsView : UserControl
     {
-        public Edit3DObjectsView()
+        public MoveControlsView()
         {
             InitializeComponent();
         }

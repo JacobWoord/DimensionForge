@@ -31,7 +31,7 @@
                                   >
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button Background="Transparent" Foreground="Black" Content="{Binding Name}" Margin="5" Command="{Binding SelectCommand}" CommandParameter="{Binding}"/>
+                                <Button Background="Transparent" Foreground="{StaticResource PrimaryHueMidBrush}"  Content="{Binding Name}" Margin="5" Command="{Binding SelectCommand}" CommandParameter="{Binding}"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

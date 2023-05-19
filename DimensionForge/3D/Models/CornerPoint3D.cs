@@ -16,8 +16,7 @@ namespace DimensionForge._3D.Models
 {
     public partial class CornerPoint3D : Shape3D
     {
-        [ObservableProperty]
-        Node3D linkedNode;
+      
 
         public float Radius { get; set; } = 0.05f;
 
@@ -29,16 +28,11 @@ namespace DimensionForge._3D.Models
         public override void Draw()
         {
             MeshBuilder meshbuilder = new MeshBuilder();
-           
-            
-            meshbuilder.AddSphere(linkedNode.Position, Radius, 10, 10);
-
-            //var mesh = meshbuilder.ToMesh();
+            meshbuilder.AddSphere(LinkedNode.Position, Radius, 10, 10);
             Material = SetMaterial();
-
             Geometry = meshbuilder.ToMesh() ;
-    
-           // var edgeLengths =   GetEdgeLengths(mesh);
+
+        
         }
 
 

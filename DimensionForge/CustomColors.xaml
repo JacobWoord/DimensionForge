@@ -2,8 +2,10 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
 
-    <SolidColorBrush x:Key="PrimaryHueMidBrush" Color="#0f8ed0" />
-    <SolidColorBrush x:Key="SecondaryHueMidBrush" Color="#FF789ABC" />
+    <SolidColorBrush x:Key="PrimaryHueMidBrush" Color="#14a9f7" />
+    <SolidColorBrush x:Key="SecondaryHueMidBrush" Color="#67d667" />
+    <SolidColorBrush x:Key="SecondaryHueOrangeBrush" Color="#f7a000" />
+ 
     <!-- Other color customizations -->
 
 </ResourceDictionary>

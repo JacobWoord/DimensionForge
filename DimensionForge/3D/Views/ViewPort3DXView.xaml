@@ -9,6 +9,7 @@
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:local="clr-namespace:DimensionForge._3D.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mdi="http://materialdesignicons.com"
     xmlns:tb="clr-namespace:DimensionForge._3D.Views.ToolbarViews"
     xmlns:viewmodels3D="clr-namespace:DimensionForge._3D.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels3D:Canvas3DViewModel}"
@@ -25,13 +26,14 @@
             <tb:TransformationsView />
         </DataTemplate>
 
+        <DataTemplate DataType="{x:Type viewmodels3D:MoveControlsViewModel}">
+            <tb:MoveControlsView />
+        </DataTemplate>
+
         <DataTemplate DataType="{x:Type viewmodels3D:ItemsListViewModel}">
             <tb:VerletView />
         </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewmodels3D:Edit3DObjectsViewModel}">
-            <tb:Edit3DObjectsView />
-        </DataTemplate>
 
         <DataTemplate DataType="{x:Type viewmodels3D:FloorTexturesViewModel}">
             <tb:FloorTexturesView />
@@ -67,6 +69,8 @@
                 <KeyBinding Key="D" Command="helix:ViewportCommands.BottomView" />
                 <KeyBinding Key="L" Command="helix:ViewportCommands.LeftView" />
                 <KeyBinding Key="R" Command="helix:ViewportCommands.RightView" />
+                
+                <KeyBinding Key="R" Command="helix:ViewportCommands.RightView" />
                 <KeyBinding Command="helix:ViewportCommands.ZoomExtents" Gesture="Control+E" />
                 <MouseBinding Command="helix:ViewportCommands.Rotate" Gesture="RightClick" />
                 <MouseBinding Command="helix:ViewportCommands.Zoom" Gesture="MiddleClick" />
@@ -89,18 +93,22 @@
                             Geometry="{Binding Geometry}"
                             Material="{Binding Material}"
                             RenderWireframe="false"
-                            Transform="{Binding Transform}"
-                            
-                           />
-
+                            Transform="{Binding Transform}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <i:InvokeCommandAction Command="{Binding ReloadCommand}"/>
+                                </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                        </helix:MeshGeometryModel3D>
                     </DataTemplate>
-
+                 
                 </helix:ItemsModel3D.ItemTemplate>
+                
             </helix:ItemsModel3D>
 
-            
 
-         
+
+
 
 
 
@@ -118,6 +126,7 @@
 
         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
             <Button
+                Background="{StaticResource SecondaryHueOrangeBrush}"
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
@@ -125,24 +134,42 @@
                 Pause itteration
             </Button>
 
+
+
             <Button
+                
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Command="{Binding UpdateVerletCommand}">
-                Run Verlet
+                Background="{StaticResource SecondaryHueMidBrush}"
+                Command="{Binding UpdateVerletCommand}"
+                FontWeight="Light"
+                Foreground="{StaticResource PrimaryHueMidBrush}">
+              
+                <StackPanel Orientation="Horizontal">
+                    <Path
+                        Width="20"
+                        Height="20"
+                        Data="M8,5.14V19.14L19,12.14L8,5.14Z"
+                        Fill="{StaticResource PrimaryHueMidBrush}" />
+                    <TextBlock
+                        Margin="8,0,-3,0"
+                        VerticalAlignment="Center"
+                        Text="Run Verlet" />
+                </StackPanel>
             </Button>
+
 
             <Button
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                 Command="{Binding ReloadCommand}"
-                CommandParameter="1">
+                CommandParameter="4">
                 redraw view
             </Button>
 
-        
+
 
 
 
@@ -174,7 +201,8 @@
             <TextBlock
                 Margin="15,5,0,0"
                 FontSize="18"
-                FontWeight="SemiBold"
+                FontWeight="Light"
+                Foreground="{StaticResource PrimaryHueMidBrush}"
                 Text="Select toolpanel" />
             <tb:ToolbarControl />
         </StackPanel>
@@ -191,8 +219,16 @@
 
 
         <StackPanel>
-            <Image Source="C:\Users\jacob\source\repos\DimensionForge\Png\rapid_logo_resized.png" Width="300" Height="auto"/>
-            <!-- Other controls and elements in the StackPanel -->
+            <Image
+                Width="150"
+                Height="auto"
+                Margin="0,150,0,0"
+                Source="C:\Users\jacob\source\repos\DimensionForge\Png\rapid_logo_resized.png">
+                <Image.RenderTransform>
+                    <RotateTransform Angle="270" />
+                </Image.RenderTransform>
+            </Image>
+            <!--  Other controls and elements in the StackPanel  -->
         </StackPanel>
 
 

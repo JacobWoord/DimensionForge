@@ -34,6 +34,13 @@ namespace DimensionForge._3D.Behaviors
 
         private void OnMouseDown(object sender, MouseButtonEventArgs e)
         {
+
+            // If the event has already been handled, don't handle it again
+            if (e.Handled)
+            {
+                return;
+            }
+
             var point = e.GetPosition(AssociatedObject);
             var hits = AssociatedObject.FindHits(point);
 
@@ -41,33 +48,31 @@ namespace DimensionForge._3D.Behaviors
             {
                 if (hit.ModelHit is MeshGeometryModel3D m)
                 {
+                  
                     var meshObject = m;
-                    if (m.DataContext is IShape3D c)
+                    if (m.DataContext is Shape3D c)
                     {
-                        var cyl = c;
-                        Command.Execute(cyl);
+                        var shape = c;
+                        Command.Execute(shape);
+
+                        // Mark the event as handled to prevent it from bubbling further
+                        e.Handled = true;
+                        break;
                     }
                 }
-                else if (hit.ModelHit is BatchedMeshGeometryModel3D b)
-                {
-                    var batchObject = b;
-                    if (b.DataContext is IShape3D c)
-                    {
-                        var obj = c;
-                        Command.Execute(obj);
-                    }
-
-                }
-
-
-
-
-
-
-
 
             }
         }
+               
+
+                
+
+
+
+
+
+
+
     }
 
 }

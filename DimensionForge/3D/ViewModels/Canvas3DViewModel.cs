@@ -22,6 +22,8 @@ using HelixToolkit.Wpf;
 using SharpDX.Direct3D9;
 using Assimp;
 using System.IO;
+using HelixToolkit.SharpDX.Core.Model.Scene;
+using MaterialDesignColors.Recommended;
 
 namespace DimensionForge._3D.ViewModels
 {
@@ -46,6 +48,21 @@ namespace DimensionForge._3D.ViewModels
         [ObservableProperty]
         ObservableObject selectedToolPanel;
 
+        [ObservableProperty]
+        Shape3D selectedModel;
+
+        partial void OnSelectedModelChanged(Shape3D value)
+        {
+            if (value is CornerPoint3D S)
+            {
+                SelectedToolPanel = new MoveControlsViewModel();
+            }
+            else
+            {
+                SelectedToolPanel = null;
+            }
+        }
+
         public VerletBuildResult buildResult { get; set; }
 
         public Canvas3DViewModel()
@@ -65,20 +82,22 @@ namespace DimensionForge._3D.ViewModels
             Camera.CreateViewMatrix();
         }
 
+
+     
         private void InitBuildResult()
         {
 
             ImportDoorModel("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj");
-            ImportDoorModel("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj");
-            ImportDoorModel("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj");
-            ImportDoorModel("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\CLUMP.obj");
-            ImportDoorModel("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\TUIG.obj");
-           
-
             var model = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
-            // var boundingelements = model.GetBoundingElements();
-            // boundingelements.ForEach(x => shapes.Add(x));
             buildResult = new VerletBuildResult();
+
+            var s = new CornerPoint3D() { LinkedNode = new Node3D(Vector3.Zero), Color = Color.Yellow , Radius = 0.01f};
+            Shapes.Add(s);
+
+
+
+            var node = new CornerPoint3D() { LinkedNode = model.ConnectionNodes.FirstOrDefault(), Color = Color.Green, Radius = 0.01f };
+            Shapes.Add(node);
 
         }
 
@@ -87,9 +106,56 @@ namespace DimensionForge._3D.ViewModels
             var model = new ObjModel3D(await ObjHelperClass.ImportAsMeshGeometry3D(filepath));
             model.Name = Path.GetFileNameWithoutExtension(filepath);
 
+            model.ConnectionNodes.ForEach(x => Shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = Color.Green, Radius = 0.01f}));
             shapes.Add(model);
-            ObjHelperClass.RotateGeometry(model, Vector3.UnitY, 60);
-            ObjHelperClass.UpdatePosition(model, new Vector3(0, 0, 100));
+            //ObjHelperClass.RotateGeometry(model, Vector3.UnitY, 60);
+          
+        }
+
+
+        private void MeshExperiment()
+        {
+            var sphere = new CornerPoint3D() { LinkedNode = new Node3D(new Vector3(0,0,100)), Radius = 50 };
+            (sphere as Shape3D).Draw();
+
+
+            var elements = sphere.GetVerletElementsThreshold(sphere.Geometry as MeshGeometry3D);
+
+            buildResult = new VerletBuildResult();
+            elements.ForEach(x => buildResult.Elements.Add(x));
+            buildResult.AddNodesToList();
+
+
+            foreach (var element in buildResult.Elements) 
+            {
+                Shapes.Add(new Cylinder3D()
+                {
+                    Start = element.Start,
+                    End = element.End,
+                    Color = Color.Green,
+                    Radius = 1
+                });
+            }
+
+
+            foreach (var element in buildResult.Nodes)
+            {
+                Shapes.Add(new CornerPoint3D()
+                {
+                    LinkedNode = element,
+                    Color = Color.Black,
+                    Radius = 1
+                });
+            }
+
+            Draw();
+
+
+
+
+            
+            
+            
         }
 
 
@@ -139,9 +205,6 @@ namespace DimensionForge._3D.ViewModels
 
                     }
 
-
-
-
                     await uiDispatcher.InvokeAsync(() =>
                    {
                        Draw();
@@ -152,7 +215,7 @@ namespace DimensionForge._3D.ViewModels
                     var elapsed = (int)stopWatch.ElapsedMilliseconds;
                     Debug.WriteLine(elapsed);
                     int delay = Math.Max(0, duration - elapsed);
-                    await Task.Delay(delay);
+                    await Task.Delay(300);
                 }
             });
         }
@@ -278,9 +341,7 @@ namespace DimensionForge._3D.ViewModels
                 case "verlet":
                     SelectedToolPanel = Ioc.Default.GetService<ItemsListViewModel>();
                     break;
-                case "3D":
-                    SelectedToolPanel = Ioc.Default.GetService<Edit3DObjectsViewModel>();
-                    break;
+              
                 case "FloorTextures":
                     SelectedToolPanel = Ioc.Default.GetService<FloorTexturesViewModel>();
                     break;
@@ -306,27 +367,35 @@ namespace DimensionForge._3D.ViewModels
 
         [RelayCommand]
         [property: JsonIgnore]
-        public void ObjectedClicked(IShape3D shape)
+        public void ObjectedClicked(Shape3D shape)
         {
-
-
+            shape.Color = Color.Green;
+            shape.Select();
+            if (shape.IsSelected)
+            {
+                SelectedModel = shape;
+            }
+            else
+            {
+                SelectedModel = null;
+            }
+           
         }
 
         [RelayCommand]
-        public async Task Reload(string floorNumber = "1")
+        public async Task Reload(string floorNumber = "4")
         {
             continueVerlet = false;
             shapes.Clear();
-            CreateFloor(floorNumber);
-            //await Import("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj");
-            //InitBuildResult();
+           CreateFloor(floorNumber);
+            
             InitBuildResult();
 
         }
 
 
-
-        void CreateFloor(string num = "1")
+        
+        void CreateFloor(string num = "4")
         {
             var floor = new Floor3D(num);
             floor.Draw();
@@ -339,7 +408,7 @@ namespace DimensionForge._3D.ViewModels
             Shapes.Clear();
             MyViewPort = viewport;
             CreateFloor();
-
+         
 
             InitBuildResult();
 
@@ -355,9 +424,9 @@ namespace DimensionForge._3D.ViewModels
             var model = shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
 
             var rect3d = new Rect3D(ObjHelperClass.GetCentroid(model.BoundingPositions).ToPoint3D(), new Size3D(model.Width + offset, model.Height + offset, model.Depth + offset));
-
             MyViewPort.ZoomExtents(rect3d, 500);
             MyViewPort.Reset();
+
         }
 
 
