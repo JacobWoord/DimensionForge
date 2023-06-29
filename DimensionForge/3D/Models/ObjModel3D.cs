@@ -59,9 +59,9 @@ namespace DimensionForge._3D.Models
 
 
             //Creates Temporary nodes and bring them to the origin
-            var temporaryModelBoundings = new List<Node3D>();
-            model.BoundingPositions.ForEach(x => temporaryModelBoundings.Add(new Node3D(new Vector3(x.Position.X, x.Position.Y, x.Position.Z)) { CornerName = x.CornerName }));
-            ObjHelperClass.UpdateTemporaryNodes(model, buildResult.GetCenter(CornerName.ModelCenter, this.Id).Position, temporaryModelBoundings);
+            var temporaryNodes = new List<Node3D>();
+            model.BoundingPositions.ForEach(x => temporaryNodes.Add(new Node3D(new Vector3(x.Position.X, x.Position.Y, x.Position.Z)) { CornerName = x.CornerName }));
+            ObjHelperClass.UpdateTemporaryNodes(model, buildResult.GetCenter(CornerName.ModelCenter, this.Id).Position, temporaryNodes);
 
             var rotationList = new List<CornerName>();
             rotationList.Add(CornerName.LeftPlaneCenter);
@@ -72,8 +72,7 @@ namespace DimensionForge._3D.Models
 
             foreach (var cornerName in rotationList)
             {
-
-                var axis1 = temporaryModelBoundings.FirstOrDefault(x => x.CornerName == cornerName).Position;
+                var axis1 = temporaryNodes.FirstOrDefault(x => x.CornerName == cornerName).Position;
                 axis1.Normalize();
 
                 var axis2 = buildResult.GetCenter(cornerName, this.Id).Position;
@@ -104,9 +103,9 @@ namespace DimensionForge._3D.Models
                     {
                         model.ConnectionNodes[i].Position = Vector3.Transform(model.ConnectionNodes[i].Position, rotationQuaternion);
                     }
-                    for (int i = 0; i < temporaryModelBoundings.Count; i++)
+                    for (int i = 0; i < temporaryNodes.Count; i++)
                     {
-                        temporaryModelBoundings[i].Position = Vector3.Transform(temporaryModelBoundings[i].Position, rotationQuaternion);
+                        temporaryNodes[i].Position = Vector3.Transform(temporaryNodes[i].Position, rotationQuaternion);
                     }
 
                 }

@@ -86,9 +86,7 @@ namespace DimensionForge._3D.ViewModels
                     case "Y":
                     SelectedAxis = "Y";
                     break;
-
-            }
-                
+            }               
         }
                 
 
@@ -96,26 +94,26 @@ namespace DimensionForge._3D.ViewModels
         [RelayCommand]
         public void MoveValueUp()
         {
-            if (SelectedAxis is not null)
-            {
+            //if (SelectedAxis is not null)
+            //{
 
-                var m = _canvas.SelectedModel;
+             
 
-                switch (SelectedAxis)
-                {
-                    case "X":
-                        m.LinkedNode.Position.X += frequency;
-                        break;
-                        case "Y":
-                            m.LinkedNode.Position.Y += frequency;
-                        break;
-                        case "Z":
-                            m.LinkedNode.Position.Z += frequency;
-                        break;
-                }
-                ModelPosition = m.LinkedNode.Position;
-                _canvas.Draw();
-            }
+            //    switch (SelectedAxis)
+            //    {
+            //        case "X":
+            //            m.LinkedNode.Position.X += frequency;
+            //            break;
+            //            case "Y":
+            //                m.LinkedNode.Position.Y += frequency;
+            //            break;
+            //            case "Z":
+            //                m.LinkedNode.Position.Z += frequency;
+            //            break;
+            //    }
+            //    ModelPosition = m.LinkedNode.Position;
+            //    _canvas.Draw();
+            //}
         }
                    
 

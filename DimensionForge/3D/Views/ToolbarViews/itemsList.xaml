@@ -22,24 +22,17 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-
                 <StackPanel Height="400" Width="200" Margin="5 0 5 0">
-
                     <TextBlock HorizontalAlignment="Center" FontSize="13" Margin="10" Text=" Objects in viewport" />
-
-                    <ItemsControl ItemsSource="{Binding ObjItems}"
-                                  >
+                    <ItemsControl ItemsSource="{Binding ObjItems}"                                 >
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Button Background="Transparent" Foreground="{StaticResource PrimaryHueMidBrush}"  Content="{Binding Name}" Margin="5" Command="{Binding SelectCommand}" CommandParameter="{Binding}"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-
                 </StackPanel>
-
                 <Button Grid.Row="1" Content="Close" Command="{Binding CloseWindowCommand}"/>
-
             </Grid>
         </Border>
 

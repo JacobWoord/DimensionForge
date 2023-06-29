@@ -11,6 +11,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mdi="http://materialdesignicons.com"
     xmlns:tb="clr-namespace:DimensionForge._3D.Views.ToolbarViews"
+
     xmlns:viewmodels3D="clr-namespace:DimensionForge._3D.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels3D:Canvas3DViewModel}"
     d:DesignHeight="450"
@@ -69,7 +70,7 @@
                 <KeyBinding Key="D" Command="helix:ViewportCommands.BottomView" />
                 <KeyBinding Key="L" Command="helix:ViewportCommands.LeftView" />
                 <KeyBinding Key="R" Command="helix:ViewportCommands.RightView" />
-                
+
                 <KeyBinding Key="R" Command="helix:ViewportCommands.RightView" />
                 <KeyBinding Command="helix:ViewportCommands.ZoomExtents" Gesture="Control+E" />
                 <MouseBinding Command="helix:ViewportCommands.Rotate" Gesture="RightClick" />
@@ -96,21 +97,15 @@
                             Transform="{Binding Transform}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseDown">
-                                    <i:InvokeCommandAction Command="{Binding ReloadCommand}"/>
+                                    <i:InvokeCommandAction Command="{Binding ReloadCommand}" />
                                 </i:EventTrigger>
-                                </i:Interaction.Triggers>
+                            </i:Interaction.Triggers>
                         </helix:MeshGeometryModel3D>
                     </DataTemplate>
-                 
+
                 </helix:ItemsModel3D.ItemTemplate>
-                
+
             </helix:ItemsModel3D>
-
-
-
-
-
-
 
             <helix:SpotLight3D
                 OuterAngle="45"
@@ -119,17 +114,18 @@
             <helix:AmbientLight3D Color="White" />
             <helix:DirectionalLight3D Direction="0,1,-1" Color="White" />
 
-
-
-
         </helix:Viewport3DX>
+
+
+
+
 
         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
             <Button
-                Background="{StaticResource SecondaryHueOrangeBrush}"
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
+                Background="{StaticResource SecondaryHueOrangeBrush}"
                 Command="{Binding MoveToNextIterationCommand}">
                 Pause itteration
             </Button>
@@ -137,7 +133,6 @@
 
 
             <Button
-                
                 Margin="10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
@@ -145,7 +140,7 @@
                 Command="{Binding UpdateVerletCommand}"
                 FontWeight="Light"
                 Foreground="{StaticResource PrimaryHueMidBrush}">
-              
+
                 <StackPanel Orientation="Horizontal">
                     <Path
                         Width="20"
@@ -168,21 +163,6 @@
                 CommandParameter="4">
                 redraw view
             </Button>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         </StackPanel>

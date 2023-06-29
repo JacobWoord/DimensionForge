@@ -12,18 +12,12 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Media3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
-using DimensionForge.Common;
 using Quaternion = SharpDX.Quaternion;
 using MeshGeometry3D = HelixToolkit.SharpDX.Core.MeshGeometry3D;
 using DimensionForge.HelperTools;
-using System.Collections.Generic;
 using System.Diagnostics;
 using HelixToolkit.Wpf;
-using SharpDX.Direct3D9;
-using Assimp;
 using System.IO;
-using HelixToolkit.SharpDX.Core.Model.Scene;
-using MaterialDesignColors.Recommended;
 
 namespace DimensionForge._3D.ViewModels
 {
@@ -89,6 +83,9 @@ namespace DimensionForge._3D.ViewModels
 
             ImportDoorModel("C:\\Users\\jacob\\AppData\\Roaming\\Net Designer\\3DModels\\FISHINGBOARD_SB.obj");
             var model = Shapes.FirstOrDefault(x => x is ObjModel3D) as ObjModel3D;
+            ObjHelperClass.UpdatePosition(model, new Vector3(0, 0, 30));
+            
+           
             buildResult = new VerletBuildResult();
 
             var s = new CornerPoint3D() { LinkedNode = new Node3D(Vector3.Zero), Color = Color.Yellow , Radius = 0.01f};
@@ -101,15 +98,14 @@ namespace DimensionForge._3D.ViewModels
 
         }
 
-        private async void ImportDoorModel(string filepath)
+        private void  ImportDoorModel(string filepath)
         {
-            var model = new ObjModel3D(await ObjHelperClass.ImportAsMeshGeometry3D(filepath));
+            var model = new ObjModel3D( ObjHelperClass.ImportAsMeshGeometry3D(filepath));
             model.Name = Path.GetFileNameWithoutExtension(filepath);
 
             model.ConnectionNodes.ForEach(x => Shapes.Add(new CornerPoint3D() { LinkedNode = x, Color = Color.Green, Radius = 0.01f}));
             shapes.Add(model);
-            //ObjHelperClass.RotateGeometry(model, Vector3.UnitY, 60);
-          
+      
         }
 
 
@@ -148,30 +144,9 @@ namespace DimensionForge._3D.ViewModels
                 });
             }
 
-            Draw();
-
-
-
-
-            
-            
+            Draw();        
             
         }
-
-
-
-
-        public string GetLastWordFromPath(string path)
-        {
-            string fileName = Path.GetFileNameWithoutExtension(path);
-            string[] words = fileName.Split(' ');
-            string lastWord = words[words.Length - 1];
-            return lastWord;
-        }
-
-
-
-
 
 
         private bool continueVerlet = true;
@@ -201,8 +176,6 @@ namespace DimensionForge._3D.ViewModels
                             s.RotateModelOnCenters(buildResult);
                         }
 
-
-
                     }
 
                     await uiDispatcher.InvokeAsync(() =>
@@ -215,7 +188,7 @@ namespace DimensionForge._3D.ViewModels
                     var elapsed = (int)stopWatch.ElapsedMilliseconds;
                     Debug.WriteLine(elapsed);
                     int delay = Math.Max(0, duration - elapsed);
-                    await Task.Delay(300);
+                    await Task.Delay(100);
                 }
             });
         }
